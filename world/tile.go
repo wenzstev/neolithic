@@ -5,10 +5,17 @@ import (
 )
 
 type Tile struct {
-	Ground   Ground
-	CellSize int
+	Ground   *Ground
+	Resource *Resource
 }
 
 func (t *Tile) Draw(screen *ebiten.Image, transform *ebiten.GeoM) {
-	t.Ground.Draw(screen, transform)
+	op := &ebiten.DrawImageOptions{}
+	op.GeoM = *transform
+	screen.DrawImage(t.Ground.Image, op)
+	// TODO: once add resources, draw them here
+
+	if t.Resource != nil {
+		screen.DrawImage(t.Resource.Image, op)
+	}
 }

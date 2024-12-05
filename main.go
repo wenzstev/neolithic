@@ -1,16 +1,15 @@
 package main
 
 import (
-	"log"
-	"math"
-
 	"Neolithic/camera"
-	"Neolithic/grid"
+	"Neolithic/world"
 	"github.com/hajimehoshi/ebiten/v2"
+	"image/color"
+	"log"
 )
 
 type Game struct {
-	Grid     grid.Grid
+	World    *world.World
 	Camera   *camera.Camera
 	Viewport *camera.Viewport
 }
@@ -36,49 +35,15 @@ func (g *Game) Update() error {
 		g.Camera.ZoomAt(.95, float64(g.Viewport.Width), float64(g.Viewport.Height))
 	}
 
+	if ebiten.IsKeyPressed(ebiten.KeyT) {
+		g.World.Villagers[0].Move(1, 1)
+	}
+
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	transform := g.Viewport.GetTransform()
-
-	screenWidth, screenHeight := g.Viewport.Width, g.Viewport.Height
-	cellSize := float64(g.Grid.CellSize)
-
-	invZoom := 1.0 / g.Camera.Zoom
-
-	leftWorld := g.Camera.X
-	rightWorld := g.Camera.X + float64(screenWidth)*invZoom
-	topWorld := g.Camera.Y
-	bottomWorld := g.Camera.Y + float64(screenHeight)*invZoom
-
-	left := int(math.Floor(leftWorld / cellSize))
-	right := int(math.Ceil(rightWorld / cellSize))
-	top := int(math.Floor(topWorld / cellSize))
-	bottom := int(math.Ceil(bottomWorld / cellSize))
-
-	// Clamp indices to grid bounds
-	if left < 0 {
-		left = 0
-	}
-	if right > g.Grid.Width {
-		right = g.Grid.Width
-	}
-	if top < 0 {
-		top = 0
-	}
-	if bottom > g.Grid.Height {
-		bottom = g.Grid.Height
-	}
-
-	for y := top; y < bottom; y++ {
-		for x := left; x < right; x++ {
-			if x >= 0 && x < g.Grid.Width && y >= 0 && y < g.Grid.Height {
-				g.Grid.DrawCell(screen, x, y, &transform)
-			}
-		}
-	}
-
+	g.World.Draw(screen, g.Viewport, g.Camera)
 }
 
 func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
@@ -88,18 +53,28 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 func main() {
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
+	width, height := 32, 32
+	cellSize := 16
 
 	game := &Game{
-		Grid: grid.Grid{
-			Width:    32,
-			Height:   32,
-			CellSize: 16,
-		},
+		World:    world.New(width, height, cellSize),
 		Camera:   cam,
 		Viewport: vp,
 	}
 
-	game.Grid.Initialize()
+	villagerImg := ebiten.NewImage(8, 8)
+	villagerImg.Fill(color.RGBA{
+		R: 70,
+		G: 80,
+		B: 100,
+		A: 255,
+	})
+
+	game.World.Villagers = append(game.World.Villagers, &world.Villager{
+		X:     0,
+		Y:     1,
+		Image: villagerImg,
+	})
 
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")
