@@ -6,6 +6,8 @@ import (
 	"image/color"
 	"math/rand"
 	"os"
+
+	_ "image/png"
 )
 
 const (
@@ -30,10 +32,12 @@ func NewRGBGround(col color.RGBA, cellSize int) *Ground {
 
 // NewGrassGround creates a new ground sprite with a Grass texture
 func NewGrassGround() (*Ground, error) {
-	return NewSpriteGround([]string{grass1Path, grass2Path, grass3Path})
+	return NewVariedGround([]string{grass1Path, grass2Path, grass3Path})
 }
 
-func NewSpriteGround(paths []string) (*Ground, error) {
+// NewVariedGround creates a new ground sprite, taking in an array of paths to images and selecting one at random
+// to be the sprite's image. This allows one to pass in a number of similar sprites for terrain variation.
+func NewVariedGround(paths []string) (*Ground, error) {
 	images := make([]*ebiten.Image, len(paths))
 
 	for i, path := range paths {
@@ -52,6 +56,7 @@ func NewSpriteGround(paths []string) (*Ground, error) {
 	}, nil
 }
 
+// loadSprite loads a sprite from a file
 func loadSprite(filePath string) (*ebiten.Image, error) {
 	file, err := os.Open(filePath)
 	if err != nil {

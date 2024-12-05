@@ -1,15 +1,16 @@
 package world
 
 import (
-	"Neolithic/grid"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Villager represents a single person in the village.
 type Villager struct {
 	X, Y  int
 	Image *ebiten.Image
 }
 
+// Draw draws a villager on the screen, on the tile with the matching X Y coordinates
 func (v *Villager) Draw(screen *ebiten.Image, transform *ebiten.GeoM, cellSize int) {
 	size := v.Image.Bounds().Size().X // assuming villager is square
 
@@ -26,11 +27,13 @@ func (v *Villager) Draw(screen *ebiten.Image, transform *ebiten.GeoM, cellSize i
 	screen.DrawImage(v.Image, op)
 }
 
+// Move moves a Villager ot a different tile
 func (v *Villager) Move(dx, dy int) {
 	v.X += dx
 	v.Y += dy
 }
 
-func (v *Villager) GetTile(grid grid.Grid) grid.Tile {
+// GetTile returns the tile the villager is on
+func (v *Villager) GetTile(grid Grid) *Tile {
 	return grid.Tiles[v.X][v.Y]
 }

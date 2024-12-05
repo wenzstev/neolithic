@@ -8,20 +8,21 @@ import (
 )
 
 // Grid represents the map, divided into Width by Height tiles.
-type Grid struct {
+type Grid[T Tile] struct {
 	Width    int
 	Height   int
 	CellSize int
-	Tiles    [][]Tile
+	Tiles    [][]T
 }
 
+// Tile represents a single square in the Grid
 type Tile interface {
 	Draw(*ebiten.Image, *ebiten.GeoM)
 }
 
 // New creates a new instance of Grid
-func New(width, height, cellSize int) *Grid {
-	grid := &Grid{
+func New[T Tile](width, height, cellSize int) *Grid[T] {
+	grid := &Grid[T]{
 		Width:    width,
 		Height:   height,
 		CellSize: cellSize,
@@ -31,10 +32,10 @@ func New(width, height, cellSize int) *Grid {
 
 // Initialize initializes a new grid with necessary values. Takes in a function
 // for making a tile
-func (g *Grid) Initialize(MakeTile func() (Tile, error)) {
-	g.Tiles = make([][]Tile, g.Width)
+func (g *Grid[T]) Initialize(MakeTile func() (T, error)) {
+	g.Tiles = make([][]T, g.Width)
 	for i := 0; i < g.Width; i++ {
-		g.Tiles[i] = make([]Tile, g.Height)
+		g.Tiles[i] = make([]T, g.Height)
 		for j := 0; j < g.Height; j++ {
 			tile, err := MakeTile()
 			if err != nil {
@@ -49,7 +50,7 @@ func (g *Grid) Initialize(MakeTile func() (Tile, error)) {
 }
 
 // DrawCell draws a grid cell
-func (g *Grid) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.GeoM) {
+func (g *Grid[T]) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.GeoM) {
 	worldX := float64(x * g.CellSize)
 	worldY := float64(y * g.CellSize)
 
@@ -63,7 +64,7 @@ func (g *Grid) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.GeoM) 
 }
 
 // Draw draws the Grid, based on the viewport and camera location
-func (g *Grid) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *camera.Camera) {
+func (g *Grid[T]) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *camera.Camera) {
 	transform := viewport.GetTransform()
 
 	screenWidth, screenHeight := viewport.Width, viewport.Height

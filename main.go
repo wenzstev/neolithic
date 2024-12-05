@@ -76,6 +76,18 @@ func main() {
 		Image: villagerImg,
 	})
 
+	resourceImg := ebiten.NewImage(8, 8)
+	resourceImg.Fill(color.RGBA{
+		R: 200,
+		G: 80,
+		B: 50,
+		A: 255,
+	})
+
+	game.World.Grid.Tiles[5][5].Resource = &world.Resource{
+		Image: resourceImg,
+	}
+
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")
 	if err := ebiten.RunGame(game); err != nil {
