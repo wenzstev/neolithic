@@ -6,22 +6,28 @@ import (
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
+// Grid aliases to grid.Grid[*Tile]
+type Grid = grid.Grid[*Tile]
+
+// World represents the game world
 type World struct {
 	Villagers []*Villager
-	Grid      *grid.Grid
+	Grid      *Grid
 }
 
+// New creates a new instance of World
 func New(width, height, cellSize int) *World {
 	world := &World{
 		Villagers: make([]*Villager, 0),
-		Grid:      grid.New(width, height, cellSize),
+		Grid:      grid.New[*Tile](width, height, cellSize),
 	}
 
 	world.Grid.Initialize(makeTile)
 	return world
 }
 
-func makeTile() (grid.Tile, error) {
+// makeTile returns a new Grass tile to populate the world grid
+func makeTile() (*Tile, error) {
 	ground, err := NewGrassGround()
 	if err != nil {
 		return nil, err
@@ -32,6 +38,7 @@ func makeTile() (grid.Tile, error) {
 	}, nil
 }
 
+// Draw draws the world
 func (w *World) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *camera.Camera) {
 	w.Grid.Draw(screen, viewport, camera)
 
