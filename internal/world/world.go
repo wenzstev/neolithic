@@ -1,25 +1,22 @@
 package world
 
 import (
-	"Neolithic/camera"
-	"Neolithic/grid"
+	"Neolithic/internal/camera"
+	"Neolithic/internal/grid"
 	"github.com/hajimehoshi/ebiten/v2"
 )
-
-// Grid aliases to grid.Grid[*Tile]
-type Grid = grid.Grid[*Tile]
 
 // World represents the game world
 type World struct {
 	Villagers []*Villager
-	Grid      *Grid
+	Grid      *grid.Grid
 }
 
 // New creates a new instance of World
 func New(width, height, cellSize int) *World {
 	world := &World{
 		Villagers: make([]*Villager, 0),
-		Grid:      grid.New[*Tile](width, height, cellSize),
+		Grid:      grid.New(width, height, cellSize),
 	}
 
 	world.Grid.Initialize(makeTile)
@@ -27,7 +24,7 @@ func New(width, height, cellSize int) *World {
 }
 
 // makeTile returns a new Grass tile to populate the world grid
-func makeTile() (*Tile, error) {
+func makeTile() (grid.Tile, error) {
 	ground, err := NewGrassGround()
 	if err != nil {
 		return nil, err

@@ -1,6 +1,8 @@
 package world
 
 import (
+	"Neolithic/internal/grid"
+	"errors"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -34,6 +36,11 @@ func (v *Villager) Move(dx, dy int) {
 }
 
 // GetTile returns the tile the villager is on
-func (v *Villager) GetTile(grid Grid) *Tile {
-	return grid.Tiles[v.X][v.Y]
+func (v *Villager) GetTile(grid grid.Grid) (*Tile, error) {
+	gridTile := grid.Tiles[v.Y][v.X]
+	worldTile, ok := gridTile.(*Tile)
+	if !ok {
+		return nil, errors.New("grid tile is not a world tile")
+	}
+	return worldTile, nil
 }

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"Neolithic/camera"
-	"Neolithic/world"
+	"Neolithic/internal/camera"
+	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
 	"image/color"
 	"log"
@@ -85,7 +85,13 @@ func main() {
 		A: 255,
 	})
 
-	game.World.Grid.Tiles[5][5].Resource = &world.Resource{
+	tile := game.World.Grid.Tiles[5][5]
+	worldTile, ok := tile.(*world.Tile)
+	if !ok {
+		log.Fatal("Tile is not a Tile")
+	}
+
+	worldTile.Resource = &world.Resource{
 		Image: resourceImg,
 	}
 
