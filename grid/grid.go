@@ -39,7 +39,7 @@ func (g *Grid[T]) Initialize(MakeTile func() (T, error)) {
 		for j := 0; j < g.Height; j++ {
 			tile, err := MakeTile()
 			if err != nil {
-				fmt.Printf(err.Error())
+				fmt.Printf("%s", err.Error())
 				continue
 			}
 
