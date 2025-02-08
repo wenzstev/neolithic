@@ -2,9 +2,10 @@ package main
 
 import (
 	"Neolithic/camera"
-	"Neolithic/planner"
 	"Neolithic/world"
 	"github.com/hajimehoshi/ebiten/v2"
+	"image/color"
+	"log"
 )
 
 type Game struct {
@@ -50,51 +51,47 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 }
 
 func main() {
-	/*
-		cam := camera.NewCamera()
-		vp := camera.NewViewport(cam, 800, 600)
-		width, height := 32, 32
-		cellSize := 16
 
-		game := &Game{
-			World:    world.New(width, height, cellSize),
-			Camera:   cam,
-			Viewport: vp,
-		}
+	cam := camera.NewCamera()
+	vp := camera.NewViewport(cam, 800, 600)
+	width, height := 32, 32
+	cellSize := 16
 
-		villagerImg := ebiten.NewImage(8, 8)
-		villagerImg.Fill(color.RGBA{
-			R: 70,
-			G: 80,
-			B: 100,
-			A: 255,
-		})
+	game := &Game{
+		World:    world.New(width, height, cellSize),
+		Camera:   cam,
+		Viewport: vp,
+	}
 
-		game.World.Villagers = append(game.World.Villagers, &world.Villager{
-			X:     0,
-			Y:     1,
-			Image: villagerImg,
-		})
+	villagerImg := ebiten.NewImage(8, 8)
+	villagerImg.Fill(color.RGBA{
+		R: 70,
+		G: 80,
+		B: 100,
+		A: 255,
+	})
 
-		resourceImg := ebiten.NewImage(8, 8)
-		resourceImg.Fill(color.RGBA{
-			R: 200,
-			G: 80,
-			B: 50,
-			A: 255,
-		})
+	game.World.Villagers = append(game.World.Villagers, &world.Villager{
+		X:     0,
+		Y:     1,
+		Image: villagerImg,
+	})
 
-		game.World.Grid.Tiles[5][5].Resource = &world.Resource{
-			Image: resourceImg,
-		}
+	resourceImg := ebiten.NewImage(8, 8)
+	resourceImg.Fill(color.RGBA{
+		R: 200,
+		G: 80,
+		B: 50,
+		A: 255,
+	})
 
-		ebiten.SetWindowSize(800, 600)
-		ebiten.SetWindowTitle("Hello, World!")
-		if err := ebiten.RunGame(game); err != nil {
-			log.Fatal(err)
-		}
-	*/
+	game.World.Grid.Tiles[5][5].Resource = &world.Resource{
+		Image: resourceImg,
+	}
 
-	planner.TestAi()
-
+	ebiten.SetWindowSize(800, 600)
+	ebiten.SetWindowTitle("Hello, World!")
+	if err := ebiten.RunGame(game); err != nil {
+		log.Fatal(err)
+	}
 }
