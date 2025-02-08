@@ -51,6 +51,7 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 }
 
 func main() {
+
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
 	width, height := 32, 32
