@@ -1,18 +1,18 @@
 package grid
 
 import (
-	"Neolithic/camera"
+	"Neolithic/internal/camera"
 	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"math"
 )
 
 // Grid represents the map, divided into Width by Height tiles.
-type Grid[T Tile] struct {
+type Grid struct {
 	Width    int
 	Height   int
 	CellSize int
-	Tiles    [][]T
+	Tiles    [][]Tile
 }
 
 // Tile represents a single square in the Grid
@@ -21,8 +21,8 @@ type Tile interface {
 }
 
 // New creates a new instance of Grid
-func New[T Tile](width, height, cellSize int) *Grid[T] {
-	grid := &Grid[T]{
+func New(width, height, cellSize int) *Grid {
+	grid := &Grid{
 		Width:    width,
 		Height:   height,
 		CellSize: cellSize,
@@ -32,10 +32,10 @@ func New[T Tile](width, height, cellSize int) *Grid[T] {
 
 // Initialize initializes a new grid with necessary values. Takes in a function
 // for making a tile
-func (g *Grid[T]) Initialize(MakeTile func() (T, error)) {
-	g.Tiles = make([][]T, g.Width)
+func (g *Grid) Initialize(MakeTile func() (Tile, error)) {
+	g.Tiles = make([][]Tile, g.Width)
 	for i := 0; i < g.Width; i++ {
-		g.Tiles[i] = make([]T, g.Height)
+		g.Tiles[i] = make([]Tile, g.Height)
 		for j := 0; j < g.Height; j++ {
 			tile, err := MakeTile()
 			if err != nil {
@@ -50,7 +50,7 @@ func (g *Grid[T]) Initialize(MakeTile func() (T, error)) {
 }
 
 // DrawCell draws a grid cell
-func (g *Grid[T]) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.GeoM) {
+func (g *Grid) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.GeoM) {
 	worldX := float64(x * g.CellSize)
 	worldY := float64(y * g.CellSize)
 
@@ -64,7 +64,7 @@ func (g *Grid[T]) drawCell(screen *ebiten.Image, x, y int, transform *ebiten.Geo
 }
 
 // Draw draws the Grid, based on the viewport and camera location
-func (g *Grid[T]) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *camera.Camera) {
+func (g *Grid) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *camera.Camera) {
 	transform := viewport.GetTransform()
 
 	screenWidth, screenHeight := viewport.Width, viewport.Height
