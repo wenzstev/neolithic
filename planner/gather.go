@@ -4,12 +4,20 @@ import "fmt"
 
 // Gather implements Action, and represents the act of gathering a resource
 type Gather struct {
+	// requires is an optional resource that is required to perform the gather
 	requires *Resource
+	// resource is the Resource being gathered
 	resource *Resource
-	amount   int
+	// amount is the amount of the resource being gathered
+	amount int
+	// location is the Location where the resource is being gathered
 	location *Location
-	cost     float64
+	// cost is the cost of taking the action
+	cost float64
 }
+
+// Force Gather to implement Action
+var _ Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a resource
 func (g *Gather) Perform(start *State, agent *Agent) *State {

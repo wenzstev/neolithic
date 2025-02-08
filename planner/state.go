@@ -9,8 +9,10 @@ import (
 
 // State represents the state of the world
 type State struct {
+	// Locations is a map of all Location in the world and their inventories
 	Locations map[*Location]Inventory
-	Agents    map[*Agent]Inventory
+	// Agents is a map of all Agent in the world and their inventory
+	Agents map[*Agent]Inventory
 }
 
 // Copy performs a deep copy of the state
@@ -31,6 +33,7 @@ func (s *State) Copy() *State {
 	return end
 }
 
+// String returns a string representation of the State
 func (s *State) String() string {
 	if s == nil {
 		return "<nil>"
@@ -51,6 +54,7 @@ func (s *State) String() string {
 	return output
 }
 
+// ID returns a unique ID hash of the State
 func (s *State) ID() (string, error) {
 	var buf bytes.Buffer
 	enc := gob.NewEncoder(&buf)

@@ -4,9 +4,14 @@ import "fmt"
 
 // Deposit implements Action, and represents the act of depositing a resource at a location
 type Deposit struct {
+	// resource is the Resource being deposited
 	resource *Resource
-	amount   int
+	// amount is the amount of resource being deposited
+	amount int
+	// location is the Location the resource is being deposited
 	location *Location
+	// cost is the cost of taking the action
+	cost float64
 }
 
 // Force Deposit to implement Action
@@ -53,7 +58,7 @@ func (d *Deposit) Perform(start *State, agent *Agent) *State {
 
 // Cost implements Action.Cost, and returns the energy cost of depositing the resource.
 func (d *Deposit) Cost(_ *Agent) float64 {
-	return float64(1) // TODO: more dynamic cost
+	return d.cost // TODO: more dynamic cost
 }
 
 // Description implements Action.Description, and returns a string representation of the action.

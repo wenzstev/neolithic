@@ -9,6 +9,7 @@ var testDeposit = &Deposit{
 	resource: testResource,
 	amount:   10,
 	location: testLocation,
+	cost:     1.0,
 }
 
 func TestDeposit_Perform(t *testing.T) {

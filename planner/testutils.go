@@ -14,7 +14,10 @@ var (
 	}
 )
 
+// mockAction implements Action and is used for testing.
 type mockAction struct{}
+
+var _ Action = (*mockAction)(nil)
 
 func (m *mockAction) Perform(state *State, _ *Agent) *State {
 	endState := state.Copy()
@@ -35,9 +38,12 @@ func (m *mockAction) Description() string {
 	return "a mock action"
 }
 
+// mockNullAction implements Action and is used for testing. It always returns a null state.
 type mockNullAction struct{}
 
-func (m *mockNullAction) Perform(state *State, _ *Agent) *State {
+var _ Action = (*mockNullAction)(nil)
+
+func (m *mockNullAction) Perform(_ *State, _ *Agent) *State {
 	return nil
 }
 

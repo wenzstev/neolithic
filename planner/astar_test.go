@@ -28,12 +28,14 @@ func TestActions_AStar(t *testing.T) {
 		resource: testResource,
 		amount:   10,
 		location: testLocation,
+		cost:     1.0,
 	}
 
 	depositTest2 := &Deposit{
 		resource: testResource,
 		amount:   10,
 		location: testLocation2,
+		cost:     1.0,
 	}
 
 	startState := &State{
