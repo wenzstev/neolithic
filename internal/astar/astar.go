@@ -3,12 +3,46 @@ package astar
 import (
 	"container/heap"
 	"errors"
-	"fmt"
 	"math"
 )
 
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
 var ErrNoPath = errors.New("no path found to goal state")
+
+// SearchState represents a single AStar search
+type SearchState struct {
+	// Start is where the AStar search will begin
+	Start Node
+	// Goal is where the search is trying to go
+	Goal Node
+	// BestCost is the current best cost found
+	BestCost float64
+	// Iterations is the number of times the AStar algorithm has run through its main looop
+	Iterations int
+	// FoundBest indicates if the algorithm has found the optimal path to the end.
+	FoundBest bool
+	// openSet is a heap used to store all open nodes
+	openSet *PriorityQueue
+	// openSetMap is a map also used to store open nodes
+	openSetMap map[string]*searchNode
+	// closedSet is a map used to store all visited nodes
+	closedSet map[string]bool
+	// bestSolution is the head node of the current best solution. Not meant to be accessed directly,
+	// instead use CurrentBestPath
+	bestSolution *searchNode
+}
+
+// Node represents an intermediate state in the algorithm. It's expected to be different for each implementation
+type Node interface {
+	// Heuristic is the function that estimates the distance from the node to the goal node.
+	Heuristic(goal Node) (float64, error)
+	// ID returns a unique string identifier for the node.
+	ID() (string, error)
+	// Cost returns the cost to get from prev Node to this Node.
+	Cost(prev Node) float64
+	// GetSuccessors returns a slice of all Node this node is connected to.
+	GetSuccessors() ([]Node, error)
+}
 
 // searchNode is the internal node struct used by Run to track its progress.
 type searchNode struct {
@@ -24,33 +58,9 @@ type searchNode struct {
 	index int
 }
 
-// Node represents an intermediate state in the algorithm. It's expected to be different for each implementation
-type Node interface {
-	// Heuristic is the function that estimates the distance from the node to the goal node.
-	Heuristic(goal Node) (float64, error)
-	// ID returns a unique string identifier for the node.
-	ID() (string, error)
-	// Cost returns the cost to get from prev Node to this Node.
-	Cost(prev Node) float64
-	// GetSuccessors returns a slice of all Node this node is connected to.
-	GetSuccessors() ([]Node, error)
-}
-
+// fCost calculates the sum of the gCost and the hCost for the searchNode.
 func (n *searchNode) fCost() float64 {
 	return n.gCost + n.hCost
-}
-
-// SearchState represents a single AStar search
-type SearchState struct {
-	Start        Node
-	Goal         Node
-	BestCost     float64
-	Iterations   int
-	FoundBest    bool
-	openSet      *PriorityQueue
-	openSetMap   map[string]*searchNode
-	closedSet    map[string]bool
-	bestSolution *searchNode
 }
 
 // NewSearch initializes a new SearchState with a start and finish Node
@@ -138,7 +148,6 @@ func (s *SearchState) RunIterations(numIterations int) error {
 		}
 
 		for _, successor := range successors {
-			fmt.Println("checking successor")
 			sucId, err := successor.ID()
 			if err != nil {
 				return err

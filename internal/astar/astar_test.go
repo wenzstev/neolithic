@@ -2,9 +2,10 @@ package astar
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"math"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 // testError is used to test various error states in the search
