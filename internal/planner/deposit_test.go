@@ -45,7 +45,7 @@ func TestDeposit_Perform(t *testing.T) {
 				},
 			},
 		},
-		"deposit fails, nothing in agent inventory": {
+		"deposit fails, nothing in Agent inventory": {
 			testDeposit: testDeposit,
 			startState: &State{
 				Locations: map[*Location]Inventory{

@@ -151,7 +151,7 @@ func TestGather_Perform(t *testing.T) {
 				},
 			},
 		},
-		"gather fails, agent not in state": {
+		"gather fails, Agent not in state": {
 			testGather: testGather,
 			testAgent:  testAgent,
 			startState: &State{

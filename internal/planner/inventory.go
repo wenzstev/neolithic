@@ -2,7 +2,7 @@ package planner
 
 import "fmt"
 
-// Inventory represents the amount of resources that an agent or location has
+// Inventory represents the amount of resources that an Agent or location has
 type Inventory map[*Resource]int
 
 // Copy copies an inventory

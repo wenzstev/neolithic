@@ -8,4 +8,6 @@ type Action interface {
 	Cost(agent *Agent) float64
 	// Description returns a string description of the action, used to make the action more legible.
 	Description() string
+	// GetStateChange returns the difference in state before and after applying the Action
+	GetStateChange(agent *Agent) *State
 }

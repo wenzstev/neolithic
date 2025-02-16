@@ -65,3 +65,28 @@ func (d *Deposit) Cost(_ *Agent) float64 {
 func (d *Deposit) Description() string {
 	return fmt.Sprintf("deposit %d %s at %s", d.amount, d.resource.Name, d.location.Name)
 }
+
+func (d *Deposit) GetAffectedResources() []*Resource {
+	return []*Resource{d.resource}
+}
+
+func (d *Deposit) GetAffectedLocations() []*Location {
+	return []*Location{d.location}
+}
+
+// GetStateChange returns the diff in state. It knows nothing about the actual state that might be. Instead it produces state values
+// as a diff. So the inventory amount could be negative.
+func (d *Deposit) GetStateChange(agent *Agent) *State {
+	return &State{
+		Locations: map[*Location]Inventory{
+			d.location: {
+				d.resource: d.amount,
+			},
+		},
+		Agents: map[*Agent]Inventory{
+			agent: {
+				d.resource: d.amount * -1,
+			},
+		},
+	}
+}

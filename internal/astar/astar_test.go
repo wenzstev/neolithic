@@ -1,6 +1,7 @@
 package astar
 
 import (
+	"Neolithic/internal/logging"
 	"errors"
 	"math"
 	"testing"
@@ -241,6 +242,7 @@ func TestNewSearch(t *testing.T) {
 						nodeState: start,
 					},
 				},
+				logger: logging.NewLogger("info"),
 			},
 		},
 	}
