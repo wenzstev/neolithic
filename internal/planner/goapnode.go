@@ -1,24 +1,31 @@
 package planner
 
 import (
-	"Neolithic/internal/astar"
 	"fmt"
 	"math"
+
+	"Neolithic/internal/astar"
 )
 
 // GoapNode represents a point in a GOAP process, where the planner is choosing a plan
 type GoapNode struct {
-	action      Action
-	state       *State
+	// action is the action taken to reach this node
+	action Action
+	// state is the state of the world after running the action
+	state *State
+	// goapRunInfo is a set of attributes that carry over throughout the goap planning process
 	goapRunInfo *GoapRunInfo
 }
 
 // GoapRunInfo represents the information that doesn't change across the GOAP planning call
 type GoapRunInfo struct {
-	Agent               *Agent
+	// Agent is the agent running the planner
+	Agent *Agent
+	// PossibleNextActions are all actions that the agent could take
 	PossibleNextActions *[]Action
 }
 
+// Ensure GoapNode implements astar.Node
 var _ astar.Node = (*GoapNode)(nil)
 
 // Heuristic implements astar.Node, and represents a best guess estimate of how far the

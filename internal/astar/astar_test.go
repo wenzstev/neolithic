@@ -1,11 +1,11 @@
 package astar
 
 import (
-	"Neolithic/internal/logging"
 	"errors"
 	"math"
 	"testing"
 
+	"Neolithic/internal/logging"
 	"github.com/stretchr/testify/assert"
 )
 
