@@ -3,7 +3,11 @@ package astar
 import (
 	"container/heap"
 	"errors"
+	"fmt"
+	"log/slog"
 	"math"
+
+	"Neolithic/internal/logging"
 )
 
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
@@ -30,6 +34,8 @@ type SearchState struct {
 	// bestSolution is the head node of the current best solution. Not meant to be accessed directly,
 	// instead use CurrentBestPath
 	bestSolution *searchNode
+	// logger is used to log information about the search
+	logger *slog.Logger
 }
 
 // Node represents an intermediate state in the algorithm. It's expected to be different for each implementation
@@ -66,8 +72,9 @@ func (n *searchNode) fCost() float64 {
 // NewSearch initializes a new SearchState with a start and finish Node
 func NewSearch(start, goal Node) (*SearchState, error) {
 	search := &SearchState{
-		Start: start,
-		Goal:  goal,
+		Start:  start,
+		Goal:   goal,
+		logger: logging.NewLogger("info"),
 	}
 	if err := search.init(start, goal); err != nil {
 		return nil, err
@@ -136,9 +143,12 @@ func (s *SearchState) RunIterations(numIterations int) error {
 		}
 
 		if isGoal {
+			s.logger.Debug(fmt.Sprintf("Found solution: %s", currentID))
 			if currentNode.gCost < s.BestCost {
 				s.BestCost = currentNode.gCost
 				s.bestSolution = currentNode
+				s.logger.Debug(fmt.Sprintf("New solution is %s", s.CurrentBestPath()))
+				continue // don't need to check successors of goal state
 			}
 		}
 
@@ -153,12 +163,16 @@ func (s *SearchState) RunIterations(numIterations int) error {
 				return err
 			}
 
+			s.logger.Debug(fmt.Sprintf("Checking successor %s", sucId))
+
 			stepCost := successor.Cost(currentNode.nodeState)
 			newGCost := currentNode.gCost + stepCost
 			newHCost, err := successor.Heuristic(s.Goal)
 			if err != nil {
 				return err
 			}
+
+			s.logger.Debug(fmt.Sprintf("stepCost: %v, gCost: %v, hCost: %v", stepCost, newGCost, newHCost))
 
 			newFCost := newGCost + newHCost
 			if newFCost >= s.BestCost { // this is fine because we cannot have negative h values
@@ -215,7 +229,17 @@ func isGoal(currentNode Node, goal Node) (bool, error) {
 		return false, err
 	}
 
-	return curId == goalId, nil
+	// try to compare ID first
+	if curId == goalId {
+		return true, nil
+	}
+
+	// because heuristic might ignore details, compare heuristic as backup
+	hVal, err := currentNode.Heuristic(goal)
+	if err != nil {
+		return false, err
+	}
+	return hVal == 0, nil
 }
 
 // reconstructPath reconstructs the given path, returning an array of Node that lists the steps

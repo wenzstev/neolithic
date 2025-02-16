@@ -5,6 +5,7 @@ import (
 	"math"
 	"testing"
 
+	"Neolithic/internal/logging"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -241,6 +242,7 @@ func TestNewSearch(t *testing.T) {
 						nodeState: start,
 					},
 				},
+				logger: logging.NewLogger("info"),
 			},
 		},
 	}

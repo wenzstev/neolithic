@@ -21,7 +21,6 @@ var _ Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a resource
 func (g *Gather) Perform(start *State, agent *Agent) *State {
-
 	end := start.Copy()
 	locationInv, ok := end.Locations[g.location]
 	if !ok {
@@ -74,4 +73,21 @@ func (g *Gather) Cost(_ *Agent) float64 {
 // Description implements Action.Description, and provides a brief description of the gather action
 func (g *Gather) Description() string {
 	return fmt.Sprintf("gather %d %s from %s", g.amount, g.resource.Name, g.location.Name)
+}
+
+// GetStateChange implements Action.GetStateChange and returns the change in state from the action. For Gather, this
+// means the designated amount is removed from the location and given to the agent.
+func (g *Gather) GetStateChange(agent *Agent) *State {
+	return &State{
+		Locations: map[*Location]Inventory{
+			g.location: {
+				g.resource: g.amount * -1,
+			},
+		},
+		Agents: map[*Agent]Inventory{
+			agent: {
+				g.resource: g.amount,
+			},
+		},
+	}
 }

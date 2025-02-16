@@ -23,7 +23,7 @@ func TestStateCopy(t *testing.T) {
 				Agents: map[*Agent]Inventory{},
 			},
 		},
-		"basic copy with agent": {
+		"basic copy with Agent": {
 			startState: &State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
@@ -66,7 +66,7 @@ func TestStateString(t *testing.T) {
 			},
 			expected: "State: \n  Locations: \n   testLocation: \n      testResource: 1\n  Agents:\n",
 		},
-		"string with agent": {
+		"string with Agent": {
 			testState: &State{
 				Agents: map[*Agent]Inventory{
 					testAgent: {
@@ -76,7 +76,7 @@ func TestStateString(t *testing.T) {
 			},
 			expected: "State: \n  Locations: \n  Agents:\n   testAgent: \n      testResource: 1\n",
 		},
-		"string with agent and location": {
+		"string with Agent and location": {
 			testState: &State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
@@ -116,7 +116,20 @@ func TestStateID(t *testing.T) {
 					},
 				},
 			},
-			expected: "2e022d8ce9a99d6071b691bd04668dc027a89f059abec00e1300a7096d98ced7",
+			expected: "64824b7b2deede8f76a220c0ce4f455743f07a120872b0bfe7643d03d62ea8bd",
+		},
+		"id with multiple locations": {
+			testState: &State{
+				Locations: map[*Location]Inventory{
+					testLocation: {
+						testResource: 1,
+					},
+					testLocation2: {
+						testResource: 1,
+					},
+				},
+			},
+			expected: "275be152e128ab24878fa164422441cf113fc78f34f5256f6a1b2565daa35f69",
 		},
 	}
 
