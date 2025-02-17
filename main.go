@@ -1,11 +1,12 @@
 package main
 
 import (
+	"image/color"
+	"log"
+
 	"Neolithic/internal/camera"
 	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
-	"image/color"
-	"log"
 )
 
 type Game struct {
@@ -57,8 +58,13 @@ func main() {
 	width, height := 32, 32
 	cellSize := 16
 
+	gameWorld, err := world.New(width, height, cellSize)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	game := &Game{
-		World:    world.New(width, height, cellSize),
+		World:    gameWorld,
 		Camera:   cam,
 		Viewport: vp,
 	}

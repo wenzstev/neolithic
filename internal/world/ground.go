@@ -1,13 +1,14 @@
 package world
 
 import (
-	"github.com/hajimehoshi/ebiten/v2"
 	"image"
 	"image/color"
 	"math/rand"
 	"os"
 
 	_ "image/png"
+
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 const (
