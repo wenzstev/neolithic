@@ -2,7 +2,6 @@ package grid
 
 import (
 	"Neolithic/internal/camera"
-	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"math"
 )
@@ -32,21 +31,21 @@ func New(width, height, cellSize int) *Grid {
 
 // Initialize initializes a new grid with necessary values. Takes in a function
 // for making a tile
-func (g *Grid) Initialize(MakeTile func() (Tile, error)) {
+func (g *Grid) Initialize(MakeTile func(X, Y int, grid *Grid) (Tile, error)) error {
 	g.Tiles = make([][]Tile, g.Width)
 	for i := 0; i < g.Width; i++ {
 		g.Tiles[i] = make([]Tile, g.Height)
 		for j := 0; j < g.Height; j++ {
-			tile, err := MakeTile()
+			tile, err := MakeTile(i, j, g)
 			if err != nil {
-				fmt.Printf("%s", err.Error())
-				continue
+				return err
 			}
 
 			g.Tiles[i][j] = tile
 
 		}
 	}
+	return nil
 }
 
 // DrawCell draws a grid cell
@@ -103,5 +102,4 @@ func (g *Grid) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *cam
 			}
 		}
 	}
-
 }

@@ -13,18 +13,21 @@ type World struct {
 }
 
 // New creates a new instance of World
-func New(width, height, cellSize int) *World {
+func New(width, height, cellSize int) (*World, error) {
 	world := &World{
 		Villagers: make([]*Villager, 0),
 		Grid:      grid.New(width, height, cellSize),
 	}
 
-	world.Grid.Initialize(makeTile)
-	return world
+	if err := world.Grid.Initialize(makeTile); err != nil {
+		return nil, err
+	}
+	
+	return world, nil
 }
 
 // makeTile returns a new Grass tile to populate the world grid
-func makeTile() (grid.Tile, error) {
+func makeTile(X, Y int, grid *grid.Grid) (grid.Tile, error) {
 	ground, err := NewGrassGround()
 	if err != nil {
 		return nil, err
@@ -32,6 +35,9 @@ func makeTile() (grid.Tile, error) {
 
 	return &Tile{
 		Ground: ground,
+		X:      X,
+		Y:      Y,
+		grid:   grid,
 	}, nil
 }
 
