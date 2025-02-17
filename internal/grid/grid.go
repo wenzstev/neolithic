@@ -1,9 +1,10 @@
 package grid
 
 import (
+	"math"
+
 	"Neolithic/internal/camera"
 	"github.com/hajimehoshi/ebiten/v2"
-	"math"
 )
 
 // Grid represents the map, divided into Width by Height tiles.

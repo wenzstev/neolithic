@@ -62,7 +62,7 @@ func (t *Tile) Cost(prev astar.Node) float64 {
 	if isDiagonallyAdjacent(prevTile, t) {
 		return 1.4
 	}
-	return 1 // different cost for corners?
+	return 1
 }
 
 // GetSuccessors implements astar.Node and returns the nodes that are adjacent to the given node.

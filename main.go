@@ -1,12 +1,12 @@
 package main
 
 import (
-	"Neolithic/internal/astar"
+	"image/color"
+	"log"
+
 	"Neolithic/internal/camera"
 	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
-	"image/color"
-	"log"
 )
 
 type Game struct {
@@ -106,18 +106,4 @@ func main() {
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
-
-	start := game.World.Grid.Tiles[11][25].(*world.Tile)
-	end := game.World.Grid.Tiles[3][16].(*world.Tile)
-
-	testSearch, err := astar.NewSearch(start, end)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	err = testSearch.RunIterations(100)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 }

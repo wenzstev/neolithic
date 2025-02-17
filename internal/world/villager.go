@@ -1,8 +1,9 @@
 package world
 
 import (
-	"Neolithic/internal/grid"
 	"errors"
+
+	"Neolithic/internal/grid"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
