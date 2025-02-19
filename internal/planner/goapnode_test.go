@@ -55,21 +55,21 @@ func TestActions_AStar(t *testing.T) {
 			maxDistance: 10000,
 			expectedOutput: &astar.SearchState{
 				Start: &GoapNode{
-					state: startState,
-					goapRunInfo: &GoapRunInfo{
+					State: startState,
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
 				},
 				Goal: &GoapNode{
-					state: &State{
+					State: &State{
 						Locations: map[*Location]Inventory{
 							testLocation2: {
 								testResource: 20,
 							},
 						},
 					},
-					goapRunInfo: &GoapRunInfo{
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
@@ -100,21 +100,21 @@ func TestActions_AStar(t *testing.T) {
 			maxDistance: 10000,
 			expectedOutput: &astar.SearchState{
 				Start: &GoapNode{
-					state: startState,
-					goapRunInfo: &GoapRunInfo{
+					State: startState,
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
 				},
 				Goal: &GoapNode{
-					state: &State{
+					State: &State{
 						Locations: map[*Location]Inventory{
 							testLocation2: {
 								testResource: 50,
 							},
 						},
 					},
-					goapRunInfo: &GoapRunInfo{
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
@@ -149,21 +149,21 @@ func TestActions_AStar(t *testing.T) {
 			maxDistance: 10000,
 			expectedOutput: &astar.SearchState{
 				Start: &GoapNode{
-					state: startState,
-					goapRunInfo: &GoapRunInfo{
+					State: startState,
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
 				},
 				Goal: &GoapNode{
-					state: &State{
+					State: &State{
 						Locations: map[*Location]Inventory{
 							testLocation: {
 								testResource: 100,
 							},
 						},
 					},
-					goapRunInfo: &GoapRunInfo{
+					GoapRunInfo: &GoapRunInfo{
 						Agent:               testAgent,
 						PossibleNextActions: actionList,
 					},
@@ -184,13 +184,13 @@ func TestActions_AStar(t *testing.T) {
 			}
 
 			startNode := &GoapNode{
-				state:       tc.startState,
-				goapRunInfo: runInfo,
+				State:       tc.startState,
+				GoapRunInfo: runInfo,
 			}
 
 			endNode := &GoapNode{
-				state:       tc.goalState,
-				goapRunInfo: runInfo,
+				State:       tc.goalState,
+				GoapRunInfo: runInfo,
 			}
 
 			search, err := astar.NewSearch(startNode, endNode)
@@ -214,7 +214,7 @@ func TestActions_AStar(t *testing.T) {
 			for _, node := range solution {
 				goapNode, ok := node.(*GoapNode)
 				assert.True(t, ok)
-				solutionActions = append(solutionActions, goapNode.action)
+				solutionActions = append(solutionActions, goapNode.Action)
 			}
 			assert.Equal(t, tc.expectedActionList, solutionActions)
 		})
@@ -228,16 +228,16 @@ func areNodesEqual(t *testing.T, nodeA, nodeB astar.Node) {
 	goapNodeB, ok := nodeB.(*GoapNode)
 	assert.True(t, ok)
 
-	aId, err := goapNodeA.state.ID()
+	aId, err := goapNodeA.State.ID()
 	assert.NoError(t, err)
 
-	bId, err := goapNodeB.state.ID()
+	bId, err := goapNodeB.State.ID()
 	assert.NoError(t, err)
 
 	assert.Equal(t, aId, bId)
-	assert.Equal(t, goapNodeA.action, goapNodeB.action)
-	assert.Equal(t, goapNodeA.goapRunInfo.Agent, goapNodeB.goapRunInfo.Agent)
-	assert.Equal(t, goapNodeA.goapRunInfo.PossibleNextActions, goapNodeB.goapRunInfo.PossibleNextActions)
+	assert.Equal(t, goapNodeA.Action, goapNodeB.Action)
+	assert.Equal(t, goapNodeA.GoapRunInfo.Agent, goapNodeB.GoapRunInfo.Agent)
+	assert.Equal(t, goapNodeA.GoapRunInfo.PossibleNextActions, goapNodeB.GoapRunInfo.PossibleNextActions)
 
 }
 
@@ -313,7 +313,7 @@ func TestActions_Heuristic(t *testing.T) {
 			agent:            testAgent,
 			expectedDistance: math.Inf(1),
 		},
-		"state amount is less than goal": {
+		"State amount is less than goal": {
 			curState: &State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
@@ -336,7 +336,7 @@ func TestActions_Heuristic(t *testing.T) {
 			agent:            testAgent,
 			expectedDistance: 1,
 		},
-		"state amount is greater than goal": {
+		"State amount is greater than goal": {
 			curState: &State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
@@ -371,13 +371,13 @@ func TestActions_Heuristic(t *testing.T) {
 				},
 			}
 			testNode := &GoapNode{
-				state:       tc.curState,
-				goapRunInfo: testStats,
+				State:       tc.curState,
+				GoapRunInfo: testStats,
 			}
 
 			goalNode := &GoapNode{
-				state:       tc.goalState,
-				goapRunInfo: testStats,
+				State:       tc.goalState,
+				GoapRunInfo: testStats,
 			}
 
 			val, err := testNode.Heuristic(goalNode)
@@ -411,7 +411,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 	}
 
 	tests := map[string]testCase{
-		"get successors with one action": {
+		"get successors with one Action": {
 			actions: []Action{
 				mockAction1,
 			},
@@ -419,8 +419,8 @@ func TestActions_GetSuccessors(t *testing.T) {
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{
-					action: mockAction1,
-					state:  expectedEndState,
+					Action: mockAction1,
+					State:  expectedEndState,
 				},
 			},
 		},
@@ -434,16 +434,16 @@ func TestActions_GetSuccessors(t *testing.T) {
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{
-					action: mockAction1,
-					state:  expectedEndState,
+					Action: mockAction1,
+					State:  expectedEndState,
 				},
 				{
-					action: mockAction2,
-					state:  expectedEndState,
+					Action: mockAction2,
+					State:  expectedEndState,
 				},
 				{
-					action: mockAction3,
-					state:  expectedEndState,
+					Action: mockAction3,
+					State:  expectedEndState,
 				},
 			},
 		},
@@ -457,12 +457,12 @@ func TestActions_GetSuccessors(t *testing.T) {
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{
-					action: mockAction1,
-					state:  expectedEndState,
+					Action: mockAction1,
+					State:  expectedEndState,
 				},
 				{
-					action: mockAction2,
-					state:  expectedEndState,
+					Action: mockAction2,
+					State:  expectedEndState,
 				},
 			},
 		},
@@ -471,9 +471,9 @@ func TestActions_GetSuccessors(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			testNode := &GoapNode{
-				action: nil,
-				state:  tc.startState,
-				goapRunInfo: &GoapRunInfo{
+				Action: nil,
+				State:  tc.startState,
+				GoapRunInfo: &GoapRunInfo{
 					Agent:               tc.agent,
 					PossibleNextActions: &tc.actions,
 				},
@@ -484,7 +484,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 			for _, successor := range output {
 				goapSuccessor, ok := successor.(*GoapNode)
 				assert.True(t, ok)
-				goapSuccessor.goapRunInfo = nil // zero out the run info to make test easier to compare
+				goapSuccessor.GoapRunInfo = nil // zero out the run info to make test easier to compare
 				successorList = append(successorList, goapSuccessor)
 			}
 

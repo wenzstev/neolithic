@@ -58,7 +58,7 @@ func (m *mockAction) Cost(_ *Agent) float64 {
 }
 
 func (m *mockAction) Description() string {
-	return "a mock action"
+	return "a mock Action"
 }
 
 func (m *mockAction) GetStateChange(_ *Agent) *State {
@@ -71,7 +71,7 @@ func (m *mockAction) GetStateChange(_ *Agent) *State {
 	}
 }
 
-// mockNullAction implements Action and is used for testing. It always returns a null state.
+// mockNullAction implements Action and is used for testing. It always returns a null State.
 type mockNullAction struct{}
 
 var _ Action = (*mockNullAction)(nil)
@@ -85,7 +85,7 @@ func (m *mockNullAction) Cost(_ *Agent) float64 {
 }
 
 func (m *mockNullAction) Description() string {
-	return "a mock null action"
+	return "a mock null Action"
 }
 
 func (m *mockNullAction) GetStateChange(_ *Agent) *State {

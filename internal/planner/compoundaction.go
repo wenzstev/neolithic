@@ -3,7 +3,7 @@ package planner
 import "fmt"
 
 // CompoundAction represents a sequence of actions. It implements Action as well, allowing it to be used as a single
-// node like any other action.
+// node like any other Action.
 type CompoundAction []Action
 
 // Cost implements Action.Cost and returns the combined cost of all the actions.
@@ -15,8 +15,8 @@ func (seq *CompoundAction) Cost(agent *Agent) float64 {
 	return totalCost
 }
 
-// Perform implements Action.Perform and returns the new state after all actions have been performed, or nil
-// if the action sequence results in an invalid state.
+// Perform implements Action.Perform and returns the new State after all actions have been performed, or nil
+// if the Action sequence results in an invalid State.
 func (seq *CompoundAction) Perform(state *State, agent *Agent) *State {
 	curState := state
 	for _, action := range *seq {

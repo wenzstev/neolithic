@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/agent"
 	"bytes"
 	"crypto/sha256"
 	"encoding/gob"
@@ -8,19 +9,19 @@ import (
 	"sort"
 )
 
-// State represents the state of the world
+// State represents the State of the world
 type State struct {
 	// Locations is a map of all Location in the world and their inventories
 	Locations map[*Location]Inventory
 	// Agents is a map of all Agent in the world and their inventory
-	Agents map[*Agent]Inventory
+	Agents map[*agent.Agent]Inventory
 }
 
-// Copy performs a deep copy of the state
+// Copy performs a deep copy of the State
 func (s *State) Copy() *State {
 	end := &State{
 		Locations: make(map[*Location]Inventory),
-		Agents:    make(map[*Agent]Inventory),
+		Agents:    make(map[*agent.Agent]Inventory),
 	}
 
 	for k, v := range s.Locations {
@@ -104,7 +105,7 @@ func (s *State) ID() (string, error) {
 	}
 
 	type agentStruct struct {
-		Agent *Agent
+		Agent *agent.Agent
 		Inv   []invStruct
 	}
 
@@ -135,7 +136,7 @@ func (s *State) ID() (string, error) {
 		return items
 	}
 
-	sortAgent := func(agents map[*Agent]Inventory) []agentStruct {
+	sortAgent := func(agents map[*agent.Agent]Inventory) []agentStruct {
 		items := make([]agentStruct, 0, len(agents))
 		for agent, inv := range agents {
 			items = append(items, agentStruct{agent, sortInv(inv)})

@@ -15,7 +15,7 @@ func TestCompoundAction_Perform(t *testing.T) {
 	}
 
 	tests := map[string]testCase{
-		"compound action of one action": {
+		"compound Action of one Action": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 			},
@@ -34,7 +34,7 @@ func TestCompoundAction_Perform(t *testing.T) {
 				Agents: map[*Agent]Inventory{},
 			},
 		},
-		"compound action of two actions": {
+		"compound Action of two actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
@@ -54,7 +54,7 @@ func TestCompoundAction_Perform(t *testing.T) {
 				Agents: map[*Agent]Inventory{},
 			},
 		},
-		"compound action of three actions": {
+		"compound Action of three actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
@@ -92,20 +92,20 @@ func TestCompoundAction_Cost(t *testing.T) {
 	}
 
 	tests := map[string]testCase{
-		"compound action of one action": {
+		"compound Action of one Action": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 			},
 			expectedCost: 10.0,
 		},
-		"compound action of two actions": {
+		"compound Action of two actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
 			},
 			expectedCost: 20.0,
 		},
-		"compound action of three actions": {
+		"compound Action of three actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
@@ -129,26 +129,26 @@ func TestCompoundAction_Description(t *testing.T) {
 	}
 
 	tests := map[string]testCase{
-		"compound action of one action": {
+		"compound Action of one Action": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 			},
-			expectedDesc: "Sequence:\n  a mock action\n",
+			expectedDesc: "Sequence:\n  a mock Action\n",
 		},
-		"compound action of two actions": {
+		"compound Action of two actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
 			},
-			expectedDesc: "Sequence:\n  a mock action\n  a mock action\n",
+			expectedDesc: "Sequence:\n  a mock Action\n  a mock Action\n",
 		},
-		"compound action of three actions": {
+		"compound Action of three actions": {
 			compoundAction: &CompoundAction{
 				testMockAction,
 				testMockAction,
 				testMockAction,
 			},
-			expectedDesc: "Sequence:\n  a mock action\n  a mock action\n  a mock action\n",
+			expectedDesc: "Sequence:\n  a mock Action\n  a mock Action\n  a mock Action\n",
 		},
 	}
 
