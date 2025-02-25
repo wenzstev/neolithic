@@ -8,19 +8,19 @@ import (
 	"sort"
 )
 
-// State represents the state of the world
+// State represents the State of the world
 type State struct {
 	// Locations is a map of all Location in the world and their inventories
 	Locations map[*Location]Inventory
 	// Agents is a map of all Agent in the world and their inventory
-	Agents map[*Agent]Inventory
+	Agents map[Agent]Inventory
 }
 
-// Copy performs a deep copy of the state
+// Copy performs a deep copy of the State
 func (s *State) Copy() *State {
 	end := &State{
 		Locations: make(map[*Location]Inventory),
-		Agents:    make(map[*Agent]Inventory),
+		Agents:    make(map[Agent]Inventory),
 	}
 
 	for k, v := range s.Locations {
@@ -48,7 +48,7 @@ func (s *State) String() string {
 
 	output += "  Agents:\n"
 	for k, v := range s.Agents {
-		output += fmt.Sprintf("   %s: \n", k.Name)
+		output += fmt.Sprintf("   %s: \n", k.Name())
 		output += v.String()
 	}
 
@@ -104,7 +104,7 @@ func (s *State) ID() (string, error) {
 	}
 
 	type agentStruct struct {
-		Agent *Agent
+		Agent Agent
 		Inv   []invStruct
 	}
 
@@ -135,13 +135,13 @@ func (s *State) ID() (string, error) {
 		return items
 	}
 
-	sortAgent := func(agents map[*Agent]Inventory) []agentStruct {
+	sortAgent := func(agents map[Agent]Inventory) []agentStruct {
 		items := make([]agentStruct, 0, len(agents))
 		for agent, inv := range agents {
 			items = append(items, agentStruct{agent, sortInv(inv)})
 		}
 		sort.Slice(items, func(i, j int) bool {
-			return items[i].Agent.Name < items[j].Agent.Name
+			return items[i].Agent.Name() < items[j].Agent.Name()
 		})
 		return items
 	}

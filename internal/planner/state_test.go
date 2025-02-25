@@ -20,7 +20,7 @@ func TestStateCopy(t *testing.T) {
 						testResource: 1,
 					},
 				},
-				Agents: map[*Agent]Inventory{},
+				Agents: map[Agent]Inventory{},
 			},
 		},
 		"basic copy with Agent": {
@@ -30,7 +30,7 @@ func TestStateCopy(t *testing.T) {
 						testResource: 1,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 1,
 					},
@@ -43,7 +43,7 @@ func TestStateCopy(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			copiedState := tc.startState.Copy()
 			assert.True(t, reflect.DeepEqual(tc.startState, copiedState), "expected states to have same values")
-			assert.False(t, tc.startState == copiedState, "expected copied state to have different memory address")
+			assert.False(t, tc.startState == copiedState, "expected copied State to have different memory address")
 		})
 	}
 
@@ -68,7 +68,7 @@ func TestStateString(t *testing.T) {
 		},
 		"string with Agent": {
 			testState: &State{
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 1,
 					},
@@ -83,7 +83,7 @@ func TestStateString(t *testing.T) {
 						testResource: 1,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 1,
 					},

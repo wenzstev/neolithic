@@ -5,8 +5,8 @@ var (
 		Name: "testLocation",
 	}
 
-	testAgent = &Agent{
-		Name: "testAgent",
+	testAgent = &mockAgent{
+		name: "testAgent",
 	}
 
 	testResource = &Resource{
@@ -44,24 +44,32 @@ var (
 	}
 )
 
+type mockAgent struct {
+	name string
+}
+
+func (m *mockAgent) Name() string {
+	return m.name
+}
+
 // mockAction implements Action and is used for testing.
 type mockAction struct{}
 
 var _ Action = (*mockAction)(nil)
 
-func (m *mockAction) Perform(start *State, agent *Agent) *State {
+func (m *mockAction) Perform(start *State, agent Agent) *State {
 	return start.Add(m.GetStateChange(agent), false)
 }
 
-func (m *mockAction) Cost(_ *Agent) float64 {
+func (m *mockAction) Cost(_ Agent) float64 {
 	return 10.0
 }
 
 func (m *mockAction) Description() string {
-	return "a mock action"
+	return "a mock Action"
 }
 
-func (m *mockAction) GetStateChange(_ *Agent) *State {
+func (m *mockAction) GetStateChange(_ Agent) *State {
 	return &State{
 		Locations: map[*Location]Inventory{
 			testLocation: {
@@ -71,23 +79,23 @@ func (m *mockAction) GetStateChange(_ *Agent) *State {
 	}
 }
 
-// mockNullAction implements Action and is used for testing. It always returns a null state.
+// mockNullAction implements Action and is used for testing. It always returns a null State.
 type mockNullAction struct{}
 
 var _ Action = (*mockNullAction)(nil)
 
-func (m *mockNullAction) Perform(_ *State, _ *Agent) *State {
+func (m *mockNullAction) Perform(_ *State, _ Agent) *State {
 	return nil
 }
 
-func (m *mockNullAction) Cost(_ *Agent) float64 {
+func (m *mockNullAction) Cost(_ Agent) float64 {
 	return 10.0
 }
 
 func (m *mockNullAction) Description() string {
-	return "a mock null action"
+	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetStateChange(_ *Agent) *State {
+func (m *mockNullAction) GetStateChange(_ Agent) *State {
 	return &State{}
 }
