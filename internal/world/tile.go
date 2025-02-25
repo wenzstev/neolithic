@@ -91,6 +91,11 @@ func (t *Tile) GetSuccessors() ([]astar.Node, error) {
 	return adjacentTiles, nil
 }
 
+// Coord returns the Coord representation of the tile
+func (t *Tile) Coord() *Coord {
+	return &Coord{t.X, t.Y}
+}
+
 // isDiagonallyAdjacent is a helper function that determines whether two tiles are diagonally adjacent to each other.
 func isDiagonallyAdjacent(tile1, tile2 *Tile) bool {
 	return math.Abs(float64(tile1.X-tile2.X)) == 1 && math.Abs(float64(tile1.Y-tile2.Y)) == 1

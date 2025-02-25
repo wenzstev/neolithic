@@ -116,7 +116,7 @@ func TestStateID(t *testing.T) {
 					},
 				},
 			},
-			expected: "64824b7b2deede8f76a220c0ce4f455743f07a120872b0bfe7643d03d62ea8bd",
+			expected: "b761a3f00454a2955d59ba88ac4a7d7df1d79ee4af2a46a828711e3c056ca831",
 		},
 		"id with multiple locations": {
 			testState: &State{
@@ -129,7 +129,7 @@ func TestStateID(t *testing.T) {
 					},
 				},
 			},
-			expected: "275be152e128ab24878fa164422441cf113fc78f34f5256f6a1b2565daa35f69",
+			expected: "a45402744f3a265d2f4519e878780ff959a454033f8b1850a135feb18dbc8071",
 		},
 	}
 

@@ -6,8 +6,10 @@ import (
 )
 
 type Agent struct {
-	name     string
-	grid     *grid.Grid
+	name string
+	//nolint:unused
+	grid *grid.Grid
+	//nolint:unused
 	behavior *Behavior
 	loc      *world.Coord
 }

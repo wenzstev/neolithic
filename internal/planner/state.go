@@ -8,6 +8,10 @@ import (
 	"sort"
 )
 
+func init() {
+	gob.Register(&mockAgent{})
+}
+
 // State represents the State of the world
 type State struct {
 	// Locations is a map of all Location in the world and their inventories

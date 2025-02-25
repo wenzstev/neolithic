@@ -6,7 +6,7 @@ var (
 	}
 
 	testAgent = &mockAgent{
-		name: "testAgent",
+		N: "testAgent",
 	}
 
 	testResource = &Resource{
@@ -45,11 +45,11 @@ var (
 )
 
 type mockAgent struct {
-	name string
+	N string
 }
 
 func (m *mockAgent) Name() string {
-	return m.name
+	return m.N
 }
 
 // mockAction implements Action and is used for testing.

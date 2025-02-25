@@ -7,15 +7,9 @@ var (
 		Name: "testLocation",
 	}
 
-	testAgent = &Agent{
-		name: "testAgent",
-	}
-
 	testResource = &planner.Resource{
 		Name: "testResource",
 	}
-
-	testLocation2 = &planner.Location{Name: "testLocation2"}
 )
 
 // mockAction implements Action and is used for testing.
@@ -64,30 +58,4 @@ func (m *mockNullAction) Description() string {
 
 func (m *mockNullAction) GetStateChange(_ planner.Agent) *planner.State {
 	return &planner.State{}
-}
-
-type mockActionWithTime struct {
-	mockAction
-	timeNeeded float64
-}
-
-func (m *mockActionWithTime) TimeNeeded() float64 {
-	return m.timeNeeded
-}
-
-type mockPlan struct {
-	isComplete bool
-	nextAction planner.Action
-}
-
-func (m *mockPlan) IsComplete() bool {
-	return m.isComplete
-}
-
-func (m *mockPlan) PeekAction() planner.Action {
-	return m.nextAction
-}
-
-func (m *mockPlan) PopAction() planner.Action {
-	return m.nextAction
 }
