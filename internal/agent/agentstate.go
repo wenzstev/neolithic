@@ -26,8 +26,3 @@ type Behavior struct {
 	//nolint:unused
 	curState State
 }
-
-// RequiresTime is an interface that provides a required amount of time.
-type RequiresTime interface { // TODO find better location
-	TimeNeeded() float64
-}

@@ -1,23 +1,13 @@
 package agent
 
-import (
-	"Neolithic/internal/grid"
-	"Neolithic/internal/world"
-)
-
+// Agent represents an agent in the world
 type Agent struct {
+	// name is the name of the agent
 	name string
-	//nolint:unused
-	grid *grid.Grid
-	//nolint:unused
-	behavior *Behavior
-	loc      *world.Coord
+	// todo add behavior and other necessary values
 }
 
+// Name provides the name of the agent
 func (a *Agent) Name() string {
 	return a.name
-}
-
-func (a *Agent) SetLocation(loc *world.Coord) {
-	a.loc = loc
 }
