@@ -16,7 +16,7 @@ func TestDeposit_Perform(t *testing.T) {
 	type testCase struct {
 		testDeposit      *Deposit
 		startState       *State
-		agent            *Agent
+		agent            Agent
 		expectedEndState *State
 	}
 
@@ -27,7 +27,7 @@ func TestDeposit_Perform(t *testing.T) {
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 10,
 					},
@@ -40,7 +40,7 @@ func TestDeposit_Perform(t *testing.T) {
 						testResource: 10,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {},
 				},
 			},
@@ -53,7 +53,7 @@ func TestDeposit_Perform(t *testing.T) {
 						testResource: 0,
 					},
 				},
-				Agents: map[*Agent]Inventory{},
+				Agents: map[Agent]Inventory{},
 			},
 			agent:            testAgent,
 			expectedEndState: nil,
@@ -66,7 +66,7 @@ func TestDeposit_Perform(t *testing.T) {
 						testResource: 0,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 5,
 					},
@@ -79,7 +79,7 @@ func TestDeposit_Perform(t *testing.T) {
 						testResource: 5,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {},
 				},
 			},
@@ -97,7 +97,7 @@ func TestDeposit_Perform(t *testing.T) {
 func TestDeposit_Cost(t *testing.T) {
 	type testCase struct {
 		testDeposit  *Deposit
-		testAgent    *Agent
+		testAgent    Agent
 		expectedCost float64
 	}
 

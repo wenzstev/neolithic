@@ -24,7 +24,7 @@ func TestGather_Perform(t *testing.T) {
 
 	type testCase struct {
 		testGather       *Gather
-		testAgent        *Agent
+		testAgent        Agent
 		startState       *State
 		expectedEndState *State
 	}
@@ -39,7 +39,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 10,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {},
 				},
 			},
@@ -49,7 +49,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 5,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 5,
 					},
@@ -65,7 +65,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 2,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {},
 				},
 			},
@@ -73,7 +73,7 @@ func TestGather_Perform(t *testing.T) {
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 2,
 					},
@@ -89,7 +89,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 10,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testTool: 1,
 					},
@@ -101,7 +101,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 5,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testResource: 5,
 						testTool:     1,
@@ -116,7 +116,7 @@ func TestGather_Perform(t *testing.T) {
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {},
 				},
 			},
@@ -131,7 +131,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 10,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testTool: 1,
 					},
@@ -143,7 +143,7 @@ func TestGather_Perform(t *testing.T) {
 						testResource: 5,
 					},
 				},
-				Agents: map[*Agent]Inventory{
+				Agents: map[Agent]Inventory{
 					testAgent: {
 						testTool:     1,
 						testResource: 5,
@@ -151,7 +151,7 @@ func TestGather_Perform(t *testing.T) {
 				},
 			},
 		},
-		"gather fails, agent not in state": {
+		"gather fails, agent not in State": {
 			testGather: testGather,
 			testAgent:  testAgent,
 			startState: &State{
