@@ -6,7 +6,6 @@ import (
 	"Neolithic/internal/planner"
 )
 
-// Performing is the State where the agent tries to perform its provided Action
 type Performing struct {
 	action   planner.Action
 	timeLeft float64
@@ -18,13 +17,14 @@ type Performing struct {
 // is instant), the agent will call planner.Action.Perform, and return the result. It will also change the Agent's State
 // to either Idle or Moving, depending on if the plan is complete.
 func (p *Performing) Execute(world WorldState, deltaTime float64) (WorldState, error) {
-	curPlan := p.agent.Plan()
+	behavior := p.agent.Behavior()
+	curPlan := behavior.curPlan
 
 	// get the next action and determine if time is needed
 	if p.action == nil {
 		p.action = curPlan.PeekAction()
 		if p.action == nil { // still nil, plan complete
-			p.agent.SetCurState(&Idle{})
+			behavior.curState = &Idle{}
 			return (*planner.State)(nil), nil
 		}
 
@@ -49,15 +49,15 @@ func (p *Performing) Execute(world WorldState, deltaTime float64) (WorldState, e
 	// perform the action
 	newState := p.action.Perform(worldState, p.agent)
 	if newState == nil { // action failed
-		p.agent.SetCurState(&Idle{})
+		behavior.curState = &Idle{}
 		return (*planner.State)(nil), nil
 	}
 
 	curPlan.PopAction()
 	if curPlan.IsComplete() {
-		p.agent.SetCurState(&Idle{})
+		behavior.curState = &Idle{}
 	} else {
-		p.agent.SetCurState(&Moving{})
+		behavior.curState = &Moving{}
 	}
 
 	return newState, nil

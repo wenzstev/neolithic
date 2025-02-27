@@ -7,7 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-// deltaTime is the time since the last run of Execute
 const deltaTime = 1.0 / 60
 
 func TestPerforming_Execute(t *testing.T) {
@@ -45,10 +44,12 @@ func TestPerforming_Execute(t *testing.T) {
 				Agents: map[planner.Agent]planner.Inventory{},
 			},
 			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockAction{},
+				behavior: &Behavior{
+					curPlan: &mockPlan{
+						nextAction: &mockAction{},
+					},
+					curState: &Moving{},
 				},
-				curState: &Moving{},
 			},
 			expectedAction:   &mockAction{},
 			expectedTimeLeft: 0,
@@ -59,8 +60,10 @@ func TestPerforming_Execute(t *testing.T) {
 			},
 			startWorldState: testWorldState,
 			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockActionWithTime{timeNeeded: 1.0},
+				behavior: &Behavior{
+					curPlan: &mockPlan{
+						nextAction: &mockActionWithTime{timeNeeded: 1.0},
+					},
 				},
 			},
 			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
@@ -72,10 +75,12 @@ func TestPerforming_Execute(t *testing.T) {
 			},
 			startWorldState: testWorldState,
 			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockNullAction{},
+				behavior: &Behavior{
+					curPlan: &mockPlan{
+						nextAction: &mockNullAction{},
+					},
+					curState: &Idle{},
 				},
-				curState: &Idle{},
 			},
 			expectedAction:   &mockNullAction{},
 			expectedTimeLeft: 0,
@@ -96,10 +101,12 @@ func TestPerforming_Execute(t *testing.T) {
 				Agents: map[planner.Agent]planner.Inventory{},
 			},
 			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockActionWithTime{timeNeeded: 1.0},
+				behavior: &Behavior{
+					curPlan: &mockPlan{
+						nextAction: &mockActionWithTime{timeNeeded: 1.0},
+					},
+					curState: &Moving{},
 				},
-				curState: &Moving{},
 			},
 			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
 			expectedTimeLeft: 0,
@@ -119,11 +126,13 @@ func TestPerforming_Execute(t *testing.T) {
 				Agents: map[planner.Agent]planner.Inventory{},
 			},
 			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockAction{},
-					isComplete: true,
+				behavior: &Behavior{
+					curPlan: &mockPlan{
+						nextAction: &mockAction{},
+						isComplete: true,
+					},
+					curState: &Idle{},
 				},
-				curState: &Idle{},
 			},
 			expectedAction:   &mockAction{},
 			expectedTimeLeft: 0,
@@ -136,7 +145,7 @@ func TestPerforming_Execute(t *testing.T) {
 				timeLeft: tc.timeLeft,
 				action:   tc.action,
 				agent: &mockAgent{
-					plan: tc.plan,
+					behavior: &Behavior{curPlan: tc.plan},
 				},
 			}
 			output, err := testPerforming.Execute(tc.startWorldState, 1.0/60.0)

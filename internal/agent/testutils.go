@@ -86,10 +86,9 @@ func (m *mockPlan) PopAction() planner.Action {
 	return m.nextAction
 }
 
-type mockAgent struct {
+type mockAgent struct { // todo: remove this? not really necessary...
 	name     string
-	curState State
-	plan     Plan
+	behavior *Behavior
 }
 
 func (m *mockAgent) Name() string {
@@ -97,9 +96,9 @@ func (m *mockAgent) Name() string {
 }
 
 func (m *mockAgent) SetCurState(state State) {
-	m.curState = state
+	m.behavior.curState = state
 }
 
-func (m *mockAgent) Plan() Plan {
-	return m.plan
+func (m *mockAgent) Behavior() *Behavior {
+	return m.behavior
 }
