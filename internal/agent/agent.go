@@ -21,7 +21,6 @@ func (a *agent) Name() string {
 	return a.name
 }
 
-// Behavior implements Agent.Behavior and returns the Behavior of the agent
 func (a *agent) Behavior() *Behavior {
 	return a.behavior
 }
