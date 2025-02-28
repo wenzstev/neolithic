@@ -17,14 +17,13 @@ type Performing struct {
 // is instant), the agent will call planner.Action.Perform, and return the result. It will also change the Agent's State
 // to either Idle or Moving, depending on if the plan is complete.
 func (p *Performing) Execute(world WorldState, deltaTime float64) (WorldState, error) {
-	behavior := p.agent.Behavior()
-	curPlan := behavior.curPlan
+	curPlan := p.agent.Behavior().curPlan
 
 	// get the next action and determine if time is needed
 	if p.action == nil {
 		p.action = curPlan.PeekAction()
 		if p.action == nil { // still nil, plan complete
-			behavior.curState = &Idle{}
+			p.agent.SetCurState(&Idle{})
 			return (*planner.State)(nil), nil
 		}
 
@@ -49,15 +48,15 @@ func (p *Performing) Execute(world WorldState, deltaTime float64) (WorldState, e
 	// perform the action
 	newState := p.action.Perform(worldState, p.agent)
 	if newState == nil { // action failed
-		behavior.curState = &Idle{}
+		p.agent.SetCurState(&Idle{})
 		return (*planner.State)(nil), nil
 	}
 
 	curPlan.PopAction()
 	if curPlan.IsComplete() {
-		behavior.curState = &Idle{}
+		p.agent.SetCurState(&Idle{})
 	} else {
-		behavior.curState = &Moving{}
+		p.agent.SetCurState(&Moving{})
 	}
 
 	return newState, nil
