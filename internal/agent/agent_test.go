@@ -1,76 +1,34 @@
 package agent
 
 import (
-	"Neolithic/internal/planner"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
-
-func TestAgent_GetCurrentAction(t *testing.T) {
-	type fields struct {
-		name     string
-		behavior *Behavior
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   planner.Action
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &agent{
-				name:     tt.fields.name,
-				behavior: tt.fields.behavior,
-			}
-			assert.Equalf(t, tt.want, a.GetCurrentAction(), "GetCurrentAction()")
-		})
-	}
-}
 
 func TestAgent_Name(t *testing.T) {
 	type fields struct {
 		name     string
 		behavior *Behavior
 	}
-	tests := []struct {
-		name   string
+	tests := map[string]struct {
 		fields fields
 		want   string
 	}{
-		// TODO: Add test cases.
+		"can provide name": {
+			fields: fields{
+				name:     "test",
+				behavior: &Behavior{},
+			},
+			want: "test",
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
 			a := &agent{
 				name:     tt.fields.name,
 				behavior: tt.fields.behavior,
 			}
 			assert.Equalf(t, tt.want, a.Name(), "Name()")
-		})
-	}
-}
-
-func TestAgent_PopCurrentAction(t *testing.T) {
-	type fields struct {
-		name     string
-		behavior *Behavior
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   planner.Action
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			a := &agent{
-				name:     tt.fields.name,
-				behavior: tt.fields.behavior,
-			}
-			assert.Equalf(t, tt.want, a.PopCurrentAction(), "PopCurrentAction()")
 		})
 	}
 }
@@ -83,20 +41,61 @@ func TestAgent_SetCurState(t *testing.T) {
 	type args struct {
 		state State
 	}
-	tests := []struct {
-		name   string
+	tests := map[string]struct {
 		fields fields
 		args   args
 	}{
-		// TODO: Add test cases.
+		"can set current state performing": {
+			fields: fields{
+				name:     "test",
+				behavior: &Behavior{},
+			},
+			args: args{
+				state: &Performing{},
+			},
+		},
 	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
 			a := &agent{
 				name:     tt.fields.name,
 				behavior: tt.fields.behavior,
 			}
 			a.SetCurState(tt.args.state)
+			assert.Equal(t, tt.args.state, a.behavior.curState)
+		})
+	}
+}
+
+func TestAgent_Plan(t *testing.T) {
+	type fields struct {
+		name     string
+		behavior *Behavior
+	}
+
+	tests := map[string]struct {
+		fields fields
+		plan   Plan
+	}{
+		"can get plan": {
+			fields: fields{
+				name: "test",
+				behavior: &Behavior{
+					curPlan: &mockPlan{},
+				},
+			},
+			plan: &mockPlan{},
+		},
+	}
+
+	for name, tt := range tests {
+		t.Run(name, func(t *testing.T) {
+			a := &agent{
+				name:     tt.fields.name,
+				behavior: tt.fields.behavior,
+			}
+			p := a.Plan()
+			assert.Equal(t, tt.plan, p)
 		})
 	}
 }

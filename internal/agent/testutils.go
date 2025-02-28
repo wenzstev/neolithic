@@ -85,3 +85,21 @@ func (m *mockPlan) PeekAction() planner.Action {
 func (m *mockPlan) PopAction() planner.Action {
 	return m.nextAction
 }
+
+type mockAgent struct {
+	name     string
+	curState State
+	plan     Plan
+}
+
+func (m *mockAgent) Name() string {
+	return m.name
+}
+
+func (m *mockAgent) SetCurState(state State) {
+	m.curState = state
+}
+
+func (m *mockAgent) Plan() Plan {
+	return m.plan
+}
