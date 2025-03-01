@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+// deltaTime is the time since the last run of Execute
 const deltaTime = 1.0 / 60
 
 func TestPerforming_Execute(t *testing.T) {
