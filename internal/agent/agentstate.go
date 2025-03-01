@@ -9,7 +9,7 @@ type State interface {
 	// Execute runs the state for a single unit of discrete time. It may produce a new world state, which indicates that
 	// the agent has changed the world in some way. It may make changes to the agent, such as changing the agent's State,
 	// goal, or plan.
-	Execute(world WorldState) (WorldState, error)
+	Execute(world WorldState, deltaTime float64) (WorldState, error)
 }
 
 // Behavior encapsulates the parts of the agent that are not in the physical WorldState
@@ -25,4 +25,9 @@ type Behavior struct {
 	// curState is the current State the agent is in.
 	//nolint:unused
 	curState State
+}
+
+// RequiresTime is an interface that provides a required amount of time.
+type RequiresTime interface { // TODO find better location
+	TimeNeeded() float64
 }

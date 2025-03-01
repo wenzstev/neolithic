@@ -37,7 +37,7 @@ func TestPlan_IsComplete(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			p := &plan{
-				Actions:     &tc.actions,
+				Actions:     tc.actions,
 				curLocation: tc.curLocation,
 			}
 			assert.Equal(t, tc.expected, p.IsComplete())
@@ -69,7 +69,7 @@ func TestPlan_PeekAction(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			p := &plan{
-				Actions:     &tc.actions,
+				Actions:     tc.actions,
 				curLocation: tc.curLocation,
 			}
 			// Use DeepEqual for interface comparison.
@@ -102,7 +102,7 @@ func TestPlan_PopAction(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			p := &plan{
-				Actions:     &tc.actions,
+				Actions:     tc.actions,
 				curLocation: 0,
 			}
 			var results []planner.Action

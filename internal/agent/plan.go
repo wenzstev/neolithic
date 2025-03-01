@@ -15,7 +15,7 @@ type Plan interface {
 // plan represents the agent's current plan, as created by the GOAP system
 type plan struct {
 	// Actions are the actions that make up the plan.
-	Actions *[]planner.Action
+	Actions []planner.Action
 	// curLocation is used to determine the current step in the plan.
 	curLocation int
 }
@@ -26,7 +26,7 @@ var _ Plan = (*plan)(nil)
 // IsComplete implements Plan.IsComplete. It indicates if a
 // plan has completed all steps.
 func (p *plan) IsComplete() bool {
-	return p.curLocation >= len(*p.Actions)
+	return p.curLocation >= len(p.Actions)
 }
 
 // PeekAction implements Plan.PeekAction. It provides the next action
@@ -35,7 +35,7 @@ func (p *plan) PeekAction() planner.Action {
 	if p.IsComplete() {
 		return nil
 	}
-	return (*p.Actions)[p.curLocation]
+	return (p.Actions)[p.curLocation]
 }
 
 // PopAction implements Plan.PopAction. It returns the current action

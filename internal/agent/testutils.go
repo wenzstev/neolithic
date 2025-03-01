@@ -59,3 +59,47 @@ func (m *mockNullAction) Description() string {
 func (m *mockNullAction) GetStateChange(_ planner.Agent) *planner.State {
 	return &planner.State{}
 }
+
+type mockActionWithTime struct {
+	mockAction
+	timeNeeded float64
+}
+
+func (m *mockActionWithTime) TimeNeeded() float64 {
+	return m.timeNeeded
+}
+
+type mockPlan struct {
+	isComplete bool
+	nextAction planner.Action
+}
+
+func (m *mockPlan) IsComplete() bool {
+	return m.isComplete
+}
+
+func (m *mockPlan) PeekAction() planner.Action {
+	return m.nextAction
+}
+
+func (m *mockPlan) PopAction() planner.Action {
+	return m.nextAction
+}
+
+type mockAgent struct {
+	name     string
+	curState State
+	plan     Plan
+}
+
+func (m *mockAgent) Name() string {
+	return m.name
+}
+
+func (m *mockAgent) SetCurState(state State) {
+	m.curState = state
+}
+
+func (m *mockAgent) Plan() Plan {
+	return m.plan
+}
