@@ -7,12 +7,20 @@ import (
 	"Neolithic/internal/planner"
 )
 
+// Idle is the state the agent enters in when it has no working plan. It attempts to create a plan and will proceed
+// to a different state once successful.
 type Idle struct {
+	// iterationsPerCall is the number of iterations to run the goap planner for in a given call.
 	iterationsPerCall int
-	planner           *astar.SearchState
-	agent             Agent
+	// planner is the GOAP planner that creates the agent's plan
+	planner *astar.SearchState
+	// agent is the agent executing the state.
+	agent Agent
 }
 
+// Execute implements State.Exeucte. Using a defined goal, it creates a plan using the GOAP planner. It runs
+// the planner a given number of iterations per call. Once a plan is found, it is set on the agent and
+// the agent proceeds to a Moving state.
 func (i *Idle) Execute(world WorldState, _ float64) (WorldState, error) {
 	if i.planner == nil {
 		search, err := i.createSearchState(world)
@@ -42,6 +50,7 @@ func (i *Idle) Execute(world WorldState, _ float64) (WorldState, error) {
 	return nil, nil // will switch to move state when we see that curPlan is fulfilled
 }
 
+// createSearchState creates the search state for the planner.
 func (i *Idle) createSearchState(world WorldState) (*astar.SearchState, error) {
 	behavior := i.agent.Behavior()
 	worldState, ok := world.(*planner.State)
@@ -65,6 +74,7 @@ func (i *Idle) createSearchState(world WorldState) (*astar.SearchState, error) {
 	return astar.NewSearch(start, goal)
 }
 
+// createActionListFromSearchState creates a list of actions for the agent to follow.
 func (i *Idle) createActionListFromSearchState() ([]planner.Action, error) {
 	if i.planner == nil {
 		return nil, errors.New("no planner")
