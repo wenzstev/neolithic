@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"fmt"
 	"math"
 
@@ -12,7 +13,7 @@ type GoapNode struct {
 	// Action is the Action taken to reach this node
 	Action Action
 	// State is the State of the world after running the Action
-	State *State
+	State *core.WorldState
 	// GoapRunInfo is a set of attributes that carry over throughout the goap planning process
 	GoapRunInfo *GoapRunInfo
 }
@@ -20,7 +21,7 @@ type GoapNode struct {
 // GoapRunInfo represents the information that doesn't change across the GOAP planning call
 type GoapRunInfo struct {
 	// Agent is the agent running the planner
-	Agent Agent
+	Agent core.Agent
 	// PossibleNextActions are all actions that the agent could take
 	PossibleNextActions *[]Action
 }
@@ -72,7 +73,9 @@ func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 // overestimate the total cost of a given path.
 func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	var totalCost float64
-	for loc, goalInventory := range goal.State.Locations {
+	for _, goalLocation := range goal.State.Locations {
+		currentLocation, ok := cur.State.Locations[goalLocation.Name]
+
 		currentInventory, ok := cur.State.Locations[loc]
 		for item, goalAmount := range goalInventory {
 			currentAmount := 0

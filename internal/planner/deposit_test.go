@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -15,15 +16,15 @@ var testDeposit = &Deposit{
 func TestDeposit_Perform(t *testing.T) {
 	type testCase struct {
 		testDeposit      *Deposit
-		startState       *State
+		startState       *core.State
 		agent            Agent
-		expectedEndState *State
+		expectedEndState *core.State
 	}
 
 	tests := map[string]testCase{
 		"can do basic deposit": {
 			testDeposit: testDeposit,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
@@ -34,7 +35,7 @@ func TestDeposit_Perform(t *testing.T) {
 				},
 			},
 			agent: testAgent,
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 10,
@@ -47,7 +48,7 @@ func TestDeposit_Perform(t *testing.T) {
 		},
 		"deposit fails, nothing in agent inventory": {
 			testDeposit: testDeposit,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 0,
@@ -60,7 +61,7 @@ func TestDeposit_Perform(t *testing.T) {
 		},
 		"partial deposit success": {
 			testDeposit: testDeposit,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 0,
@@ -73,7 +74,7 @@ func TestDeposit_Perform(t *testing.T) {
 				},
 			},
 			agent: testAgent,
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 5,

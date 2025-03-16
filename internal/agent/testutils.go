@@ -1,6 +1,9 @@
 package agent
 
-import "Neolithic/internal/planner"
+import (
+	"Neolithic/internal/core"
+	"Neolithic/internal/planner"
+)
 
 var (
 	testLocation = &planner.Location{
@@ -17,7 +20,7 @@ type mockAction struct{}
 
 var _ planner.Action = (*mockAction)(nil)
 
-func (m *mockAction) Perform(start *planner.State, agent planner.Agent) *planner.State {
+func (m *mockAction) Perform(start *core.State, agent planner.Agent) *core.State {
 	return start.Add(m.GetStateChange(agent), false)
 }
 
@@ -29,8 +32,8 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetStateChange(_ planner.Agent) *planner.State {
-	return &planner.State{
+func (m *mockAction) GetStateChange(_ planner.Agent) *core.State {
+	return &core.State{
 		Locations: map[*planner.Location]planner.Inventory{
 			testLocation: {
 				testResource: 1,
@@ -44,7 +47,7 @@ type mockNullAction struct{}
 
 var _ planner.Action = (*mockNullAction)(nil)
 
-func (m *mockNullAction) Perform(_ *planner.State, _ planner.Agent) *planner.State {
+func (m *mockNullAction) Perform(_ *core.State, _ planner.Agent) *core.State {
 	return nil
 }
 
@@ -56,8 +59,8 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetStateChange(_ planner.Agent) *planner.State {
-	return &planner.State{}
+func (m *mockNullAction) GetStateChange(_ planner.Agent) *core.State {
+	return &core.State{}
 }
 
 type mockActionWithTime struct {

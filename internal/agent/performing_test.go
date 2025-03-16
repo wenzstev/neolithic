@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
 	"testing"
 
 	"Neolithic/internal/planner"
@@ -14,15 +15,15 @@ func TestPerforming_Execute(t *testing.T) {
 		timeLeft         float64
 		action           planner.Action
 		plan             Plan
-		startWorldState  *planner.State
-		endWorldState    *planner.State
+		startWorldState  *core.State
+		endWorldState    *core.State
 		expectedAgent    *mockAgent
 		expectedAction   planner.Action
 		expectedTimeLeft float64
 		expectedError    error
 	}
 
-	testWorldState := &planner.State{
+	testWorldState := &core.State{
 		Locations: map[*planner.Location]planner.Inventory{
 			testLocation: {},
 		},
@@ -35,7 +36,7 @@ func TestPerforming_Execute(t *testing.T) {
 				nextAction: &mockAction{},
 			},
 			startWorldState: testWorldState,
-			endWorldState: &planner.State{
+			endWorldState: &core.State{
 				Locations: map[*planner.Location]planner.Inventory{
 					testLocation: {
 						testResource: 1,
@@ -45,7 +46,7 @@ func TestPerforming_Execute(t *testing.T) {
 			},
 			expectedAgent: &mockAgent{
 				behavior: &Behavior{
-					curPlan: &mockPlan{
+					CurPlan: &mockPlan{
 						nextAction: &mockAction{},
 					},
 					curState: &Moving{},
@@ -61,7 +62,7 @@ func TestPerforming_Execute(t *testing.T) {
 			startWorldState: testWorldState,
 			expectedAgent: &mockAgent{
 				behavior: &Behavior{
-					curPlan: &mockPlan{
+					CurPlan: &mockPlan{
 						nextAction: &mockActionWithTime{timeNeeded: 1.0},
 					},
 				},
@@ -76,7 +77,7 @@ func TestPerforming_Execute(t *testing.T) {
 			startWorldState: testWorldState,
 			expectedAgent: &mockAgent{
 				behavior: &Behavior{
-					curPlan: &mockPlan{
+					CurPlan: &mockPlan{
 						nextAction: &mockNullAction{},
 					},
 					curState: &Idle{},
@@ -92,7 +93,7 @@ func TestPerforming_Execute(t *testing.T) {
 			action:          &mockActionWithTime{timeNeeded: 1.0},
 			timeLeft:        0,
 			startWorldState: testWorldState,
-			endWorldState: &planner.State{
+			endWorldState: &core.State{
 				Locations: map[*planner.Location]planner.Inventory{
 					testLocation: {
 						testResource: 1,
@@ -102,7 +103,7 @@ func TestPerforming_Execute(t *testing.T) {
 			},
 			expectedAgent: &mockAgent{
 				behavior: &Behavior{
-					curPlan: &mockPlan{
+					CurPlan: &mockPlan{
 						nextAction: &mockActionWithTime{timeNeeded: 1.0},
 					},
 					curState: &Moving{},
@@ -117,7 +118,7 @@ func TestPerforming_Execute(t *testing.T) {
 				isComplete: true,
 			},
 			startWorldState: testWorldState,
-			endWorldState: &planner.State{
+			endWorldState: &core.State{
 				Locations: map[*planner.Location]planner.Inventory{
 					testLocation: {
 						testResource: 1,
@@ -127,7 +128,7 @@ func TestPerforming_Execute(t *testing.T) {
 			},
 			expectedAgent: &mockAgent{
 				behavior: &Behavior{
-					curPlan: &mockPlan{
+					CurPlan: &mockPlan{
 						nextAction: &mockAction{},
 						isComplete: true,
 					},
@@ -145,7 +146,7 @@ func TestPerforming_Execute(t *testing.T) {
 				timeLeft: tc.timeLeft,
 				action:   tc.action,
 				agent: &mockAgent{
-					behavior: &Behavior{curPlan: tc.plan},
+					behavior: &Behavior{CurPlan: tc.plan},
 				},
 			}
 			output, err := testPerforming.Execute(tc.startWorldState, 1.0/60.0)

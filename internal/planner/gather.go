@@ -1,19 +1,20 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"fmt"
 )
 
 // Gather implements Action, and represents the act of gathering a resource
 type Gather struct {
 	// requires is an optional resource that is required to perform the gather
-	requires *Resource
+	requires *core.Resource
 	// resource is the Resource being gathered
-	resource *Resource
+	resource *core.Resource
 	// amount is the amount of the resource being gathered
 	amount int
-	// location is the Location where the resource is being gathered
-	location *Location
+	// locName is the Location where the resource is being gathered
+	locName string
 	// cost is the cost of taking the Action
 	cost float64
 }
@@ -22,13 +23,13 @@ type Gather struct {
 var _ Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a resource
-func (g *Gather) Perform(start *State, agent Agent) *State {
+func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.Copy()
-	locationInv, ok := end.Locations[g.location]
+	location, ok := end.Locations[g.locName]
 	if !ok {
 		return nil // location must always be in State, this is an error
 	}
-	curResource, ok := locationInv[g.resource]
+	curResource, ok := location.Inventory[g.resource]
 	if !ok {
 		return nil // fail, not possible to gather from this location as there is not resource
 	}
@@ -42,54 +43,53 @@ func (g *Gather) Perform(start *State, agent Agent) *State {
 		amountToGather = curResource
 	}
 
-	agentInv, ok := end.Agents[agent]
+	endAgent, ok := end.Agents[agent.Name()]
 	if !ok {
 		return nil // fail, no agent in State
 	}
 
-	_, ok = agentInv[g.requires]
-	if g.requires != nil && !ok {
+	if endAgent.GetAmount(g.resource) <= 0 {
 		return nil // fail, does not have the necessary tool
 	}
 
-	_, ok = agentInv[g.resource]
-	if !ok {
-		agentInv[g.resource] = 0
-	}
+	newAgent := endAgent.AdjustInventory(g.resource, amountToGather)
+	end.Agents[agent.Name()] = newAgent
 
-	agentInv[g.resource] += amountToGather
-	locationInv[g.resource] -= amountToGather
+	location.Inventory[g.resource] -= amountToGather
 
-	if locationInv[g.resource] == 0 {
-		delete(locationInv, g.resource)
+	if location.Inventory[g.resource] == 0 {
+		delete(location.Inventory, g.resource)
 	}
 
 	return end
 }
 
 // Cost implements Action.Cost, and returns the cost of the gather Action
-func (g *Gather) Cost(_ Agent) float64 {
+func (g *Gather) Cost(_ core.Agent) float64 {
 	return g.cost
 }
 
 // Description implements Action.Description, and provides a brief description of the gather Action
 func (g *Gather) Description() string {
-	return fmt.Sprintf("gather %d %s from %s", g.amount, g.resource.Name, g.location.Name)
+	return fmt.Sprintf("gather %d %s from %s", g.amount, g.resource.Name, g.locName)
 }
 
 // GetStateChange implements Action.GetStateChange and returns the change in State from the Action. For Gather, this
 // means the designated amount is removed from the location and given to the agent.
-func (g *Gather) GetStateChange(agent Agent) *State {
-	return &State{
-		Locations: map[*Location]Inventory{
-			g.location: {
-				g.resource: g.amount * -1,
+func (g *Gather) GetStateChange(agent core.Agent) *core.WorldState {
+	newAgent := agent.AdjustInventory(g.resource, g.amount)
+
+	return &core.WorldState{
+		Locations: map[string]core.Location{
+			g.locName: {
+				Name: g.locName,
+				Inventory: core.Inventory{
+					g.resource: -g.amount,
+				},
 			},
 		},
-		Agents: map[Agent]Inventory{
-			agent: {
-				g.resource: g.amount,
-			},
+		Agents: map[string]core.Agent{
+			agent.Name(): newAgent,
 		},
 	}
 }

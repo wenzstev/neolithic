@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -25,15 +26,15 @@ func TestGather_Perform(t *testing.T) {
 	type testCase struct {
 		testGather       *Gather
 		testAgent        Agent
-		startState       *State
-		expectedEndState *State
+		startState       *core.State
+		expectedEndState *core.State
 	}
 
 	testCases := map[string]testCase{
 		"can do basic gather": {
 			testGather: testGather,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 10,
@@ -43,7 +44,7 @@ func TestGather_Perform(t *testing.T) {
 					testAgent: {},
 				},
 			},
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 5,
@@ -59,7 +60,7 @@ func TestGather_Perform(t *testing.T) {
 		"gather partially succeeds": {
 			testGather: testGather,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 2,
@@ -69,7 +70,7 @@ func TestGather_Perform(t *testing.T) {
 					testAgent: {},
 				},
 			},
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
@@ -83,7 +84,7 @@ func TestGather_Perform(t *testing.T) {
 		"gather succeeds with tool": {
 			testGather: testGatherRequires,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 10,
@@ -95,7 +96,7 @@ func TestGather_Perform(t *testing.T) {
 					},
 				},
 			},
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 5,
@@ -112,7 +113,7 @@ func TestGather_Perform(t *testing.T) {
 		"gather fails, no resource in location": {
 			testGather: testGather,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {},
 				},
@@ -125,7 +126,7 @@ func TestGather_Perform(t *testing.T) {
 		"gather fails, required tool not present": {
 			testGather: testGatherRequires,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 10,
@@ -137,7 +138,7 @@ func TestGather_Perform(t *testing.T) {
 					},
 				},
 			},
-			expectedEndState: &State{
+			expectedEndState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 5,
@@ -154,7 +155,7 @@ func TestGather_Perform(t *testing.T) {
 		"gather fails, agent not in State": {
 			testGather: testGather,
 			testAgent:  testAgent,
-			startState: &State{
+			startState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 10,

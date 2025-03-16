@@ -48,11 +48,11 @@ func TestAgent_Behavior(t *testing.T) {
 			fields: fields{
 				name: "test",
 				behavior: &Behavior{
-					curPlan: &mockPlan{},
+					CurPlan: &mockPlan{},
 				},
 			},
 			behavior: &Behavior{
-				curPlan: &mockPlan{},
+				CurPlan: &mockPlan{},
 			},
 		},
 	}

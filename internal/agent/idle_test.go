@@ -1,8 +1,9 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
 	"testing"
-	
+
 	"Neolithic/internal/astar"
 	"Neolithic/internal/planner"
 	"github.com/stretchr/testify/require"
@@ -17,14 +18,14 @@ func TestIdle_Execute(t *testing.T) {
 		expectedPlan       Plan
 	}
 
-	testStart := &planner.State{
+	testStart := &core.State{
 		Locations: map[*planner.Location]planner.Inventory{
 			testLocation: {},
 		},
 		Agents: map[planner.Agent]planner.Inventory{},
 	}
 
-	testEnd := &planner.State{
+	testEnd := &core.State{
 		Locations: map[*planner.Location]planner.Inventory{
 			testLocation: {
 				testResource: 3,
@@ -93,7 +94,7 @@ func TestIdle_Execute(t *testing.T) {
 			require.Equal(t, test.expectedIterations, testIdle.planner.Iterations)
 			require.Equal(t, expectedStart, testIdle.planner.Start)
 			require.Equal(t, expectedGoal, testIdle.planner.Goal)
-			require.Equal(t, testAgent.Behavior().curPlan, testIdle.agent.Behavior().curPlan)
+			require.Equal(t, testAgent.Behavior().CurPlan, testIdle.agent.Behavior().CurPlan)
 
 		})
 	}

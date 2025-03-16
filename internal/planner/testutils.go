@@ -1,5 +1,7 @@
 package planner
 
+import "Neolithic/internal/core"
+
 var (
 	testLocation = &Location{
 		Name: "testLocation",
@@ -57,7 +59,7 @@ type mockAction struct{}
 
 var _ Action = (*mockAction)(nil)
 
-func (m *mockAction) Perform(start *State, agent Agent) *State {
+func (m *mockAction) Perform(start *core.State, agent Agent) *core.State {
 	return start.Add(m.GetStateChange(agent), false)
 }
 
@@ -69,8 +71,8 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetStateChange(_ Agent) *State {
-	return &State{
+func (m *mockAction) GetStateChange(_ Agent) *core.State {
+	return &core.State{
 		Locations: map[*Location]Inventory{
 			testLocation: {
 				testResource: 1,
@@ -84,7 +86,7 @@ type mockNullAction struct{}
 
 var _ Action = (*mockNullAction)(nil)
 
-func (m *mockNullAction) Perform(_ *State, _ Agent) *State {
+func (m *mockNullAction) Perform(_ *core.State, _ Agent) *core.State {
 	return nil
 }
 
@@ -96,6 +98,6 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetStateChange(_ Agent) *State {
-	return &State{}
+func (m *mockNullAction) GetStateChange(_ Agent) *core.State {
+	return &core.State{}
 }

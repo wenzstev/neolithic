@@ -1,26 +1,32 @@
 package agent
 
-// Agent is the public interface for interacting with the agent.
-type Agent interface {
-	// Name provides the name of the agent
-	Name() string
-	// Behavior provides the behavior struct for the agent.
-	Behavior() *Behavior
-}
+import "Neolithic/internal/core"
 
 // agent represents an agent in the world
-type agent struct {
+type Agent struct {
 	// name is the name of the agent
 	name string
 	// behavior holds the agent's decision-making processes
-	behavior *Behavior
+	Behavior  *Behavior
+	Inventory core.Inventory
 }
 
-// Name implements Agent.Name and returns the name of the agent
-func (a *agent) Name() string {
+var _ core.Agent = (*Agent)(nil)
+
+func (a *Agent) Name() string {
 	return a.name
 }
 
-func (a *agent) Behavior() *Behavior {
-	return a.behavior
+func (a *Agent) AdjustInventory(resource *core.Resource, i int) core.Agent {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *Agent) GetAmount(resource *core.Resource) int {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (a *Agent) Copy() *Agent {
+	panic("implement me")
 }

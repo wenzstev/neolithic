@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
 	"errors"
 
 	"Neolithic/internal/astar"
@@ -15,13 +16,13 @@ type Idle struct {
 	// planner is the GOAP planner that creates the agent's plan
 	planner *astar.SearchState
 	// agent is the agent executing the state.
-	agent Agent
+	agent *Agent
 }
 
 // Execute implements State.Exeucte. Using a defined goal, it creates a plan using the GOAP planner. It runs
 // the planner a given number of iterations per call. Once a plan is found, it is set on the agent and
 // the agent proceeds to a Moving state.
-func (i *Idle) Execute(world WorldState, _ float64) (WorldState, error) {
+func (i *Idle) Execute(world *core.WorldState, _ float64) (*core.WorldState, error) {
 	if i.planner == nil {
 		search, err := i.createSearchState(world)
 		if err != nil {
@@ -46,28 +47,24 @@ func (i *Idle) Execute(world WorldState, _ float64) (WorldState, error) {
 		return nil, err
 	}
 
-	i.agent.Behavior().curPlan = &plan{Actions: actionList}
-	return nil, nil // will switch to move state when we see that curPlan is fulfilled
+	i.agent.Behavior.CurPlan = &plan{Actions: actionList}
+	return nil, nil // will switch to move state when we see that CurPlan is fulfilled
 }
 
 // createSearchState creates the search state for the planner.
-func (i *Idle) createSearchState(world WorldState) (*astar.SearchState, error) {
-	behavior := i.agent.Behavior()
-	worldState, ok := world.(*planner.State)
-	if !ok {
-		return nil, errors.New("world state is not a search state")
-	}
+func (i *Idle) createSearchState(world *core.WorldState) (*astar.SearchState, error) {
+	behavior := i.agent.Behavior
 	runInfo := &planner.GoapRunInfo{
 		Agent:               i.agent,
 		PossibleNextActions: behavior.PossibleActions,
 	}
 	start := &planner.GoapNode{
-		State:       worldState,
+		State:       world,
 		GoapRunInfo: runInfo,
 	}
 
 	goal := &planner.GoapNode{
-		State:       behavior.Goal.(*planner.State), // temporary until state is moved out of planner
+		State:       &behavior.Goal, // temporary until state is moved out of planner
 		GoapRunInfo: runInfo,
 	}
 

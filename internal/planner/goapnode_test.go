@@ -2,6 +2,7 @@ package planner
 
 import (
 	"Neolithic/internal/astar"
+	"Neolithic/internal/core"
 	"math"
 	"testing"
 
@@ -10,7 +11,7 @@ import (
 
 func TestActions_AStar(t *testing.T) {
 
-	startState := &State{
+	startState := &core.State{
 		Locations: map[*Location]Inventory{
 			testLocation: {
 				testResource: 50,
@@ -31,8 +32,8 @@ func TestActions_AStar(t *testing.T) {
 
 	type testCase struct {
 		actions            *[]Action
-		startState         *State
-		goalState          *State
+		startState         *core.State
+		goalState          *core.State
 		agent              Agent
 		maxDistance        int
 		expectedOutput     *astar.SearchState
@@ -44,7 +45,7 @@ func TestActions_AStar(t *testing.T) {
 		"can find gather path": {
 			actions:    actionList,
 			startState: startState,
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation2: {
 						testResource: 20,
@@ -62,7 +63,7 @@ func TestActions_AStar(t *testing.T) {
 					},
 				},
 				Goal: &GoapNode{
-					State: &State{
+					State: &core.State{
 						Locations: map[*Location]Inventory{
 							testLocation2: {
 								testResource: 20,
@@ -89,7 +90,7 @@ func TestActions_AStar(t *testing.T) {
 		"can move all resource to new location": {
 			actions:    actionList,
 			startState: startState,
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation2: {
 						testResource: 50,
@@ -107,7 +108,7 @@ func TestActions_AStar(t *testing.T) {
 					},
 				},
 				Goal: &GoapNode{
-					State: &State{
+					State: &core.State{
 						Locations: map[*Location]Inventory{
 							testLocation2: {
 								testResource: 50,
@@ -138,7 +139,7 @@ func TestActions_AStar(t *testing.T) {
 		"will return error if no path": {
 			actions:    actionList,
 			startState: startState,
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 100,
@@ -156,7 +157,7 @@ func TestActions_AStar(t *testing.T) {
 					},
 				},
 				Goal: &GoapNode{
-					State: &State{
+					State: &core.State{
 						Locations: map[*Location]Inventory{
 							testLocation: {
 								testResource: 100,
@@ -243,8 +244,8 @@ func areNodesEqual(t *testing.T, nodeA, nodeB astar.Node) {
 
 func TestActions_Heuristic(t *testing.T) {
 	type testCase struct {
-		curState         *State
-		goalState        *State
+		curState         *core.State
+		goalState        *core.State
 		agent            Agent
 		expectedDistance float64
 	}
@@ -253,7 +254,7 @@ func TestActions_Heuristic(t *testing.T) {
 
 	tests := map[string]testCase{
 		"goal is reached": {
-			curState: &State{
+			curState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -263,7 +264,7 @@ func TestActions_Heuristic(t *testing.T) {
 					testAgent: {},
 				},
 			},
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -274,7 +275,7 @@ func TestActions_Heuristic(t *testing.T) {
 			expectedDistance: 0,
 		},
 		"goal is reached, other nonimportant states present": {
-			curState: &State{
+			curState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource:  50,
@@ -282,7 +283,7 @@ func TestActions_Heuristic(t *testing.T) {
 					},
 				},
 			},
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -293,7 +294,7 @@ func TestActions_Heuristic(t *testing.T) {
 			expectedDistance: 0,
 		},
 		"impossible to reach goal": {
-			curState: &State{
+			curState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -303,7 +304,7 @@ func TestActions_Heuristic(t *testing.T) {
 					testAgent: {},
 				},
 			},
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 70,
@@ -314,7 +315,7 @@ func TestActions_Heuristic(t *testing.T) {
 			expectedDistance: math.Inf(1),
 		},
 		"State amount is less than goal": {
-			curState: &State{
+			curState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -326,7 +327,7 @@ func TestActions_Heuristic(t *testing.T) {
 					},
 				},
 			},
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 70,
@@ -337,7 +338,7 @@ func TestActions_Heuristic(t *testing.T) {
 			expectedDistance: 1,
 		},
 		"State amount is greater than goal": {
-			curState: &State{
+			curState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 70,
@@ -347,7 +348,7 @@ func TestActions_Heuristic(t *testing.T) {
 					testAgent: {},
 				},
 			},
-			goalState: &State{
+			goalState: &core.State{
 				Locations: map[*Location]Inventory{
 					testLocation: {
 						testResource: 50,
@@ -394,7 +395,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 
 	mockNullAction1 := &mockNullAction{}
 
-	expectedEndState := &State{
+	expectedEndState := &core.State{
 		Locations: map[*Location]Inventory{
 			testLocation: {
 				testResource: 1,
@@ -405,7 +406,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 
 	type testCase struct {
 		actions            []Action
-		startState         *State
+		startState         *core.State
 		agent              Agent
 		expectedSuccessors []*GoapNode
 	}
@@ -415,7 +416,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 			actions: []Action{
 				mockAction1,
 			},
-			startState: &State{},
+			startState: &core.State{},
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{
@@ -430,7 +431,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction2,
 				mockAction3,
 			},
-			startState: &State{},
+			startState: &core.State{},
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{
@@ -453,7 +454,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction1,
 				mockAction2,
 			},
-			startState: &State{},
+			startState: &core.State{},
 			agent:      testAgent,
 			expectedSuccessors: []*GoapNode{
 				{

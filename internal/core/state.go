@@ -1,4 +1,4 @@
-package planner
+package core
 
 import (
 	"bytes"

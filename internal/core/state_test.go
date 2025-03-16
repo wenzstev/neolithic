@@ -1,6 +1,7 @@
-package planner
+package core
 
 import (
+	"Neolithic/internal/planner"
 	"reflect"
 	"testing"
 
@@ -16,8 +17,8 @@ func TestStateCopy(t *testing.T) {
 		"basic copy": {
 			startState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
 				},
 				Agents: map[Agent]Inventory{},
@@ -26,13 +27,13 @@ func TestStateCopy(t *testing.T) {
 		"basic copy with Agent": {
 			startState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
 				},
 				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 1,
+					planner.testAgent: {
+						planner.testResource: 1,
 					},
 				},
 			},
@@ -59,8 +60,8 @@ func TestStateString(t *testing.T) {
 		"string with location": {
 			testState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
 				},
 			},
@@ -69,8 +70,8 @@ func TestStateString(t *testing.T) {
 		"string with Agent": {
 			testState: &State{
 				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 1,
+					planner.testAgent: {
+						planner.testResource: 1,
 					},
 				},
 			},
@@ -79,13 +80,13 @@ func TestStateString(t *testing.T) {
 		"string with Agent and location": {
 			testState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
 				},
 				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 1,
+					planner.testAgent: {
+						planner.testResource: 1,
 					},
 				},
 			},
@@ -111,8 +112,8 @@ func TestStateID(t *testing.T) {
 		"id with location": {
 			testState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
 				},
 			},
@@ -121,11 +122,11 @@ func TestStateID(t *testing.T) {
 		"id with multiple locations": {
 			testState: &State{
 				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 1,
+					planner.testLocation: {
+						planner.testResource: 1,
 					},
-					testLocation2: {
-						testResource: 1,
+					planner.testLocation2: {
+						planner.testResource: 1,
 					},
 				},
 			},
