@@ -1,36 +1,89 @@
 package core
 
+import (
+	"bytes"
+	"crypto/sha256"
+	"encoding/gob"
+	"fmt"
+	"sort"
+)
+
 type WorldState struct {
 	Locations map[string]Location
 	Agents    map[string]Agent
 }
 
-func (*WorldState) ID() (string, error) {
-	panic("implement me")
+func (w *WorldState) ID() (string, error) {
+
+	type sortedState struct {
+		Locations []Location
+		Agents    []Agent
+	}
+
+	sortLoc := func(locs map[string]Location) []Location {
+		items := make([]Location, 0, len(locs))
+		for _, loc := range locs {
+			items = append(items, loc)
+		}
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Name < items[j].Name
+		})
+		return items
+	}
+
+	sortAgent := func(agents map[string]Agent) []Agent {
+		items := make([]Agent, 0, len(agents))
+		for _, agent := range agents {
+			items = append(items, agent)
+		}
+		sort.Slice(items, func(i, j int) bool {
+			return items[i].Name() < items[j].Name()
+		})
+		return items
+	}
+
+	stateToEncode := sortedState{
+		Locations: sortLoc(w.Locations),
+		Agents:    sortAgent(w.Agents),
+	}
+
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	if err := enc.Encode(stateToEncode); err != nil {
+		return "", err
+	}
+	hash := sha256.Sum256(buf.Bytes())
+	return fmt.Sprintf("%x", hash), nil
 }
 
-func (w *WorldState) Copy() *WorldState {
-	panic("implement me")
+func (w *WorldState) DeepCopy() *WorldState {
+	end := &WorldState{
+		Locations: make(map[string]Location),
+		Agents:    make(map[string]Agent),
+	}
+
+	for k, v := range w.Locations {
+		end.Locations[k] = *v.DeepCopy()
+	}
+
+	for k, v := range w.Agents {
+		end.Agents[k] = v.DeepCopy()
+	}
+
+	return end
 }
 
-type Inventory map[*Resource]int
-
-type Resource struct {
-	Name string
-}
-
-type Location struct {
-	Name      string
-	Inventory Inventory
-	Coord     Coord
-}
-
-type Agent interface {
-	Name() string
-	AdjustInventory(*Resource, int) Agent
-	GetAmount(*Resource) int
-}
-
-type Coord struct {
-	X, Y int
+func (w *WorldState) String() string {
+	if w == nil {
+		return "<nil>"
+	}
+	output := "WorldState :\n Locations:\n"
+	for _, loc := range w.Locations {
+		output += loc.String()
+	}
+	output += "\n Agents:\n"
+	for _, agent := range w.Agents {
+		output += agent.String()
+	}
+	return output
 }

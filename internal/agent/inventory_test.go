@@ -1,6 +1,7 @@
-package core
+package agent
 
 import (
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
@@ -8,12 +9,12 @@ import (
 
 func TestInventory_Copy(t *testing.T) {
 	type testCase struct {
-		inventory Inventory
+		inventory core.Inventory
 	}
 
 	tests := map[string]testCase{
 		"basic copy": {
-			inventory: Inventory{
+			inventory: core.Inventory{
 				testResource: 10,
 			},
 		},
@@ -30,13 +31,13 @@ func TestInventory_Copy(t *testing.T) {
 
 func TestInventory_String(t *testing.T) {
 	type testCase struct {
-		inventory Inventory
+		inventory core.Inventory
 		expected  string
 	}
 
 	tests := map[string]testCase{
 		"can produce expected string": {
-			inventory: Inventory{
+			inventory: core.Inventory{
 				testResource: 10,
 			},
 			expected: "      testResource: 10\n",

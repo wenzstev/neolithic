@@ -3,45 +3,39 @@ package planner
 import "Neolithic/internal/core"
 
 var (
-	testLocation = &Location{
-		Name: "testLocation",
-	}
-
 	testAgent = &mockAgent{
 		N: "testAgent",
 	}
 
-	testResource = &Resource{
+	testResource = &core.Resource{
 		Name: "testResource",
 	}
-
-	testLocation2 = &Location{Name: "testLocation2"}
 
 	gatherTest = &Gather{
 		resource: testResource,
 		amount:   10,
-		location: testLocation,
+		locName:  "testLocation",
 		cost:     10.0,
 	}
 
 	gatherTest2 = &Gather{
 		resource: testResource,
 		amount:   10,
-		location: testLocation2,
+		locName:  "testLocation2",
 		cost:     10.0,
 	}
 
 	depositTest = &Deposit{
 		resource: testResource,
 		amount:   20,
-		location: testLocation,
+		locName:  "testLocation",
 		cost:     1.0,
 	}
 
 	depositTest2 = &Deposit{
 		resource: testResource,
 		amount:   20,
-		location: testLocation2,
+		locName:  "testLocation2",
 		cost:     1.0,
 	}
 )

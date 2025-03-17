@@ -1,14 +1,18 @@
 package agent
 
-import "Neolithic/internal/core"
+import (
+	"Neolithic/internal/core"
+	"fmt"
+)
 
-// agent represents an agent in the world
+// Agent represents an agent in the world
 type Agent struct {
 	// name is the name of the agent
 	name string
 	// behavior holds the agent's decision-making processes
 	Behavior  *Behavior
-	Inventory core.Inventory
+	inventory core.Inventory
+	Position  core.Coord
 }
 
 var _ core.Agent = (*Agent)(nil)
@@ -17,16 +21,14 @@ func (a *Agent) Name() string {
 	return a.name
 }
 
-func (a *Agent) AdjustInventory(resource *core.Resource, i int) core.Agent {
-	//TODO implement me
+func (a *Agent) Inventory() core.Inventory {
+	return a.inventory
+}
+
+func (a *Agent) DeepCopy() core.Agent {
 	panic("implement me")
 }
 
-func (a *Agent) GetAmount(resource *core.Resource) int {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (a *Agent) Copy() *Agent {
-	panic("implement me")
+func (a *Agent) String() string {
+	return fmt.Sprintf("Agent: %s \nInventory %s\n Position %v\n", a.name, a.inventory, a.Position)
 }

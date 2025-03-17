@@ -22,7 +22,7 @@ var _ Action = (*Deposit)(nil)
 
 // Perform implements Action.Perform, and simulates the act of depositing a resource in a location
 func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
-	end := start.Copy()
+	end := start.DeepCopy()
 
 	endLoc, ok := end.Locations[d.locName]
 	if !ok {
@@ -34,7 +34,9 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 		return nil // error, no agent of that type in State
 	}
 
-	amountOnAgent := endAgent.GetAmount(d.resource)
+	agentInv := endAgent.Inventory()
+
+	amountOnAgent := agentInv.GetAmount(d.resource)
 	if amountOnAgent == 0 {
 		return nil
 	}
@@ -46,14 +48,8 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 
 	locInv := endLoc.Inventory
 
-	_, ok = locInv[d.resource]
-	if !ok {
-		locInv[d.resource] = 0
-	}
-
-	locInv[d.resource] += amountToDeposit
-	newAgent := endAgent.AdjustInventory(d.resource, amountToDeposit)
-	end.Agents[agent.Name()] = newAgent
+	locInv.AdjustAmount(d.resource, amountToDeposit)
+	agentInv.AdjustAmount(d.resource, amountToDeposit)
 
 	return end
 }
@@ -68,23 +64,19 @@ func (d *Deposit) Description() string {
 	return fmt.Sprintf("deposit %d %s at %s", d.amount, d.resource.Name, d.locName)
 }
 
-// GetStateChange returns the diff in State. It knows nothing about the actual State that might be. Instead it produces State values
-// as a diff. So the inventory amount could be negative.
-func (d *Deposit) GetStateChange(agent core.Agent) *core.WorldState {
-	newAgent := agent.AdjustInventory(d.resource, -d.amount)
-
-	return &core.WorldState{
-		Locations: map[string]core.Location{
-			d.locName: {
-				Name: d.locName,
-				Inventory: core.Inventory{
-					d.resource: d.amount,
-				},
-			},
+func (d *Deposit) GetChanges(agent core.Agent) []StateChange {
+	return []StateChange{
+		{
+			Entity:     agent.Name(),
+			EntityType: AgentEntity,
+			Resource:   d.resource,
+			Amount:     -d.amount,
 		},
-
-		Agents: map[string]core.Agent{
-			newAgent.Name(): newAgent,
+		{
+			Entity:     d.locName,
+			EntityType: LocationEntity,
+			Resource:   d.resource,
+			Amount:     d.amount,
 		},
 	}
 }

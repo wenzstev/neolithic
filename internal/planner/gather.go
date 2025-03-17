@@ -24,7 +24,7 @@ var _ Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a resource
 func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
-	end := start.Copy()
+	end := start.DeepCopy()
 	location, ok := end.Locations[g.locName]
 	if !ok {
 		return nil // location must always be in State, this is an error
@@ -74,22 +74,19 @@ func (g *Gather) Description() string {
 	return fmt.Sprintf("gather %d %s from %s", g.amount, g.resource.Name, g.locName)
 }
 
-// GetStateChange implements Action.GetStateChange and returns the change in State from the Action. For Gather, this
-// means the designated amount is removed from the location and given to the agent.
-func (g *Gather) GetStateChange(agent core.Agent) *core.WorldState {
-	newAgent := agent.AdjustInventory(g.resource, g.amount)
-
-	return &core.WorldState{
-		Locations: map[string]core.Location{
-			g.locName: {
-				Name: g.locName,
-				Inventory: core.Inventory{
-					g.resource: -g.amount,
-				},
-			},
+func (g *Gather) GetChanges(agent core.Agent) []StateChange {
+	return []StateChange{
+		{
+			Entity:     agent.Name(),
+			EntityType: AgentEntity,
+			Resource:   g.resource,
+			Amount:     g.amount,
 		},
-		Agents: map[string]core.Agent{
-			agent.Name(): newAgent,
+		{
+			Entity:     g.locName,
+			EntityType: LocationEntity,
+			Resource:   g.resource,
+			Amount:     -g.amount,
 		},
 	}
 }
