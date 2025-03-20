@@ -25,22 +25,14 @@ var _ Action = (*Gather)(nil)
 // Perform implements Action.Perform, and simulates the act of gathering a resource
 func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
-	location, ok := end.Locations[g.locName]
+	endLocation, ok := end.Locations[g.locName]
 	if !ok {
 		return nil // location must always be in State, this is an error
 	}
-	curResource, ok := location.Inventory[g.resource]
-	if !ok {
-		return nil // fail, not possible to gather from this location as there is not resource
-	}
 
-	if curResource <= 0 {
+	amountToGather := minInt(g.amount, endLocation.Inventory.GetAmount(g.resource))
+	if amountToGather <= 0 {
 		return nil // fail, no resource to gather
-	}
-
-	amountToGather := g.amount
-	if curResource < g.amount {
-		amountToGather = curResource
 	}
 
 	endAgent, ok := end.Agents[agent.Name()]
@@ -48,19 +40,14 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 		return nil // fail, no agent in State
 	}
 
-	if endAgent.GetAmount(g.resource) <= 0 {
+	endAgentInv := endAgent.Inventory()
+
+	if endAgentInv.GetAmount(g.resource) <= 0 {
 		return nil // fail, does not have the necessary tool
 	}
 
-	newAgent := endAgent.AdjustInventory(g.resource, amountToGather)
-	end.Agents[agent.Name()] = newAgent
-
-	location.Inventory[g.resource] -= amountToGather
-
-	if location.Inventory[g.resource] == 0 {
-		delete(location.Inventory, g.resource)
-	}
-
+	endAgentInv.AdjustAmount(g.resource, amountToGather)
+	endLocation.Inventory.AdjustAmount(g.resource, -amountToGather)
 	return end
 }
 
@@ -89,4 +76,11 @@ func (g *Gather) GetChanges(agent core.Agent) []StateChange {
 			Amount:     -g.amount,
 		},
 	}
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }

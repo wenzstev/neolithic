@@ -34,22 +34,11 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 		return nil // error, no agent of that type in State
 	}
 
-	agentInv := endAgent.Inventory()
-
-	amountOnAgent := agentInv.GetAmount(d.resource)
-	if amountOnAgent == 0 {
-		return nil
-	}
-
-	amountToDeposit := d.amount
-	if amountOnAgent < d.amount {
-		amountToDeposit = amountOnAgent
-	}
-
-	locInv := endLoc.Inventory
-
-	locInv.AdjustAmount(d.resource, amountToDeposit)
-	agentInv.AdjustAmount(d.resource, amountToDeposit)
+	endAgentInv := endAgent.Inventory()
+	amountToDeposit := minInt(endAgentInv.GetAmount(d.resource), d.amount)
+	
+	endLoc.Inventory.AdjustAmount(d.resource, amountToDeposit)
+	endAgentInv.AdjustAmount(d.resource, amountToDeposit)
 
 	return end
 }
