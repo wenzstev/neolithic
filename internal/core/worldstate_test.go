@@ -85,7 +85,7 @@ func TestWorldStateID(t *testing.T) {
 			},
 			// Expected hash values depend on your gob encoding and sort order.
 			// Update these expected values as needed.
-			expected: "b761a3f00454a2955d59ba88ac4a7d7df1d79ee4af2a46a828711e3c056ca831",
+			expected: "c5e4a37ce8bffa00b0129052e0b1890699ada9ef26e48f32f68e504cb42d39d0",
 		},
 		"id with multiple locations": {
 			ws: &WorldState{
@@ -95,7 +95,7 @@ func TestWorldStateID(t *testing.T) {
 				},
 				Agents: map[string]Agent{},
 			},
-			expected: "a45402744f3a265d2f4519e878780ff959a454033f8b1850a135feb18dbc8071",
+			expected: "7697c854fafd6203612b8ebdbcbb5019678ae32919576e3576a519c726f340bc",
 		},
 	}
 

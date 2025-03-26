@@ -22,7 +22,7 @@ type GoapRunInfo struct {
 	// Agent is the agent running the planner
 	Agent core.Agent
 	// PossibleNextActions are all actions that the agent could take
-	PossibleNextActions *[]Action
+	PossibleNextActions []Action
 }
 
 // Ensure GoapNode implements astar.Node
@@ -51,7 +51,7 @@ func (g *GoapNode) Cost(_ astar.Node) float64 {
 // GetSuccessors implements astar.Node and returns a list of successor astar.Node to this astar.Node.
 func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 	successors := make([]astar.Node, 0)
-	for _, action := range *g.GoapRunInfo.PossibleNextActions {
+	for _, action := range g.GoapRunInfo.PossibleNextActions {
 		newState := action.Perform(g.State, g.GoapRunInfo.Agent)
 		if newState == nil {
 			continue

@@ -26,7 +26,21 @@ func (a *Agent) Inventory() core.Inventory {
 }
 
 func (a *Agent) DeepCopy() core.Agent {
-	panic("implement me")
+	newAgent := &Agent{}
+	newAgent.name = a.name
+	if a.Behavior != nil {
+		newAgent.Behavior = &Behavior{
+			PossibleActions: a.Behavior.PossibleActions,
+			CurPlan:         a.Behavior.CurPlan,
+			Goal:            a.Behavior.Goal,
+			curState:        a.Behavior.curState,
+		}
+	}
+	if a.inventory != nil {
+		newAgent.inventory = a.inventory.DeepCopy()
+	}
+	newAgent.Position = a.Position
+	return newAgent
 }
 
 func (a *Agent) String() string {

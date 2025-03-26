@@ -2,15 +2,16 @@ package planner
 
 import (
 	"Neolithic/internal/core"
-	"sort"
+	"encoding/gob"
 )
 
 var (
-	testLocation  = core.Location{Name: "testLocation"}
-	testLocation2 = core.Location{Name: "testLocation2"}
+	testLocation  = core.Location{Name: "testLocation", Inventory: core.NewInventory()}
+	testLocation2 = core.Location{Name: "testLocation2", Inventory: core.NewInventory()}
 
 	testAgent = &mockAgent{
-		N: "testAgent",
+		N:         "testAgent",
+		inventory: core.NewInventory(),
 	}
 
 	testResource = &core.Resource{
@@ -46,50 +47,13 @@ var (
 	}
 )
 
-type mockInventory struct {
-	entries []core.InventoryEntry
-}
-
-func (m mockInventory) String() string {
-	return "mockInventory"
-}
-
-func (m mockInventory) GetAmount(res *core.Resource) int {
-	for _, entry := range m.entries {
-		if entry.Resource == res {
-			return entry.Amount
-		}
-	}
-	return 0
-}
-
-func (m mockInventory) AdjustAmount(res *core.Resource, amount int) {
-	for i := 0; i < len(m.entries); i++ {
-		if m.entries[i].Resource == res {
-			m.entries[i].Amount += amount
-			return
-		}
-	}
-	m.entries = append(m.entries, core.InventoryEntry{Resource: res, Amount: amount})
-	sort.Slice(m.entries, func(i, j int) bool {
-		return m.entries[i].Resource.Name < m.entries[j].Resource.Name
-	})
-}
-
-func (m mockInventory) DeepCopy() core.Inventory {
-	newEntries := make([]core.InventoryEntry, len(m.entries))
-	copy(newEntries, m.entries)
-	return &mockInventory{
-		entries: newEntries,
-	}
-}
-
-func (m mockInventory) Entries() []core.InventoryEntry {
-	return m.entries
+func init() {
+	gob.Register(mockAgent{})
 }
 
 type mockAgent struct {
-	N string
+	N         string
+	inventory core.Inventory
 }
 
 func (m *mockAgent) String() string {
@@ -97,12 +61,14 @@ func (m *mockAgent) String() string {
 }
 
 func (m *mockAgent) DeepCopy() core.Agent {
-	return &mockAgent{}
+	return &mockAgent{
+		N:         m.N,
+		inventory: m.inventory.DeepCopy(),
+	}
 }
 
 func (m *mockAgent) Inventory() core.Inventory {
-	//TODO implement me
-	panic("implement me")
+	return m.inventory
 }
 
 func (m *mockAgent) Name() string {

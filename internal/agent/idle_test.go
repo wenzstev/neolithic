@@ -6,6 +6,7 @@ import (
 
 	"Neolithic/internal/astar"
 	"Neolithic/internal/planner"
+
 	"github.com/stretchr/testify/require"
 )
 
@@ -13,36 +14,46 @@ func TestIdle_Execute(t *testing.T) {
 	type testCase struct {
 		iterationsPerCall  int
 		planner            *astar.SearchState
-		worldState         WorldState
+		worldState         *core.WorldState
 		expectedIterations int
 		expectedPlan       Plan
 	}
 
-	testStart := &core.State{
-		Locations: map[*planner.Location]planner.Inventory{
-			testLocation: {},
-		},
-		Agents: map[planner.Agent]planner.Inventory{},
+	// Create separate locations for start and end states
+	startLocation := core.Location{
+		Name:      "testLocation",
+		Inventory: core.NewInventory(),
 	}
 
-	testEnd := &core.State{
-		Locations: map[*planner.Location]planner.Inventory{
-			testLocation: {
-				testResource: 3,
-			},
+	endLocation := core.Location{
+		Name:      "testLocation",
+		Inventory: core.NewInventory(),
+	}
+	endLocation.Inventory.AdjustAmount(testResource, 3)
+
+	testStart := &core.WorldState{
+		Locations: map[string]core.Location{
+			"testLocation": startLocation,
 		},
-		Agents: map[planner.Agent]planner.Inventory{},
+		Agents: map[string]core.Agent{},
+	}
+
+	testEnd := &core.WorldState{
+		Locations: map[string]core.Location{
+			"testLocation": endLocation,
+		},
+		Agents: map[string]core.Agent{},
 	}
 
 	agentBehavior := &Behavior{
-		PossibleActions: &[]planner.Action{
+		PossibleActions: []planner.Action{
 			&mockAction{},
 		},
 		Goal: testEnd,
 	}
 
-	testAgent := &mockAgent{
-		behavior: agentBehavior,
+	testAgent := &Agent{
+		Behavior: agentBehavior,
 	}
 
 	expectedStart := &planner.GoapNode{
@@ -94,7 +105,7 @@ func TestIdle_Execute(t *testing.T) {
 			require.Equal(t, test.expectedIterations, testIdle.planner.Iterations)
 			require.Equal(t, expectedStart, testIdle.planner.Start)
 			require.Equal(t, expectedGoal, testIdle.planner.Goal)
-			require.Equal(t, testAgent.Behavior().CurPlan, testIdle.agent.Behavior().CurPlan)
+			require.Equal(t, testAgent.Behavior.CurPlan, testIdle.agent.Behavior.CurPlan)
 
 		})
 	}

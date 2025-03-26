@@ -42,7 +42,7 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 
 	endAgentInv := endAgent.Inventory()
 
-	if endAgentInv.GetAmount(g.resource) <= 0 {
+	if g.requires != nil && endAgentInv.GetAmount(g.requires) <= 0 {
 		return nil // fail, does not have the necessary tool
 	}
 

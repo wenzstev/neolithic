@@ -17,12 +17,12 @@ type State interface {
 type Behavior struct {
 	// PossibleActions represents all possible actions the agent can do. This is NOT the same as the actions in the
 	// current plan
-	PossibleActions *[]planner.Action
+	PossibleActions []planner.Action
 	// CurPlan is the current plan the Agent is attempting to execute
 	//nolint:unused
 	CurPlan Plan
 	// Goal is the agent's desired WorldState
-	Goal core.WorldState
+	Goal *core.WorldState
 	// curState is the current State the agent is in.
 	//nolint:unused
 	curState State

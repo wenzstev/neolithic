@@ -1,17 +1,103 @@
 package core
 
-import "fmt"
+import (
+	"encoding/gob"
+	"fmt"
+	"sort"
+)
 
-// Inventory is the minimal inventory interface that all packages need
-type Inventory interface {
-	fmt.Stringer
-	GetAmount(res *Resource) int
-	AdjustAmount(res *Resource, amount int)
-	DeepCopy() Inventory
-	Entries() []InventoryEntry
+func init() {
+	gob.Register(&inventory{})
 }
 
+// InventoryEntry represents a single resource and its quantity in an inventory.
 type InventoryEntry struct {
 	Resource *Resource
 	Amount   int
+}
+
+// Inventory defines an interface for managing a collection of resources with their quantities.
+// It provides methods for retrieving, adjusting, and copying inventory contents. Inventory contents are expected
+// to be sorted by resource name.
+type Inventory interface {
+	fmt.Stringer
+	// GetAmount retrieves the quantity of a specific resource from the inventory.
+	GetAmount(res *Resource) int
+	// AdjustAmount modifies the quantity of a specific resource in the inventory. Amount can be positive or negative.
+	AdjustAmount(res *Resource, amount int)
+	// DeepCopy creates a deep copy of the inventory. Resources are NOT deep copied.
+	DeepCopy() Inventory
+	// Entries returns a slice of InventoryEntry, sorted by resource name. This is a copy of the inventory, not a reference.
+	Entries() []InventoryEntry
+}
+
+// NewInventory creates and returns a new empty Inventory instance.
+func NewInventory() Inventory {
+	return &inventory{}
+}
+
+// inventory is an implementation of the Inventory interface.
+type inventory []InventoryEntry
+
+// GetAmount retrieves the quantity of a specific resource from the inventory.
+func (i *inventory) GetAmount(res *Resource) int {
+	for _, entry := range *i {
+		if entry.Resource == res {
+			return entry.Amount
+		}
+	}
+	return 0
+}
+
+// AdjustAmount modifies the quantity of a specific resource in the inventory. Amount can be positive or negative.
+func (i *inventory) AdjustAmount(res *Resource, amount int) {
+	idx := sort.Search(len(*i), func(j int) bool {
+		return (*i)[j].Resource.Name >= res.Name
+	})
+
+	if idx < len(*i) && (*i)[idx].Resource.Name == res.Name {
+		(*i)[idx].Amount += amount
+		if (*i)[idx].Amount <= 0 {
+			*i = append((*i)[:idx], (*i)[idx+1:]...)
+		}
+		return
+	}
+
+	// need to add amount to inventory
+	if amount <= 0 {
+		return // don't append negative amounts or zero
+	}
+
+	newEntry := InventoryEntry{Resource: res, Amount: amount}
+	*i = append(*i, InventoryEntry{})
+	copy((*i)[idx+1:], (*i)[idx:])
+	(*i)[idx] = newEntry
+}
+
+// DeepCopy creates a deep copy of the inventory. Resources are NOT deep copied.
+func (i *inventory) DeepCopy() Inventory {
+	copyInv := make(inventory, len(*i))
+	for idx, entry := range *i {
+		copyInv[idx] = InventoryEntry{
+			Resource: entry.Resource,
+			Amount:   entry.Amount,
+		}
+	}
+	return &copyInv
+}
+
+// String returns a string representation of the inventory.
+func (i *inventory) String() string {
+	output := ""
+	for _, entry := range *i {
+		output += fmt.Sprintf("  %s: %d\n", entry.Resource.Name, entry.Amount)
+	}
+	return output
+}
+
+// Entries returns a slice of InventoryEntry, sorted by resource name. This is a copy of the inventory, not a reference.
+func (i *inventory) Entries() []InventoryEntry {
+	copied := make([]InventoryEntry, len(*i))
+	copy(copied, *i)
+	return copied
 }

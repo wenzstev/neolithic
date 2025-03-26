@@ -36,9 +36,13 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 
 	endAgentInv := endAgent.Inventory()
 	amountToDeposit := minInt(endAgentInv.GetAmount(d.resource), d.amount)
-	
+
+	if amountToDeposit <= 0 {
+		return nil // fail, no resource to deposit
+	}
+
 	endLoc.Inventory.AdjustAmount(d.resource, amountToDeposit)
-	endAgentInv.AdjustAmount(d.resource, amountToDeposit)
+	endAgentInv.AdjustAmount(d.resource, -amountToDeposit)
 
 	return end
 }

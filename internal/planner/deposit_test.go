@@ -16,7 +16,7 @@ var testDeposit = &Deposit{
 func TestDeposit_Perform(t *testing.T) {
 	type testCase struct {
 		testDeposit              *Deposit
-		startLocation            core.Location
+		startLocation            *core.Location
 		startAmountInLocation    int
 		agent                    core.Agent
 		startAmountInAgent       int
@@ -28,18 +28,18 @@ func TestDeposit_Perform(t *testing.T) {
 	tests := map[string]testCase{
 		"can do basic deposit": {
 			testDeposit:              testDeposit,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       10,
 			expectedAmountInLocation: 10,
 			expectedAmountInAgent:    0,
 		},
 		"deposit fails, nothing in agent inventory": {
 			testDeposit:              testDeposit,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    0,
@@ -47,9 +47,9 @@ func TestDeposit_Perform(t *testing.T) {
 		},
 		"partial deposit success": {
 			testDeposit:              testDeposit,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       5,
 			expectedAmountInLocation: 5,
 			expectedAmountInAgent:    0,
@@ -61,7 +61,7 @@ func TestDeposit_Perform(t *testing.T) {
 			tc.startLocation.Inventory.AdjustAmount(testResource, tc.startAmountInLocation)
 			tc.agent.Inventory().AdjustAmount(testResource, tc.startAmountInAgent)
 			startState := &core.WorldState{
-				Locations: map[string]core.Location{"testLocation": tc.startLocation},
+				Locations: map[string]core.Location{"testLocation": *tc.startLocation},
 				Agents:    map[string]core.Agent{"testAgent": tc.agent},
 			}
 

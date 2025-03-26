@@ -6,11 +6,7 @@ import (
 )
 
 var (
-	testLocation = &planner.Location{
-		Name: "testLocation",
-	}
-
-	testResource = &planner.Resource{
+	testResource = &core.Resource{
 		Name: "testResource",
 	}
 )
@@ -20,11 +16,13 @@ type mockAction struct{}
 
 var _ planner.Action = (*mockAction)(nil)
 
-func (m *mockAction) Perform(start *core.State, agent planner.Agent) *core.State {
-	return start.Add(m.GetStateChange(agent), false)
+func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
+	end := start.DeepCopy()
+	end.Locations["testLocation"].Inventory.AdjustAmount(testResource, 1)
+	return end
 }
 
-func (m *mockAction) Cost(_ planner.Agent) float64 {
+func (m *mockAction) Cost(_ core.Agent) float64 {
 	return 10.0
 }
 
@@ -32,12 +30,13 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetStateChange(_ planner.Agent) *core.State {
-	return &core.State{
-		Locations: map[*planner.Location]planner.Inventory{
-			testLocation: {
-				testResource: 1,
-			},
+func (m *mockAction) GetChanges(agent core.Agent) []planner.StateChange {
+	return []planner.StateChange{
+		{
+			EntityType: planner.LocationEntity,
+			Entity:     "testLocation",
+			Resource:   testResource,
+			Amount:     1,
 		},
 	}
 }
@@ -47,11 +46,11 @@ type mockNullAction struct{}
 
 var _ planner.Action = (*mockNullAction)(nil)
 
-func (m *mockNullAction) Perform(_ *core.State, _ planner.Agent) *core.State {
+func (m *mockNullAction) Perform(_ *core.WorldState, _ core.Agent) *core.WorldState {
 	return nil
 }
 
-func (m *mockNullAction) Cost(_ planner.Agent) float64 {
+func (m *mockNullAction) Cost(_ core.Agent) float64 {
 	return 10.0
 }
 
@@ -59,8 +58,8 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetStateChange(_ planner.Agent) *core.State {
-	return &core.State{}
+func (m *mockNullAction) GetChanges(agent core.Agent) []planner.StateChange {
+	return []planner.StateChange{}
 }
 
 type mockActionWithTime struct {
@@ -87,21 +86,4 @@ func (m *mockPlan) PeekAction() planner.Action {
 
 func (m *mockPlan) PopAction() planner.Action {
 	return m.nextAction
-}
-
-type mockAgent struct { // todo: remove this? not really necessary...
-	name     string
-	behavior *Behavior
-}
-
-func (m *mockAgent) Name() string {
-	return m.name
-}
-
-func (m *mockAgent) SetCurState(state State) {
-	m.behavior.curState = state
-}
-
-func (m *mockAgent) Behavior() *Behavior {
-	return m.behavior
 }

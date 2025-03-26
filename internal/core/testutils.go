@@ -2,10 +2,12 @@ package core
 
 var (
 	testLocation = Location{
-		Name: "testlocation1",
+		Name:      "testlocation1",
+		Inventory: NewInventory(),
 	}
 	testLocation2 = Location{
-		Name: "testlocation2",
+		Name:      "testlocation2",
+		Inventory: NewInventory(),
 	}
 	testAgent = mockAgent{}
 )
@@ -25,21 +27,5 @@ func (m mockAgent) DeepCopy() Agent {
 }
 
 func (m mockAgent) Inventory() Inventory {
-	return &mockInventory{}
-}
-
-type mockInventory struct{}
-
-func (m mockInventory) GetAmount(res *Resource) int {
-	return 5
-}
-
-func (m mockInventory) AdjustAmount(res *Resource, amount int) {}
-
-func (m mockInventory) DeepCopy() Inventory {
-	return m
-}
-
-func (m mockInventory) String() string {
-	return "mockInventorystring"
+	return nil
 }

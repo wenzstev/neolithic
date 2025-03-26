@@ -32,8 +32,10 @@ func (i *Idle) Execute(world *core.WorldState, _ float64) (*core.WorldState, err
 	}
 
 	if err := i.planner.RunIterations(i.iterationsPerCall); err != nil {
+		//nolint:staticcheck
 		if errors.Is(err, astar.ErrNoPath) {
 			// TODO: we need some way to communicate to the agent that the goal is unreachable. but need to implement goal first
+			return nil, err
 		}
 		return nil, err
 	}
@@ -64,7 +66,7 @@ func (i *Idle) createSearchState(world *core.WorldState) (*astar.SearchState, er
 	}
 
 	goal := &planner.GoapNode{
-		State:       &behavior.Goal, // temporary until state is moved out of planner
+		State:       behavior.Goal, // temporary until state is moved out of planner
 		GoapRunInfo: runInfo,
 	}
 

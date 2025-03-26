@@ -26,7 +26,7 @@ func TestGather_Perform(t *testing.T) {
 
 	type testCase struct {
 		testGather               *Gather
-		startLocation            core.Location
+		startLocation            *core.Location
 		startAmountInLocation    int
 		agent                    core.Agent
 		startAmountInAgent       int
@@ -39,27 +39,27 @@ func TestGather_Perform(t *testing.T) {
 	testCases := map[string]testCase{
 		"can do basic gather": {
 			testGather:               testGather,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    5,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
-			expectedAmountInLocation: 5,
+			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    5,
 		},
 		"gather partially succeeds": {
 			testGather:               testGather,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    2,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    2,
 		},
 		"gather succeeds with tool": {
 			testGather:               testGatherRequires,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    5,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
 			toolInAgent:              testTool,
 			expectedAmountInLocation: 0,
@@ -67,9 +67,9 @@ func TestGather_Perform(t *testing.T) {
 		},
 		"gather fails, no resource in location": {
 			testGather:               testGather,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    0,
@@ -77,9 +77,9 @@ func TestGather_Perform(t *testing.T) {
 		},
 		"gather fails, required tool not present": {
 			testGather:               testGatherRequires,
-			startLocation:            testLocation,
+			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    5,
-			agent:                    testAgent,
+			agent:                    testAgent.DeepCopy(),
 			startAmountInAgent:       0,
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    0,
@@ -95,7 +95,7 @@ func TestGather_Perform(t *testing.T) {
 				tc.agent.Inventory().AdjustAmount(tc.toolInAgent, 1)
 			}
 			startState := &core.WorldState{
-				Locations: map[string]core.Location{tc.startLocation.Name: tc.startLocation},
+				Locations: map[string]core.Location{tc.startLocation.Name: *tc.startLocation},
 				Agents:    map[string]core.Agent{tc.agent.Name(): tc.agent},
 			}
 
