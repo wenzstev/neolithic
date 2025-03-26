@@ -1,33 +1,28 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
 	"testing"
 
 	"Neolithic/internal/planner"
+
 	"github.com/stretchr/testify/require"
 )
 
-// deltaTime is the time since the last run of Execute
 const deltaTime = 1.0 / 60
 
 func TestPerforming_Execute(t *testing.T) {
 	type testCase struct {
-		timeLeft         float64
-		action           planner.Action
-		plan             Plan
-		startWorldState  *planner.State
-		endWorldState    *planner.State
-		expectedAgent    *mockAgent
-		expectedAction   planner.Action
-		expectedTimeLeft float64
-		expectedError    error
-	}
-
-	testWorldState := &planner.State{
-		Locations: map[*planner.Location]planner.Inventory{
-			testLocation: {},
-		},
-		Agents: map[planner.Agent]planner.Inventory{},
+		timeLeft                    float64
+		action                      planner.Action
+		plan                        Plan
+		startWorldState             *core.WorldState
+		expectedAmountInEndLocation int
+		expectedAgent               *Agent
+		expectedAction              planner.Action
+		expectedTimeLeft            float64
+		expectedError               error
+		nilEndState                 bool
 	}
 
 	tests := map[string]testCase{
@@ -35,20 +30,23 @@ func TestPerforming_Execute(t *testing.T) {
 			plan: &mockPlan{
 				nextAction: &mockAction{},
 			},
-			startWorldState: testWorldState,
-			endWorldState: &planner.State{
-				Locations: map[*planner.Location]planner.Inventory{
-					testLocation: {
-						testResource: 1,
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": {
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[planner.Agent]planner.Inventory{},
+				Agents: map[string]core.Agent{},
 			},
-			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockAction{},
+			expectedAmountInEndLocation: 1,
+			expectedAgent: &Agent{
+				Behavior: &Behavior{
+					CurPlan: &mockPlan{
+						nextAction: &mockAction{},
+					},
+					curState: &Moving{},
 				},
-				curState: &Moving{},
 			},
 			expectedAction:   &mockAction{},
 			expectedTimeLeft: 0,
@@ -57,49 +55,74 @@ func TestPerforming_Execute(t *testing.T) {
 			plan: &mockPlan{
 				nextAction: &mockActionWithTime{timeNeeded: 1.0},
 			},
-			startWorldState: testWorldState,
-			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockActionWithTime{timeNeeded: 1.0},
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": core.Location{
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
+					},
+				},
+				Agents: map[string]core.Agent{},
+			},
+			expectedAgent: &Agent{
+				Behavior: &Behavior{
+					CurPlan: &mockPlan{
+						nextAction: &mockActionWithTime{timeNeeded: 1.0},
+					},
 				},
 			},
 			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
 			expectedTimeLeft: 1.0 - deltaTime,
+			nilEndState:      true,
 		},
 		"action fails, reset to idle": {
 			plan: &mockPlan{
 				nextAction: &mockNullAction{},
 			},
-			startWorldState: testWorldState,
-			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockNullAction{},
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": core.Location{
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
+					},
 				},
-				curState: &Idle{},
+				Agents: map[string]core.Agent{},
+			},
+			expectedAgent: &Agent{
+				Behavior: &Behavior{
+					CurPlan: &mockPlan{
+						nextAction: &mockNullAction{},
+					},
+					curState: &Idle{},
+				},
 			},
 			expectedAction:   &mockNullAction{},
 			expectedTimeLeft: 0,
+			nilEndState:      true,
 		},
 		"action succeeds, time left is zero": {
 			plan: &mockPlan{
 				nextAction: &mockActionWithTime{timeNeeded: 1.0},
 			},
-			action:          &mockActionWithTime{timeNeeded: 1.0},
-			timeLeft:        0,
-			startWorldState: testWorldState,
-			endWorldState: &planner.State{
-				Locations: map[*planner.Location]planner.Inventory{
-					testLocation: {
-						testResource: 1,
+			action:   &mockActionWithTime{timeNeeded: 1.0},
+			timeLeft: 0,
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": {
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[planner.Agent]planner.Inventory{},
+				Agents: map[string]core.Agent{},
 			},
-			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockActionWithTime{timeNeeded: 1.0},
+			expectedAmountInEndLocation: 1,
+			expectedAgent: &Agent{
+				Behavior: &Behavior{
+					CurPlan: &mockPlan{
+						nextAction: &mockActionWithTime{timeNeeded: 1.0},
+					},
+					curState: &Moving{},
 				},
-				curState: &Moving{},
 			},
 			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
 			expectedTimeLeft: 0,
@@ -109,21 +132,24 @@ func TestPerforming_Execute(t *testing.T) {
 				nextAction: &mockAction{},
 				isComplete: true,
 			},
-			startWorldState: testWorldState,
-			endWorldState: &planner.State{
-				Locations: map[*planner.Location]planner.Inventory{
-					testLocation: {
-						testResource: 1,
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": {
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[planner.Agent]planner.Inventory{},
+				Agents: map[string]core.Agent{},
 			},
-			expectedAgent: &mockAgent{
-				plan: &mockPlan{
-					nextAction: &mockAction{},
-					isComplete: true,
+			expectedAmountInEndLocation: 1,
+			expectedAgent: &Agent{
+				Behavior: &Behavior{
+					CurPlan: &mockPlan{
+						nextAction: &mockAction{},
+						isComplete: true,
+					},
+					curState: &Idle{},
 				},
-				curState: &Idle{},
 			},
 			expectedAction:   &mockAction{},
 			expectedTimeLeft: 0,
@@ -135,8 +161,8 @@ func TestPerforming_Execute(t *testing.T) {
 			testPerforming := &Performing{
 				timeLeft: tc.timeLeft,
 				action:   tc.action,
-				agent: &mockAgent{
-					plan: tc.plan,
+				agent: &Agent{
+					Behavior: &Behavior{CurPlan: tc.plan},
 				},
 			}
 			output, err := testPerforming.Execute(tc.startWorldState, 1.0/60.0)
@@ -144,10 +170,14 @@ func TestPerforming_Execute(t *testing.T) {
 				require.Equal(t, tc.expectedError, err)
 				return
 			}
-			require.Equal(t, tc.endWorldState, output)
 			require.Equal(t, tc.expectedAgent, testPerforming.agent)
 			require.Equal(t, tc.expectedAction, testPerforming.action)
 			require.Equal(t, tc.expectedTimeLeft, testPerforming.timeLeft)
+			if tc.nilEndState {
+				require.Nil(t, output)
+				return
+			}
+			require.Equal(t, tc.expectedAmountInEndLocation, output.Locations["testLocation"].Inventory.GetAmount(testResource))
 		})
 	}
 }

@@ -1,10 +1,10 @@
 package planner
 
 import (
+	"Neolithic/internal/astar"
+	"Neolithic/internal/core"
 	"fmt"
 	"math"
-
-	"Neolithic/internal/astar"
 )
 
 // GoapNode represents a point in a GOAP process, where the planner is choosing a plan
@@ -12,7 +12,7 @@ type GoapNode struct {
 	// Action is the Action taken to reach this node
 	Action Action
 	// State is the State of the world after running the Action
-	State *State
+	State *core.WorldState
 	// GoapRunInfo is a set of attributes that carry over throughout the goap planning process
 	GoapRunInfo *GoapRunInfo
 }
@@ -20,9 +20,9 @@ type GoapNode struct {
 // GoapRunInfo represents the information that doesn't change across the GOAP planning call
 type GoapRunInfo struct {
 	// Agent is the agent running the planner
-	Agent Agent
+	Agent core.Agent
 	// PossibleNextActions are all actions that the agent could take
-	PossibleNextActions *[]Action
+	PossibleNextActions []Action
 }
 
 // Ensure GoapNode implements astar.Node
@@ -51,7 +51,7 @@ func (g *GoapNode) Cost(_ astar.Node) float64 {
 // GetSuccessors implements astar.Node and returns a list of successor astar.Node to this astar.Node.
 func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 	successors := make([]astar.Node, 0)
-	for _, action := range *g.GoapRunInfo.PossibleNextActions {
+	for _, action := range g.GoapRunInfo.PossibleNextActions {
 		newState := action.Perform(g.State, g.GoapRunInfo.Agent)
 		if newState == nil {
 			continue
@@ -72,13 +72,18 @@ func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 // overestimate the total cost of a given path.
 func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	var totalCost float64
-	for loc, goalInventory := range goal.State.Locations {
-		currentInventory, ok := cur.State.Locations[loc]
-		for item, goalAmount := range goalInventory {
-			currentAmount := 0
-			if ok {
-				currentAmount = currentInventory[item]
-			}
+	for _, goalLocation := range goal.State.Locations {
+		currentVersionOfGoalLocation, ok := cur.State.Locations[goalLocation.Name]
+		if !ok {
+			continue // no version of the location in the current state
+		}
+
+		currentInventory := currentVersionOfGoalLocation.Inventory
+		goalInventory := goalLocation.Inventory
+
+		for _, entry := range goalInventory.Entries() {
+			currentAmount := currentInventory.GetAmount(entry.Resource)
+			goalAmount := goalInventory.GetAmount(entry.Resource)
 
 			diff := goalAmount - currentAmount
 			if diff == 0 {
@@ -91,20 +96,20 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 			var relevantActions []Action
 			var err error
 			if diff > 0 {
-				relevantActions, err = cur.getActionsThatAdd(item, loc)
+				relevantActions, err = cur.getActionsThatAdd(entry.Resource, goalLocation.Name)
 				if err != nil {
 					return math.Inf(1), err
 				}
 			} else {
-				relevantActions, err = cur.getActionsThatRemove(item, loc)
+				relevantActions, err = cur.getActionsThatRemove(entry.Resource, goalLocation.Name)
 				if err != nil {
 					return math.Inf(1), err
 				}
 			}
 
 			for _, action := range relevantActions {
-				stateDiff := action.GetStateChange(cur.GoapRunInfo.Agent)
-				effectAmount := stateDiff.Locations[loc][item]
+				change := getRelatedChange(action, entry.Resource, cur.GoapRunInfo.Agent, goalLocation.Name)
+				effectAmount := change.Amount
 
 				costPerUnit := action.Cost(cur.GoapRunInfo.Agent) / math.Abs(float64(effectAmount))
 				if costPerUnit < bestCostPerUnit {
@@ -119,7 +124,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 
 // getActionsThatAdd returns all actions that the Agent on the GoapNode can take that _add_ the given Resource to the given
 // Location
-func (g *GoapNode) getActionsThatAdd(res *Resource, loc *Location) ([]Action, error) {
+func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Action, error) {
 	addActions := make([]Action, 0)
 
 	successors, err := g.GetSuccessors()
@@ -130,16 +135,14 @@ func (g *GoapNode) getActionsThatAdd(res *Resource, loc *Location) ([]Action, er
 	for _, successor := range successors {
 		action := successor.(*GoapNode).Action
 
-		stateDiff := action.GetStateChange(g.GoapRunInfo.Agent)
-		if stateDiff.Locations[loc] == nil {
+		relevantChange := getRelatedChange(action, res, g.GoapRunInfo.Agent, locName)
+		if relevantChange == nil {
 			continue
 		}
-		if stateDiff.Locations[loc][res] == 0 {
+		if relevantChange.Amount < 0 {
 			continue
 		}
-		if stateDiff.Locations[loc][res] < 0 {
-			continue
-		}
+
 		addActions = append(addActions, action)
 	}
 	return addActions, nil
@@ -147,7 +150,7 @@ func (g *GoapNode) getActionsThatAdd(res *Resource, loc *Location) ([]Action, er
 
 // getActionsThatRemove returns all actions that the Agent on the GoapNode can take that _remove_ the given Resource
 // from the given location.
-func (g *GoapNode) getActionsThatRemove(res *Resource, loc *Location) ([]Action, error) {
+func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]Action, error) {
 	removeActions := make([]Action, 0)
 
 	successors, err := g.GetSuccessors()
@@ -158,17 +161,25 @@ func (g *GoapNode) getActionsThatRemove(res *Resource, loc *Location) ([]Action,
 	for _, successor := range successors {
 		action := successor.(*GoapNode).Action
 
-		stateDiff := action.GetStateChange(g.GoapRunInfo.Agent)
-		if stateDiff.Locations[loc] == nil {
+		relevantChange := getRelatedChange(action, res, g.GoapRunInfo.Agent, locName)
+		if relevantChange == nil {
 			continue
 		}
-		if stateDiff.Locations[loc][res] == 0 {
+		if relevantChange.Amount > 0 {
 			continue
 		}
-		if stateDiff.Locations[loc][res] > 0 {
-			continue
-		}
+
 		removeActions = append(removeActions, action)
 	}
 	return removeActions, nil
+}
+
+func getRelatedChange(action Action, res *core.Resource, agent core.Agent, locName string) *StateChange {
+	changes := action.GetChanges(agent)
+	for _, change := range changes {
+		if change.EntityType == LocationEntity && change.Entity == locName && change.Resource == res {
+			return &change
+		}
+	}
+	return nil
 }

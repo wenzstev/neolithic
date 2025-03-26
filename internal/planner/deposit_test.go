@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -8,88 +9,71 @@ import (
 var testDeposit = &Deposit{
 	resource: testResource,
 	amount:   10,
-	location: testLocation,
+	locName:  "testLocation",
 	cost:     1.0,
 }
 
 func TestDeposit_Perform(t *testing.T) {
 	type testCase struct {
-		testDeposit      *Deposit
-		startState       *State
-		agent            Agent
-		expectedEndState *State
+		testDeposit              *Deposit
+		startLocation            *core.Location
+		startAmountInLocation    int
+		agent                    core.Agent
+		startAmountInAgent       int
+		expectedAmountInLocation int
+		expectedAmountInAgent    int
+		expectNil                bool
 	}
 
 	tests := map[string]testCase{
 		"can do basic deposit": {
-			testDeposit: testDeposit,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 10,
-					},
-				},
-			},
-			agent: testAgent,
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 10,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {},
-				},
-			},
+			testDeposit:              testDeposit,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    0,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       10,
+			expectedAmountInLocation: 10,
+			expectedAmountInAgent:    0,
 		},
 		"deposit fails, nothing in agent inventory": {
-			testDeposit: testDeposit,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 0,
-					},
-				},
-				Agents: map[Agent]Inventory{},
-			},
-			agent:            testAgent,
-			expectedEndState: nil,
+			testDeposit:              testDeposit,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    0,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    0,
+			expectNil:                true,
 		},
 		"partial deposit success": {
-			testDeposit: testDeposit,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 0,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 5,
-					},
-				},
-			},
-			agent: testAgent,
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 5,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {},
-				},
-			},
+			testDeposit:              testDeposit,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    0,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       5,
+			expectedAmountInLocation: 5,
+			expectedAmountInAgent:    0,
 		},
 	}
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			endState := tc.testDeposit.Perform(tc.startState, tc.agent)
-			assert.Equal(t, tc.expectedEndState, endState)
+			tc.startLocation.Inventory.AdjustAmount(testResource, tc.startAmountInLocation)
+			tc.agent.Inventory().AdjustAmount(testResource, tc.startAmountInAgent)
+			startState := &core.WorldState{
+				Locations: map[string]core.Location{"testLocation": *tc.startLocation},
+				Agents:    map[string]core.Agent{"testAgent": tc.agent},
+			}
+
+			endState := tc.testDeposit.Perform(startState, tc.agent)
+			if tc.expectNil {
+				assert.Nil(t, endState)
+				return
+			}
+			endAgent := endState.Agents["testAgent"]
+			endLocation := endState.Locations["testLocation"]
+			assert.Equal(t, tc.expectedAmountInAgent, endAgent.Inventory().GetAmount(testResource))
+			assert.Equal(t, tc.expectedAmountInLocation, endLocation.Inventory.GetAmount(testResource))
 		})
 	}
 }
@@ -97,7 +81,7 @@ func TestDeposit_Perform(t *testing.T) {
 func TestDeposit_Cost(t *testing.T) {
 	type testCase struct {
 		testDeposit  *Deposit
-		testAgent    Agent
+		testAgent    core.Agent
 		expectedCost float64
 	}
 
@@ -131,7 +115,7 @@ func TestDeposit_String(t *testing.T) {
 			testDeposit: &Deposit{
 				resource: testResource,
 				amount:   100,
-				location: testLocation,
+				locName:  "testLocation",
 			},
 			expectedString: "deposit 100 testResource at testLocation",
 		},

@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
@@ -9,166 +10,102 @@ func TestGather_Perform(t *testing.T) {
 	testGather := &Gather{
 		resource: testResource,
 		amount:   5,
-		location: testLocation,
+		locName:  "testLocation",
 		cost:     1,
 	}
 
-	testTool := &Resource{Name: "testTool"}
+	testTool := &core.Resource{Name: "testTool"}
 
 	testGatherRequires := &Gather{
 		requires: testTool,
 		resource: testResource,
 		amount:   5,
-		location: testLocation,
+		locName:  "testLocation",
+		cost:     1,
 	}
 
 	type testCase struct {
-		testGather       *Gather
-		testAgent        Agent
-		startState       *State
-		expectedEndState *State
+		testGather               *Gather
+		startLocation            *core.Location
+		startAmountInLocation    int
+		agent                    core.Agent
+		startAmountInAgent       int
+		toolInAgent              *core.Resource
+		expectedAmountInLocation int
+		expectedAmountInAgent    int
+		expectNil                bool
 	}
 
 	testCases := map[string]testCase{
 		"can do basic gather": {
-			testGather: testGather,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 10,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {},
-				},
-			},
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 5,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 5,
-					},
-				},
-			},
+			testGather:               testGather,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    5,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    5,
 		},
 		"gather partially succeeds": {
-			testGather: testGather,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 2,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {},
-				},
-			},
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 2,
-					},
-				},
-			},
+			testGather:               testGather,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    2,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    2,
 		},
 		"gather succeeds with tool": {
-			testGather: testGatherRequires,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 10,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testTool: 1,
-					},
-				},
-			},
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 5,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testResource: 5,
-						testTool:     1,
-					},
-				},
-			},
+			testGather:               testGatherRequires,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    5,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			toolInAgent:              testTool,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    5,
 		},
 		"gather fails, no resource in location": {
-			testGather: testGather,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {},
-				},
-			},
-			expectedEndState: nil,
+			testGather:               testGather,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    0,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    0,
+			expectNil:                true,
 		},
 		"gather fails, required tool not present": {
-			testGather: testGatherRequires,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 10,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testTool: 1,
-					},
-				},
-			},
-			expectedEndState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 5,
-					},
-				},
-				Agents: map[Agent]Inventory{
-					testAgent: {
-						testTool:     1,
-						testResource: 5,
-					},
-				},
-			},
-		},
-		"gather fails, agent not in State": {
-			testGather: testGather,
-			testAgent:  testAgent,
-			startState: &State{
-				Locations: map[*Location]Inventory{
-					testLocation: {
-						testResource: 10,
-					},
-				},
-			},
-			expectedEndState: nil,
+			testGather:               testGatherRequires,
+			startLocation:            testLocation.DeepCopy(),
+			startAmountInLocation:    5,
+			agent:                    testAgent.DeepCopy(),
+			startAmountInAgent:       0,
+			expectedAmountInLocation: 0,
+			expectedAmountInAgent:    0,
+			expectNil:                true,
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			endState := tc.testGather.Perform(tc.startState, tc.testAgent)
-			assert.Equal(t, tc.expectedEndState, endState)
+			tc.startLocation.Inventory.AdjustAmount(testResource, tc.startAmountInLocation)
+			tc.agent.Inventory().AdjustAmount(testResource, tc.startAmountInAgent)
+			if tc.toolInAgent != nil {
+				tc.agent.Inventory().AdjustAmount(tc.toolInAgent, 1)
+			}
+			startState := &core.WorldState{
+				Locations: map[string]core.Location{tc.startLocation.Name: *tc.startLocation},
+				Agents:    map[string]core.Agent{tc.agent.Name(): tc.agent},
+			}
+
+			endState := tc.testGather.Perform(startState, tc.agent)
+			if tc.expectNil {
+				assert.Nil(t, endState)
+				return
+			}
+			assert.Equal(t, tc.expectedAmountInLocation, endState.Locations[testLocation.Name].Inventory.GetAmount(testResource))
+			assert.Equal(t, tc.expectedAmountInAgent, endState.Agents[tc.agent.Name()].Inventory().GetAmount(testResource))
 		})
 	}
 }

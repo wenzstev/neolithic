@@ -1,6 +1,8 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
+	"reflect"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -25,78 +27,49 @@ func TestAgent_Name(t *testing.T) {
 	}
 	for name, tt := range tests {
 		t.Run(name, func(t *testing.T) {
-			a := &agent{
+			a := &Agent{
 				name:     tt.fields.name,
-				behavior: tt.fields.behavior,
+				Behavior: tt.fields.behavior,
 			}
 			assert.Equalf(t, tt.want, a.Name(), "Name()")
 		})
 	}
 }
 
-func TestAgent_SetCurState(t *testing.T) {
-	type fields struct {
-		name     string
-		behavior *Behavior
-	}
-	type args struct {
-		state State
-	}
-	tests := map[string]struct {
-		fields fields
-		args   args
-	}{
-		"can set current state performing": {
-			fields: fields{
-				name:     "test",
-				behavior: &Behavior{},
-			},
-			args: args{
-				state: &Performing{},
-			},
-		},
-	}
-	for name, tt := range tests {
-		t.Run(name, func(t *testing.T) {
-			a := &agent{
-				name:     tt.fields.name,
-				behavior: tt.fields.behavior,
-			}
-			a.SetCurState(tt.args.state)
-			assert.Equal(t, tt.args.state, a.behavior.curState)
-		})
-	}
+func TestAgent_Inventory(t *testing.T) {
+	t.Run("Can get inventory", func(t *testing.T) {
+		testInventory := core.NewInventory()
+		testInventory.AdjustAmount(testResource, 5)
+		agent := &Agent{
+			name:      "test",
+			inventory: testInventory,
+		}
+
+		assert.Equal(t, agent.Inventory(), testInventory)
+	})
 }
 
-func TestAgent_Plan(t *testing.T) {
-	type fields struct {
-		name     string
-		behavior *Behavior
+func TestAgent_DeepCopy(t *testing.T) {
+	testInventory := core.NewInventory()
+	testInventory.AdjustAmount(testResource, 5)
+	testAgent := &Agent{
+		name:      "test",
+		inventory: testInventory,
 	}
 
-	tests := map[string]struct {
-		fields fields
-		plan   Plan
-	}{
-		"can get plan": {
-			fields: fields{
-				name: "test",
-				behavior: &Behavior{
-					curPlan: &mockPlan{},
-				},
-			},
-			plan: &mockPlan{},
-		},
+	agentCopy := testAgent.DeepCopy()
+	assert.True(t, reflect.DeepEqual(testAgent, agentCopy))
+	assert.False(t, testAgent == agentCopy)
+
+}
+
+func TestAgent_String(t *testing.T) {
+	testInventory := core.NewInventory()
+	testInventory.AdjustAmount(testResource, 5)
+	testAgent := &Agent{
+		name:      "test",
+		inventory: testInventory,
 	}
 
-	for name, tt := range tests {
-		t.Run(name, func(t *testing.T) {
-			a := &agent{
-				name:     tt.fields.name,
-				behavior: tt.fields.behavior,
-			}
-			p := a.Plan()
-			assert.Equal(t, tt.plan, p)
-		})
-	}
+	assert.Equal(t, "Agent: test \nInventory   testResource: 5\n\n Position {0 0}\n", testAgent.String())
 }

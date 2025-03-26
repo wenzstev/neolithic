@@ -1,51 +1,74 @@
 package planner
 
+import (
+	"Neolithic/internal/core"
+	"encoding/gob"
+)
+
 var (
-	testLocation = &Location{
-		Name: "testLocation",
-	}
+	testLocation  = core.Location{Name: "testLocation", Inventory: core.NewInventory()}
+	testLocation2 = core.Location{Name: "testLocation2", Inventory: core.NewInventory()}
 
 	testAgent = &mockAgent{
-		N: "testAgent",
+		N:         "testAgent",
+		inventory: core.NewInventory(),
 	}
 
-	testResource = &Resource{
+	testResource = &core.Resource{
 		Name: "testResource",
 	}
-
-	testLocation2 = &Location{Name: "testLocation2"}
 
 	gatherTest = &Gather{
 		resource: testResource,
 		amount:   10,
-		location: testLocation,
+		locName:  "testLocation",
 		cost:     10.0,
 	}
 
 	gatherTest2 = &Gather{
 		resource: testResource,
 		amount:   10,
-		location: testLocation2,
+		locName:  "testLocation2",
 		cost:     10.0,
 	}
 
 	depositTest = &Deposit{
 		resource: testResource,
 		amount:   20,
-		location: testLocation,
+		locName:  "testLocation",
 		cost:     1.0,
 	}
 
 	depositTest2 = &Deposit{
 		resource: testResource,
 		amount:   20,
-		location: testLocation2,
+		locName:  "testLocation2",
 		cost:     1.0,
 	}
 )
 
+func init() {
+	gob.Register(mockAgent{})
+}
+
 type mockAgent struct {
-	N string
+	N         string
+	inventory core.Inventory
+}
+
+func (m *mockAgent) String() string {
+	return "mockAgent"
+}
+
+func (m *mockAgent) DeepCopy() core.Agent {
+	return &mockAgent{
+		N:         m.N,
+		inventory: m.inventory.DeepCopy(),
+	}
+}
+
+func (m *mockAgent) Inventory() core.Inventory {
+	return m.inventory
 }
 
 func (m *mockAgent) Name() string {
@@ -57,11 +80,13 @@ type mockAction struct{}
 
 var _ Action = (*mockAction)(nil)
 
-func (m *mockAction) Perform(start *State, agent Agent) *State {
-	return start.Add(m.GetStateChange(agent), false)
+func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
+	end := start.DeepCopy()
+	end.Locations["testLocation"].Inventory.AdjustAmount(testResource, 1)
+	return end
 }
 
-func (m *mockAction) Cost(_ Agent) float64 {
+func (m *mockAction) Cost(_ core.Agent) float64 {
 	return 10.0
 }
 
@@ -69,12 +94,13 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetStateChange(_ Agent) *State {
-	return &State{
-		Locations: map[*Location]Inventory{
-			testLocation: {
-				testResource: 1,
-			},
+func (m *mockAction) GetChanges(agent core.Agent) []StateChange {
+	return []StateChange{
+		{
+			Entity:     "testLocation",
+			EntityType: LocationEntity,
+			Resource:   testResource,
+			Amount:     1,
 		},
 	}
 }
@@ -84,11 +110,11 @@ type mockNullAction struct{}
 
 var _ Action = (*mockNullAction)(nil)
 
-func (m *mockNullAction) Perform(_ *State, _ Agent) *State {
+func (m *mockNullAction) Perform(_ *core.WorldState, _ core.Agent) *core.WorldState {
 	return nil
 }
 
-func (m *mockNullAction) Cost(_ Agent) float64 {
+func (m *mockNullAction) Cost(_ core.Agent) float64 {
 	return 10.0
 }
 
@@ -96,6 +122,6 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetStateChange(_ Agent) *State {
-	return &State{}
+func (m *mockNullAction) GetChanges(agent core.Agent) []StateChange {
+	return []StateChange{}
 }
