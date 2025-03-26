@@ -5,6 +5,7 @@ import (
 	"Neolithic/internal/planner"
 )
 
+// Performing is the State where the agent tries to perform its provided Action
 type Performing struct {
 	action   planner.Action
 	timeLeft float64

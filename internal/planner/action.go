@@ -2,16 +2,25 @@ package planner
 
 import "Neolithic/internal/core"
 
+// EntityType is the type of Entity that is being changed
 type EntityType string
 
+// AgentEntity is used to represent an agent
 var AgentEntity EntityType = "agent"
+
+// LocationEntity is used to represent a location
 var LocationEntity EntityType = "location"
 
+// StateChange represents a change to the state of the world
 type StateChange struct {
-	Entity     string
+	// Entity is the name of the entity that is being changed
+	Entity string
+	// EntityType is the type of entity that is being changed
 	EntityType EntityType
-	Resource   *core.Resource
-	Amount     int
+	// Resource is the resource that is being changed
+	Resource *core.Resource
+	// Amount is the amount of the resource that is being changed
+	Amount int
 }
 
 // Action represents a thing that can be done

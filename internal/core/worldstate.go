@@ -8,11 +8,13 @@ import (
 	"sort"
 )
 
+// WorldState represents the current state of the simulation world.
 type WorldState struct {
 	Locations map[string]Location
 	Agents    map[string]Agent
 }
 
+// ID returns a unique identifier for the WorldState. It uses SHA256 to generate a hash of the state.
 func (w *WorldState) ID() (string, error) {
 
 	type sortedState struct {
@@ -56,6 +58,7 @@ func (w *WorldState) ID() (string, error) {
 	return fmt.Sprintf("%x", hash), nil
 }
 
+// DeepCopy creates a deep copy of the WorldState.
 func (w *WorldState) DeepCopy() *WorldState {
 	end := &WorldState{
 		Locations: make(map[string]Location),
@@ -73,6 +76,7 @@ func (w *WorldState) DeepCopy() *WorldState {
 	return end
 }
 
+// String returns a string representation of the WorldState.
 func (w *WorldState) String() string {
 	if w == nil {
 		return "<nil>"

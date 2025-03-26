@@ -25,7 +25,7 @@ type Inventory interface {
 	GetAmount(res *Resource) int
 	// AdjustAmount modifies the quantity of a specific resource in the inventory. Amount can be positive or negative.
 	AdjustAmount(res *Resource, amount int)
-	// DeepCopy creates a deep copy of the inventory. Resources are NOT deep copied.
+	// DeepCopy creates a deep copy of the inventory. Resources are NOT deep copied,  but quantities are.
 	DeepCopy() Inventory
 	// Entries returns a slice of InventoryEntry, sorted by resource name. This is a copy of the inventory, not a reference.
 	Entries() []InventoryEntry
