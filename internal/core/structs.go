@@ -1,16 +1,8 @@
 package core
 
-import "fmt"
-
-// Coord represents a point in a 2D space with integer coordinates.
-type Coord struct {
-	X, Y int
-}
-
-// String returns a string representation of the Coord in the format "(x, y)".
-func (c *Coord) String() string {
-	return fmt.Sprintf("(%d, %d)", c.X, c.Y)
-}
+import (
+	"fmt"
+)
 
 // Resource represents a resource in the simulation world.
 type Resource struct {

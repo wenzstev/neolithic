@@ -1,6 +1,7 @@
 package world
 
 import (
+	"Neolithic/internal/core"
 	"errors"
 	"fmt"
 	"math"
@@ -17,9 +18,6 @@ type Tile struct {
 	X, Y     int
 	grid     *grid.Grid
 }
-
-// Ensure Tile implements astar.Node
-var _ astar.Node = (*Tile)(nil)
 
 // Ensure Tile implements grid.Tile
 var _ grid.Tile = (*Tile)(nil)
@@ -94,4 +92,9 @@ func (t *Tile) GetSuccessors() ([]astar.Node, error) {
 // isDiagonallyAdjacent is a helper function that determines whether two tiles are diagonally adjacent to each other.
 func isDiagonallyAdjacent(tile1, tile2 *Tile) bool {
 	return math.Abs(float64(tile1.X-tile2.X)) == 1 && math.Abs(float64(tile1.Y-tile2.Y)) == 1
+}
+
+// Coord returns the coordinates of the tile
+func (t *Tile) Coord() core.Coord {
+	return core.Coord{X: t.X, Y: t.Y}
 }

@@ -10,8 +10,12 @@ import (
 
 // WorldState represents the current state of the simulation world.
 type WorldState struct {
+	// Grid represents the world's grid.
+	Grid Grid
+	// Locations is a map of locations in the world.
 	Locations map[string]Location
-	Agents    map[string]Agent
+	// Agents is a map of agents in the world.
+	Agents map[string]Agent
 }
 
 // ID returns a unique identifier for the WorldState. It uses SHA256 to generate a hash of the state.
