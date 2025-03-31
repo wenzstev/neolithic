@@ -1,8 +1,9 @@
 package core
 
 import (
-	"Neolithic/internal/astar"
 	"fmt"
+
+	"Neolithic/internal/astar"
 )
 
 // Agent is the core interface for all packages that require an agent
@@ -22,11 +23,16 @@ type Locatable interface {
 	Location() *Location
 }
 
+// Grid is an interface that represents a grid of cells
 type Grid interface {
+	// CellAt returns the cell at the given coordinate
 	CellAt(coord Coord) Cell
 }
 
+// Cell is an interface that represents a cell in a grid. It is expected to implement the astar.Node interface for pathfinding.
 type Cell interface {
+	// require implementing astar.Node
 	astar.Node
+	// Coord returns the coordinate of the cell
 	Coord() Coord
 }

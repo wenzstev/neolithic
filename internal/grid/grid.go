@@ -1,10 +1,10 @@
 package grid
 
 import (
-	"Neolithic/internal/core"
 	"math"
 
 	"Neolithic/internal/camera"
+	"Neolithic/internal/core"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -107,10 +107,11 @@ func (g *Grid) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *cam
 	}
 }
 
+// CellAt returns the cell at the given coordinate
 func (g *Grid) CellAt(coord core.Coord) core.Cell {
 	x := coord.X
 	y := coord.Y
-	
+
 	if x < 0 || x >= g.Width || y < 0 || y >= g.Height {
 		return nil
 	}
