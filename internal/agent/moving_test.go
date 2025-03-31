@@ -31,6 +31,7 @@ func TestMoving_Execute(t *testing.T) {
 		expectedErr     error
 		newAgentPositon core.Coord
 		expectedState   State
+		expectedPath    *CoordPath
 	}
 
 	tests := map[string]testCase{
@@ -64,6 +65,23 @@ func TestMoving_Execute(t *testing.T) {
 				},
 			},
 			expectedState: &Performing{},
+		},
+		"creates path when no path exists": {
+			agentPosition: core.Coord{X: 0, Y: 0},
+			hasPath:       false,
+			target:        &core.Coord{X: 5, Y: 5},
+			plan: &mockPlan{
+				nextAction: &mockLocationAction{
+					location: &core.Location{
+						Coord: core.Coord{X: 1, Y: 1},
+					},
+				},
+			},
+			expectedState: &Moving{},
+			expectedPath: &CoordPath{
+				coords: []core.Coord{{X: 0, Y: 0}, {X: 1, Y: 1}, {X: 2, Y: 2}, {X: 3, Y: 3}, {X: 4, Y: 4}, {X: 5, Y: 5}},
+				index:  2,
+			},
 		},
 		"updates agent position to next path coordinate": {
 			agentPosition: core.Coord{X: 0, Y: 0},
@@ -143,6 +161,9 @@ func TestMoving_Execute(t *testing.T) {
 			}
 			if tc.expectedState != nil {
 				require.IsType(t, tc.expectedState, testAgent.Behavior.curState)
+			}
+			if tc.expectedPath != nil {
+				require.Equal(t, tc.expectedPath, testMoving.path.(*CoordPath))
 			}
 		})
 	}
