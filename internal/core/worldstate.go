@@ -10,6 +10,7 @@ import (
 
 // WorldState represents the current state of the simulation world.
 type WorldState struct {
+	Grid      Grid
 	Locations map[string]Location
 	Agents    map[string]Agent
 }

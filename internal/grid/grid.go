@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"Neolithic/internal/core"
 	"math"
 
 	"Neolithic/internal/camera"
@@ -17,6 +18,7 @@ type Grid struct {
 
 // Tile represents a single square in the Grid
 type Tile interface {
+	core.Cell
 	Draw(*ebiten.Image, *ebiten.GeoM)
 }
 
@@ -103,4 +105,14 @@ func (g *Grid) Draw(screen *ebiten.Image, viewport *camera.Viewport, camera *cam
 			}
 		}
 	}
+}
+
+func (g *Grid) CellAt(coord core.Coord) core.Cell {
+	x := coord.X
+	y := coord.Y
+	
+	if x < 0 || x >= g.Width || y < 0 || y >= g.Height {
+		return nil
+	}
+	return g.Tiles[x][y]
 }

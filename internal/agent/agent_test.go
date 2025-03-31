@@ -1,10 +1,10 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
 	"reflect"
 	"testing"
 
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -71,5 +71,5 @@ func TestAgent_String(t *testing.T) {
 		inventory: testInventory,
 	}
 
-	assert.Equal(t, "Agent: test \nInventory   testResource: 5\n\n Position {0 0}\n", testAgent.String())
+	assert.Equal(t, "Agent: test \nInventory   testResource: 5\n\n Position (0, 0)\n", testAgent.String())
 }

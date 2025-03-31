@@ -34,3 +34,8 @@ type Action interface {
 	// GetChanges returns the difference in state before and after applying the Action
 	GetChanges(agent core.Agent) []StateChange
 }
+
+// RequiresTime is an interface that provides a required amount of time.
+type RequiresTime interface {
+	TimeNeeded() float64
+}

@@ -28,7 +28,7 @@ func (p *Performing) Execute(world *core.WorldState, deltaTime float64) (*core.W
 			return (*core.WorldState)(nil), nil
 		}
 
-		actionDuration, ok := p.action.(RequiresTime)
+		actionDuration, ok := p.action.(planner.RequiresTime)
 		if ok && p.timeLeft == 0 {
 			p.timeLeft = actionDuration.TimeNeeded()
 		}
