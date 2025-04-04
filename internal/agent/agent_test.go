@@ -71,5 +71,5 @@ func TestAgent_String(t *testing.T) {
 		inventory: testInventory,
 	}
 
-	assert.Equal(t, "Agent: test \nInventory   testResource: 5\n\n Position (0, 0)\n", testAgent.String())
+	assert.Equal(t, "agent: test \nInventory   testResource: 5\n\n Position (0, 0)\n", testAgent.String())
 }

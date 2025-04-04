@@ -1,6 +1,7 @@
 package grid
 
 import (
+	"fmt"
 	"math"
 
 	"Neolithic/internal/camera"
@@ -23,13 +24,16 @@ type Tile interface {
 }
 
 // New creates a new instance of Grid
-func New(width, height, cellSize int) *Grid {
+func New(width, height, cellSize int) (*Grid, error) {
+	if width <= 0 || height <= 0 {
+		return nil, fmt.Errorf("width and height must be positive")
+	}
 	grid := &Grid{
 		Width:    width,
 		Height:   height,
 		CellSize: cellSize,
 	}
-	return grid
+	return grid, nil
 }
 
 // Initialize initializes a new grid with necessary values. Takes in a function

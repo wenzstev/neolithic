@@ -43,7 +43,7 @@ func (g *GoapNode) ID() (string, error) {
 	return g.State.ID()
 }
 
-// Cost implements astar.Node and returns the cost of performing the acion associated with this node.
+// Cost implements astar.Node and returns the ActionCost of performing the acion associated with this node.
 func (g *GoapNode) Cost(_ astar.Node) float64 {
 	return g.Action.Cost(g.GoapRunInfo.Agent)
 }
@@ -66,10 +66,10 @@ func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 }
 
 // heuristic is the function used to estimate how close to the goal a given Action is. It does so by calculating the
-// lowest "cost per unit" of all Action(s) that operates on a resource relevant to the goal. That value is then
-// multiplied by the difference in amount of that resource between the current and the goal location.
-// This heuristic is admissible because it always chooses the least "cost per unit" available, meaning it cannot
-// overestimate the total cost of a given path.
+// lowest "ActionCost per unit" of all Action(s) that operates on a Resource relevant to the goal. That value is then
+// multiplied by the difference in Amount of that Resource between the current and the goal location.
+// This heuristic is admissible because it always chooses the least "ActionCost per unit" available, meaning it cannot
+// overestimate the total ActionCost of a given path.
 func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	var totalCost float64
 	for _, goalLocation := range goal.State.Locations {
@@ -122,7 +122,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	return totalCost, nil
 }
 
-// getActionsThatAdd returns all actions that the Agent on the GoapNode can take that _add_ the given Resource to the given
+// getActionsThatAdd returns all actions that the agent on the GoapNode can take that _add_ the given Resource to the given
 // Location
 func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Action, error) {
 	addActions := make([]Action, 0)
@@ -148,7 +148,7 @@ func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Acti
 	return addActions, nil
 }
 
-// getActionsThatRemove returns all actions that the Agent on the GoapNode can take that _remove_ the given Resource
+// getActionsThatRemove returns all actions that the agent on the GoapNode can take that _remove_ the given Resource
 // from the given location.
 func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]Action, error) {
 	removeActions := make([]Action, 0)

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"Neolithic/internal/core"
+	"Neolithic/internal/logging"
 	"testing"
 
 	"Neolithic/internal/planner"
@@ -18,6 +19,7 @@ func TestPerforming_Execute(t *testing.T) {
 		plan                        Plan
 		startWorldState             *core.WorldState
 		expectedAmountInEndLocation int
+		startAgent                  *Agent
 		expectedAgent               *Agent
 		expectedAction              planner.Action
 		expectedTimeLeft            float64
@@ -25,10 +27,61 @@ func TestPerforming_Execute(t *testing.T) {
 		nilEndState                 bool
 	}
 
+	basicAgent := &Agent{
+		name: "basicAgent",
+		Behavior: &Behavior{
+			CurPlan: &MockPlan{
+				NextAction: &mockAction{},
+			},
+			CurState: &Moving{},
+		},
+	}
+
+	basicTimeAgent := &Agent{
+		name: "basicTimeAgent",
+		Behavior: &Behavior{
+			CurPlan: &MockPlan{
+				NextAction: &mockActionWithTime{timeNeeded: 1.0},
+			},
+		},
+	}
+
+	basicNullAgent := &Agent{
+		name: "basicNullAgent",
+		Behavior: &Behavior{
+			CurPlan: &MockPlan{
+				NextAction: &mockNullAction{},
+				Complete:   true,
+			},
+			CurState: &Idle{},
+		},
+	}
+
 	tests := map[string]testCase{
 		"can perform instant action": {
-			plan: &mockPlan{
-				nextAction: &mockAction{},
+			plan: &MockPlan{
+				NextAction: &mockAction{},
+			},
+			startWorldState: &core.WorldState{
+				Locations: map[string]core.Location{
+					"testLocation": {
+						Name:      "testLocation",
+						Inventory: core.NewInventory(),
+					},
+				},
+				Agents: map[string]core.Agent{
+					basicAgent.Name(): basicAgent,
+				},
+			},
+			expectedAmountInEndLocation: 1,
+			startAgent:                  basicAgent,
+			expectedAgent:               basicAgent,
+			expectedAction:              &mockAction{},
+			expectedTimeLeft:            0,
+		},
+		"will tick down time": {
+			plan: &MockPlan{
+				NextAction: &mockActionWithTime{timeNeeded: 1.0},
 			},
 			startWorldState: &core.WorldState{
 				Locations: map[string]core.Location{
@@ -39,70 +92,36 @@ func TestPerforming_Execute(t *testing.T) {
 				},
 				Agents: map[string]core.Agent{},
 			},
-			expectedAmountInEndLocation: 1,
-			expectedAgent: &Agent{
-				Behavior: &Behavior{
-					CurPlan: &mockPlan{
-						nextAction: &mockAction{},
-					},
-					curState: &Moving{},
-				},
-			},
-			expectedAction:   &mockAction{},
-			expectedTimeLeft: 0,
-		},
-		"will tick down time": {
-			plan: &mockPlan{
-				nextAction: &mockActionWithTime{timeNeeded: 1.0},
-			},
-			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": core.Location{
-						Name:      "testLocation",
-						Inventory: core.NewInventory(),
-					},
-				},
-				Agents: map[string]core.Agent{},
-			},
-			expectedAgent: &Agent{
-				Behavior: &Behavior{
-					CurPlan: &mockPlan{
-						nextAction: &mockActionWithTime{timeNeeded: 1.0},
-					},
-				},
-			},
+			startAgent:       basicTimeAgent,
+			expectedAgent:    basicTimeAgent,
 			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
 			expectedTimeLeft: 1.0 - deltaTime,
 			nilEndState:      true,
 		},
 		"action fails, reset to idle": {
-			plan: &mockPlan{
-				nextAction: &mockNullAction{},
+			plan: &MockPlan{
+				NextAction: &mockNullAction{},
 			},
 			startWorldState: &core.WorldState{
 				Locations: map[string]core.Location{
-					"testLocation": core.Location{
+					"testLocation": {
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{},
-			},
-			expectedAgent: &Agent{
-				Behavior: &Behavior{
-					CurPlan: &mockPlan{
-						nextAction: &mockNullAction{},
-					},
-					curState: &Idle{},
+				Agents: map[string]core.Agent{
+					basicNullAgent.Name(): basicNullAgent,
 				},
 			},
+			startAgent:       basicNullAgent,
+			expectedAgent:    basicNullAgent,
 			expectedAction:   &mockNullAction{},
 			expectedTimeLeft: 0,
 			nilEndState:      true,
 		},
 		"action succeeds, time left is zero": {
-			plan: &mockPlan{
-				nextAction: &mockActionWithTime{timeNeeded: 1.0},
+			plan: &MockPlan{
+				NextAction: &mockActionWithTime{timeNeeded: 1.0},
 			},
 			action:   &mockActionWithTime{timeNeeded: 1.0},
 			timeLeft: 0,
@@ -113,24 +132,20 @@ func TestPerforming_Execute(t *testing.T) {
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{},
-			},
-			expectedAmountInEndLocation: 1,
-			expectedAgent: &Agent{
-				Behavior: &Behavior{
-					CurPlan: &mockPlan{
-						nextAction: &mockActionWithTime{timeNeeded: 1.0},
-					},
-					curState: &Moving{},
+				Agents: map[string]core.Agent{
+					basicTimeAgent.Name(): basicTimeAgent,
 				},
 			},
-			expectedAction:   &mockActionWithTime{timeNeeded: 1.0},
-			expectedTimeLeft: 0,
+			expectedAmountInEndLocation: 1,
+			startAgent:                  basicTimeAgent,
+			expectedAgent:               basicTimeAgent,
+			expectedAction:              &mockActionWithTime{timeNeeded: 1.0},
+			expectedTimeLeft:            0,
 		},
 		"action succeeds, plan is complete": {
-			plan: &mockPlan{
-				nextAction: &mockAction{},
-				isComplete: true,
+			plan: &MockPlan{
+				NextAction: &mockAction{},
+				Complete:   true,
 			},
 			startWorldState: &core.WorldState{
 				Locations: map[string]core.Location{
@@ -139,20 +154,14 @@ func TestPerforming_Execute(t *testing.T) {
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{},
-			},
-			expectedAmountInEndLocation: 1,
-			expectedAgent: &Agent{
-				Behavior: &Behavior{
-					CurPlan: &mockPlan{
-						nextAction: &mockAction{},
-						isComplete: true,
-					},
-					curState: &Idle{},
+				Agents: map[string]core.Agent{
+					basicAgent.Name(): basicAgent,
 				},
 			},
-			expectedAction:   &mockAction{},
-			expectedTimeLeft: 0,
+			expectedAction:              &mockAction{},
+			expectedAmountInEndLocation: 1,
+			startAgent:                  basicAgent,
+			expectedAgent:               basicAgent,
 		},
 	}
 
@@ -161,9 +170,8 @@ func TestPerforming_Execute(t *testing.T) {
 			testPerforming := &Performing{
 				timeLeft: tc.timeLeft,
 				action:   tc.action,
-				agent: &Agent{
-					Behavior: &Behavior{CurPlan: tc.plan},
-				},
+				agent:    tc.startAgent,
+				logger:   logging.NewLogger("info"),
 			}
 			output, err := testPerforming.Execute(tc.startWorldState, 1.0/60.0)
 			if tc.expectedError != nil {

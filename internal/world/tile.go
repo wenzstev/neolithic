@@ -13,10 +13,9 @@ import (
 
 // Tile implements grid.Tile, and represents a single square of ground
 type Tile struct {
-	Ground   *Ground
-	Resource *Resource
-	X, Y     int
-	grid     *grid.Grid
+	Ground *Ground
+	X, Y   int
+	grid   *grid.Grid
 }
 
 // Ensure Tile implements grid.Tile
@@ -27,11 +26,6 @@ func (t *Tile) Draw(screen *ebiten.Image, transform *ebiten.GeoM) {
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = *transform
 	screen.DrawImage(t.Ground.Image, op)
-	// TODO: once add resources, draw them here
-
-	if t.Resource != nil {
-		screen.DrawImage(t.Resource.Image, op)
-	}
 }
 
 // Heuristic implements astar.Node and provides a best guess for how far the tile is from the goal tile. Calculates
@@ -97,4 +91,19 @@ func isDiagonallyAdjacent(tile1, tile2 *Tile) bool {
 // Coord returns the coordinates of the tile
 func (t *Tile) Coord() core.Coord {
 	return core.Coord{X: t.X, Y: t.Y}
+}
+
+// MakeTile returns a new Grass tile to populate the world grid
+func MakeTile(X, Y int, grid *grid.Grid) (grid.Tile, error) {
+	ground, err := NewGrassGround()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Tile{
+		Ground: ground,
+		X:      X,
+		Y:      Y,
+		grid:   grid,
+	}, nil
 }

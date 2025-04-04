@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TestPlan_IsComplete tests the IsComplete method of plan.
+// TestPlan_IsComplete tests the Complete method of plan.
 func TestPlan_IsComplete(t *testing.T) {
 	type testCase struct {
 		actions     []planner.Action

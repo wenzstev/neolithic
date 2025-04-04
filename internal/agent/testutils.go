@@ -88,21 +88,21 @@ func (m *mockActionWithTime) TimeNeeded() float64 {
 	return m.timeNeeded
 }
 
-type mockPlan struct {
-	isComplete bool
-	nextAction planner.Action
+type MockPlan struct {
+	Complete   bool
+	NextAction planner.Action
 }
 
-func (m *mockPlan) IsComplete() bool {
-	return m.isComplete
+func (m *MockPlan) IsComplete() bool {
+	return m.Complete
 }
 
-func (m *mockPlan) PeekAction() planner.Action {
-	return m.nextAction
+func (m *MockPlan) PeekAction() planner.Action {
+	return m.NextAction
 }
 
-func (m *mockPlan) PopAction() planner.Action {
-	return m.nextAction
+func (m *MockPlan) PopAction() planner.Action {
+	return m.NextAction
 }
 
 type mockGrid struct{}

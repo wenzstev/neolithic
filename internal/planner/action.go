@@ -17,9 +17,9 @@ type StateChange struct {
 	Entity string
 	// EntityType is the type of entity that is being changed
 	EntityType EntityType
-	// Resource is the resource that is being changed
+	// Resource is the Resource that is being changed
 	Resource *core.Resource
-	// Amount is the amount of the resource that is being changed
+	// Amount is the Amount of the Resource that is being changed
 	Amount int
 }
 
@@ -27,7 +27,7 @@ type StateChange struct {
 type Action interface {
 	// Perform takes a start State and manipulates it into a new State, based on what the Action does.
 	Perform(start *core.WorldState, agent core.Agent) *core.WorldState
-	// Cost returns the cost of the Action, representing how much work it takes to do the Action.
+	// Cost returns the ActionCost of the Action, representing how much work it takes to do the Action.
 	Cost(agent core.Agent) float64
 	// Description returns a string description of the Action, used to make the Action more legible.
 	Description() string
@@ -35,7 +35,7 @@ type Action interface {
 	GetChanges(agent core.Agent) []StateChange
 }
 
-// RequiresTime is an interface that provides a required amount of time.
+// RequiresTime is an interface that provides a required Amount of time.
 type RequiresTime interface {
 	TimeNeeded() float64
 }

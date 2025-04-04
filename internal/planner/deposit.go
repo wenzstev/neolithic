@@ -2,29 +2,34 @@ package planner
 
 import (
 	"Neolithic/internal/core"
+	"encoding/gob"
 	"fmt"
 )
 
-// Deposit implements Action, and represents the act of depositing a resource at a location
+func init() {
+	gob.Register(Deposit{})
+}
+
+// Deposit implements Action, and represents the act of depositing a Resource at a location
 type Deposit struct {
-	// resource is the Resource being deposited
-	resource *core.Resource
-	// amount is the amount of resource being deposited
-	amount int
-	// location is the Location the resource is being deposited
-	locName string
-	// cost is the cost of taking the Action
-	cost float64
+	// Resource is the Resource being deposited
+	Resource *core.Resource
+	// Amount is the Amount of Resource being deposited
+	Amount int
+	// ActionLocation is the Location the Resource is being deposited
+	ActionLocation *core.Location
+	// ActionCost is the ActionCost of taking the Action
+	ActionCost float64
 }
 
 // Force Deposit to implement Action
 var _ Action = (*Deposit)(nil)
 
-// Perform implements Action.Perform, and simulates the act of depositing a resource in a location
+// Perform implements Action.Perform, and simulates the act of depositing a Resource in a location
 func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
 
-	endLoc, ok := end.Locations[d.locName]
+	endLoc, ok := end.Locations[d.ActionLocation.Name]
 	if !ok {
 		return nil // error, no location of that type in State
 	}
@@ -35,26 +40,26 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 	}
 
 	endAgentInv := endAgent.Inventory()
-	amountToDeposit := minInt(endAgentInv.GetAmount(d.resource), d.amount)
+	amountToDeposit := minInt(endAgentInv.GetAmount(d.Resource), d.Amount)
 
 	if amountToDeposit <= 0 {
-		return nil // fail, no resource to deposit
+		return nil // fail, no Resource to deposit
 	}
 
-	endLoc.Inventory.AdjustAmount(d.resource, amountToDeposit)
-	endAgentInv.AdjustAmount(d.resource, -amountToDeposit)
+	endLoc.Inventory.AdjustAmount(d.Resource, amountToDeposit)
+	endAgentInv.AdjustAmount(d.Resource, -amountToDeposit)
 
 	return end
 }
 
-// Cost implements Action.Cost, and returns the energy cost of depositing the resource.
+// Cost implements Action.Cost, and returns the energy ActionCost of depositing the Resource.
 func (d *Deposit) Cost(_ core.Agent) float64 {
-	return d.cost // TODO: more dynamic cost
+	return d.ActionCost // TODO: more dynamic ActionCost
 }
 
 // Description implements Action.Description, and returns a string representation of the Action.
 func (d *Deposit) Description() string {
-	return fmt.Sprintf("deposit %d %s at %s", d.amount, d.resource.Name, d.locName)
+	return fmt.Sprintf("deposit %d %s at %s", d.Amount, d.Resource.Name, d.ActionLocation)
 }
 
 func (d *Deposit) GetChanges(agent core.Agent) []StateChange {
@@ -62,14 +67,18 @@ func (d *Deposit) GetChanges(agent core.Agent) []StateChange {
 		{
 			Entity:     agent.Name(),
 			EntityType: AgentEntity,
-			Resource:   d.resource,
-			Amount:     -d.amount,
+			Resource:   d.Resource,
+			Amount:     -d.Amount,
 		},
 		{
-			Entity:     d.locName,
+			Entity:     d.ActionLocation.Name,
 			EntityType: LocationEntity,
-			Resource:   d.resource,
-			Amount:     d.amount,
+			Resource:   d.Resource,
+			Amount:     d.Amount,
 		},
 	}
+}
+
+func (d *Deposit) Location() *core.Location {
+	return d.ActionLocation
 }

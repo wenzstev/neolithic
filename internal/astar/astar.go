@@ -1,13 +1,12 @@
 package astar
 
 import (
+	"Neolithic/internal/logging"
 	"container/heap"
 	"errors"
 	"fmt"
 	"log/slog"
 	"math"
-
-	"Neolithic/internal/logging"
 )
 
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
@@ -70,11 +69,14 @@ func (n *searchNode) fCost() float64 {
 }
 
 // NewSearch initializes a new SearchState with a start and finish Node
-func NewSearch(start, goal Node) (*SearchState, error) {
+func NewSearch(start, goal Node, logger *slog.Logger) (*SearchState, error) {
+	if logger == nil {
+		logger = logging.NewLogger("info")
+	}
 	search := &SearchState{
 		Start:  start,
 		Goal:   goal,
-		logger: logging.NewLogger("info"),
+		logger: logger,
 	}
 	if err := search.init(start, goal); err != nil {
 		return nil, err

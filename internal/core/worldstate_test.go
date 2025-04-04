@@ -15,7 +15,7 @@ func TestWorldStateCopy(t *testing.T) {
 			testLocation.Name: testLocation,
 		},
 		Agents: map[string]Agent{
-			// using Agent’s Name() as the key
+			// using agent’s Name() as the key
 			testAgent.Name(): testAgent,
 		},
 	}

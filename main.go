@@ -1,16 +1,21 @@
 package main
 
 import (
-	"image/color"
 	"log"
 
+	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
+	"Neolithic/internal/core"
+	"Neolithic/internal/grid"
+	"Neolithic/internal/logging"
+	"Neolithic/internal/planner"
 	"Neolithic/internal/world"
+
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 type Game struct {
-	World    *world.World
+	Engine   *world.Engine
 	Camera   *camera.Camera
 	Viewport *camera.Viewport
 }
@@ -36,15 +41,15 @@ func (g *Game) Update() error {
 		g.Camera.ZoomAt(.95, float64(g.Viewport.Width), float64(g.Viewport.Height))
 	}
 
-	if ebiten.IsKeyPressed(ebiten.KeyT) {
-		g.World.Villagers[0].Move(1, 1)
+	if err := g.Engine.Tick(1.0 / 60); err != nil {
+		return err
 	}
 
 	return nil
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	g.World.Draw(screen, g.Viewport, g.Camera)
+	g.Engine.Draw(screen, g.Viewport, g.Camera)
 }
 
 func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
@@ -56,50 +61,94 @@ func main() {
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
 	width, height := 32, 32
-	cellSize := 16
 
-	gameWorld, err := world.New(width, height, cellSize)
+	logger := logging.NewLogger("info")
+
+	worldGrid, err := grid.New(width, height, 16)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err = worldGrid.Initialize(world.MakeTile); err != nil {
+		log.Fatal(err)
+	}
+
+	engine, err := world.NewEngine(worldGrid, logger)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	game := &Game{
-		World:    gameWorld,
+		Engine:   engine,
 		Camera:   cam,
 		Viewport: vp,
 	}
 
-	villagerImg := ebiten.NewImage(8, 8)
-	villagerImg.Fill(color.RGBA{
-		R: 70,
-		G: 80,
-		B: 100,
-		A: 255,
-	})
-
-	game.World.Villagers = append(game.World.Villagers, &world.Villager{
-		X:     0,
-		Y:     1,
-		Image: villagerImg,
-	})
-
-	resourceImg := ebiten.NewImage(8, 8)
-	resourceImg.Fill(color.RGBA{
-		R: 200,
-		G: 80,
-		B: 50,
-		A: 255,
-	})
-
-	tile := game.World.Grid.Tiles[5][5]
-	worldTile, ok := tile.(*world.Tile)
-	if !ok {
-		log.Fatal("Tile is not a Tile")
+	loc1 := core.Location{
+		Name:      "loc1",
+		Inventory: core.NewInventory(),
+		Coord:     core.Coord{X: 3, Y: 14},
 	}
 
-	worldTile.Resource = &world.Resource{
-		Image: resourceImg,
+	loc2 := core.Location{
+		Name:      "loc2",
+		Inventory: core.NewInventory(),
+		Coord:     core.Coord{X: 21, Y: 4},
 	}
+
+	res1 := &core.Resource{Name: "Berries"}
+
+	loc1.Inventory.AdjustAmount(res1, 100)
+
+	goalLoc2 := loc2.DeepCopy()
+	goalLoc2.Inventory.AdjustAmount(res1, 100)
+
+	depositLoc1 := &planner.Deposit{
+		Resource:       res1,
+		Amount:         10,
+		ActionLocation: &loc1,
+		ActionCost:     1,
+	}
+
+	depositLoc2 := &planner.Deposit{
+		Resource:       res1,
+		Amount:         10,
+		ActionLocation: &loc2,
+		ActionCost:     1,
+	}
+
+	gatherLoc1 := &planner.Gather{
+		Resource:       res1,
+		Amount:         10,
+		ActionLocation: &loc1,
+		ActionCost:     1,
+	}
+
+	gatherLoc2 := &planner.Gather{
+		Resource:       res1,
+		Amount:         10,
+		ActionLocation: &loc2,
+		ActionCost:     1,
+	}
+
+	goalState := &core.WorldState{
+		Locations: map[string]core.Location{
+			goalLoc2.Name: *goalLoc2,
+		},
+	}
+
+	testAgent := agent.NewAgent("agent", logger)
+	testAgent.Behavior.Goal = goalState
+	testAgent.Behavior.PossibleActions = []planner.Action{
+		depositLoc1,
+		depositLoc2,
+		gatherLoc1,
+		gatherLoc2,
+	}
+
+	gameWorld := engine.World
+	gameWorld.Agents[testAgent.Name()] = testAgent
+	gameWorld.Locations[loc1.Name] = loc1
+	gameWorld.Locations[loc2.Name] = loc2
 
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")

@@ -2,6 +2,7 @@ package agent
 
 import (
 	"Neolithic/internal/core"
+	"Neolithic/internal/logging"
 	"testing"
 
 	"Neolithic/internal/astar"
@@ -95,9 +96,10 @@ func TestIdle_Execute(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			testIdle := &Idle{
-				iterationsPerCall: test.iterationsPerCall,
+				IterationsPerCall: test.iterationsPerCall,
 				planner:           test.planner,
 				agent:             testAgent,
+				logger:            logging.NewLogger("info"),
 			}
 			_, err := testIdle.Execute(test.worldState, 0)
 			require.NoError(t, err)
