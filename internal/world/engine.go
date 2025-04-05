@@ -1,13 +1,13 @@
 package world
 
 import (
+	"image/color"
+	"log/slog"
+
 	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
 	"Neolithic/internal/grid"
-	"image/color"
-	"log/slog"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

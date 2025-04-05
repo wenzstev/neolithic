@@ -8,6 +8,7 @@ import (
 	"Neolithic/internal/core"
 )
 
+// Moving represents the state of an agent as it navigates along a Path toward a Target location.
 type Moving struct {
 	// agent is the agent moving
 	agent *Agent
@@ -28,6 +29,7 @@ var ErrNoPathFound = errors.New("no Path found")
 
 var _ State = (*Moving)(nil)
 
+// Execute progresses the Moving state, handling path creation and movement, and updates the agent's state as needed.
 func (m *Moving) Execute(world *core.WorldState, _ float64) (*core.WorldState, error) {
 	m.logger.Debug("moving state execute", "agent", m.agent.Name())
 
@@ -81,6 +83,7 @@ func (m *Moving) Execute(world *core.WorldState, _ float64) (*core.WorldState, e
 	return newState, nil
 }
 
+// getTarget determines the target coordinate for the agent's next action and returns it, or nil if no location is needed.
 func (m *Moving) getTarget() *core.Coord {
 	nextAction := m.agent.Behavior.CurPlan.PeekAction()
 	loc, ok := nextAction.(core.Locatable)
@@ -91,6 +94,8 @@ func (m *Moving) getTarget() *core.Coord {
 	return &targetCoord
 }
 
+// createPathToTarget generates a path from the agent's current position to the target using the A* algorithm.
+// Returns the computed path or an error if no valid path is found or an issue occurs during pathfinding.
 func (m *Moving) createPathToTarget(world *core.WorldState) (Path, error) {
 	start := world.Grid.CellAt(m.agent.Position)
 	end := world.Grid.CellAt(*m.Target)

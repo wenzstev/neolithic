@@ -1,9 +1,10 @@
 package planner
 
 import (
-	"Neolithic/internal/core"
 	"encoding/gob"
 	"fmt"
+
+	"Neolithic/internal/core"
 )
 
 func init() {

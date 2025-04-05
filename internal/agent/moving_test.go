@@ -1,10 +1,10 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
-	"Neolithic/internal/logging"
 	"testing"
 
+	"Neolithic/internal/core"
+	"Neolithic/internal/logging"
 	"github.com/stretchr/testify/require"
 )
 

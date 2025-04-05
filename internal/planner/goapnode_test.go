@@ -41,7 +41,7 @@ func TestActions_AStar(t *testing.T) {
 			expectedCost:       21,
 		},
 
-		"can move all Resource to new location": {
+		"can move all resource to new location": {
 			startLocationAmount: 50,
 			goalLocationAmount:  50,
 			expectedActionList: []Action{
@@ -146,13 +146,13 @@ func TestActions_Heuristic(t *testing.T) {
 			amountInGoalState: 100,
 			expectedDistance:  math.Inf(1),
 		},
-		"State Amount is less than goal": {
+		"State amount is less than goal": {
 			amountInCurState:   50,
 			amountInGoalState:  70,
 			amountInStartAgent: 20,
 			expectedDistance:   1.0,
 		},
-		"State Amount is greater than goal": {
+		"State amount is greater than goal": {
 			amountInCurState:  70,
 			amountInGoalState: 50,
 			expectedDistance:  20.0,

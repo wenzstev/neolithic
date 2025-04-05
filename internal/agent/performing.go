@@ -1,9 +1,10 @@
 package agent
 
 import (
+	"log/slog"
+
 	"Neolithic/internal/core"
 	"Neolithic/internal/planner"
-	"log/slog"
 )
 
 // Performing is the State where the Agent tries to perform its provided Action

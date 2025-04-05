@@ -58,7 +58,7 @@ func (a *Agent) DeepCopy() core.Agent {
 
 // String returns a string representation of the Agent including name, inventory and position
 func (a *Agent) String() string {
-	return fmt.Sprintf("agent: %s \nInventory %s\n Position %v\n", a.name, a.inventory, a.Position)
+	return fmt.Sprintf("Agent: %s \nInventory %s\n Position %v\n", a.name, a.inventory, a.Position)
 }
 
 func (a *Agent) Tick(worldState *core.WorldState, deltaTime float64) (*core.WorldState, error) {

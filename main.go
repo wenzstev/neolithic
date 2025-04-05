@@ -10,7 +10,6 @@ import (
 	"Neolithic/internal/logging"
 	"Neolithic/internal/planner"
 	"Neolithic/internal/world"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

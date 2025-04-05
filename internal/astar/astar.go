@@ -1,12 +1,13 @@
 package astar
 
 import (
-	"Neolithic/internal/logging"
 	"container/heap"
 	"errors"
 	"fmt"
 	"log/slog"
 	"math"
+
+	"Neolithic/internal/logging"
 )
 
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
