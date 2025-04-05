@@ -13,8 +13,8 @@ func init() {
 
 // Deposit implements Action, and represents the act of depositing a Resource at a location
 type Deposit struct {
-	// Resource is the Resource being deposited
-	Resource *core.Resource
+	// DepResource is the Resource being deposited
+	DepResource *core.Resource
 	// Amount is the Amount of Resource being deposited
 	Amount int
 	// ActionLocation is the Location the Resource is being deposited
@@ -41,14 +41,14 @@ func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldS
 	}
 
 	endAgentInv := endAgent.Inventory()
-	amountToDeposit := minInt(endAgentInv.GetAmount(d.Resource), d.Amount)
+	amountToDeposit := minInt(endAgentInv.GetAmount(d.DepResource), d.Amount)
 
 	if amountToDeposit <= 0 {
-		return nil // fail, no Resource to deposit
+		return nil // fail, no DepResource to deposit
 	}
 
-	endLoc.Inventory.AdjustAmount(d.Resource, amountToDeposit)
-	endAgentInv.AdjustAmount(d.Resource, -amountToDeposit)
+	endLoc.Inventory.AdjustAmount(d.DepResource, amountToDeposit)
+	endAgentInv.AdjustAmount(d.DepResource, -amountToDeposit)
 
 	return end
 }
@@ -60,26 +60,33 @@ func (d *Deposit) Cost(_ core.Agent) float64 {
 
 // Description implements Action.Description, and returns a string representation of the Action.
 func (d *Deposit) Description() string {
-	return fmt.Sprintf("deposit %d %s at %s", d.Amount, d.Resource.Name, d.ActionLocation)
+	return fmt.Sprintf("deposit %d %s at %s", d.Amount, d.DepResource.Name, d.ActionLocation)
 }
 
+// GetChanges generates a list of state changes representing the effects of depositing a resource on the agent and location.
 func (d *Deposit) GetChanges(agent core.Agent) []StateChange {
 	return []StateChange{
 		{
 			Entity:     agent.Name(),
 			EntityType: AgentEntity,
-			Resource:   d.Resource,
+			Resource:   d.DepResource,
 			Amount:     -d.Amount,
 		},
 		{
 			Entity:     d.ActionLocation.Name,
 			EntityType: LocationEntity,
-			Resource:   d.Resource,
+			Resource:   d.DepResource,
 			Amount:     d.Amount,
 		},
 	}
 }
 
+// Location returns the Location where the deposit action takes place.
 func (d *Deposit) Location() *core.Location {
 	return d.ActionLocation
+}
+
+// Resource returns the Resource associated with the Deposit.
+func (d *Deposit) Resource() *core.Resource {
+	return d.DepResource
 }

@@ -5,9 +5,31 @@ import (
 	"Neolithic/internal/planner"
 )
 
+var (
+	mockActionCreateFunc = func(params ActionCreatorParams) planner.Action {
+		return &mockAction{}
+	}
+
+	mockActionWithLocationCreateFunc = func(params ActionCreatorParams) planner.Action {
+		return &mockActionWithLocation{
+			location: params.Location,
+		}
+	}
+
+	mockActionWithResourceCreateFunc = func(params ActionCreatorParams) planner.Action {
+		return &mockActionWithResource{resource: params.Resource}
+	}
+
+	mockActionWithResourceAndLocationCreateFunc = func(params ActionCreatorParams) planner.Action {
+		return &mockActionWithLocationAndResource{
+			resource: params.Resource,
+			location: params.Location,
+		}
+	}
+)
+
 // mockAction implements planner.Action for testing
 type mockAction struct {
-	testVal string
 }
 
 func (m *mockAction) Perform(world *core.WorldState, agent core.Agent) *core.WorldState {
@@ -24,4 +46,36 @@ func (m *mockAction) Description() string {
 
 func (m *mockAction) GetChanges(_ core.Agent) []planner.StateChange {
 	return nil
+}
+
+type mockActionWithLocation struct {
+	mockAction
+	location *core.Location
+}
+
+func (m *mockActionWithLocation) Location() *core.Location {
+	return m.location
+}
+
+type mockActionWithResource struct {
+	mockAction
+	resource *core.Resource
+}
+
+func (m *mockActionWithResource) Resource() *core.Resource {
+	return m.resource
+}
+
+type mockActionWithLocationAndResource struct {
+	mockAction
+	resource *core.Resource
+	location *core.Location
+}
+
+func (m *mockActionWithLocationAndResource) Location() *core.Location {
+	return m.location
+}
+
+func (m *mockActionWithLocationAndResource) Resource() *core.Resource {
+	return m.resource
 }

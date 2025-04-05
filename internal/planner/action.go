@@ -39,3 +39,8 @@ type Action interface {
 type RequiresTime interface {
 	TimeNeeded() float64
 }
+
+// NeedsResource is an interface that provides a resource
+type NeedsResource interface {
+	Resource() *core.Resource
+}
