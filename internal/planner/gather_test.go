@@ -8,20 +8,20 @@ import (
 
 func TestGather_Perform(t *testing.T) {
 	testGather := &Gather{
-		resource: testResource,
-		amount:   5,
-		locName:  "testLocation",
-		cost:     1,
+		Resource:       testResource,
+		Amount:         5,
+		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionCost:     1,
 	}
 
 	testTool := &core.Resource{Name: "testTool"}
 
 	testGatherRequires := &Gather{
-		requires: testTool,
-		resource: testResource,
-		amount:   5,
-		locName:  "testLocation",
-		cost:     1,
+		Requires:       testTool,
+		Resource:       testResource,
+		Amount:         5,
+		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionCost:     1,
 	}
 
 	type testCase struct {
@@ -65,7 +65,7 @@ func TestGather_Perform(t *testing.T) {
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    5,
 		},
-		"gather fails, no resource in location": {
+		"gather fails, no Resource in location": {
 			testGather:               testGather,
 			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,

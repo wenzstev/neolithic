@@ -1,9 +1,10 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
 	"testing"
 
+	"Neolithic/internal/core"
+	"Neolithic/internal/logging"
 	"github.com/stretchr/testify/require"
 )
 
@@ -42,23 +43,23 @@ func TestMoving_Execute(t *testing.T) {
 		},
 		"transitions to idle when plan is complete": {
 			agentPosition: core.Coord{X: 0, Y: 0},
-			plan: &mockPlan{
-				isComplete: true,
+			plan: &MockPlan{
+				Complete: true,
 			},
 			expectedState: &Idle{},
 		},
-		"transitions to performing when no target needed": {
+		"transitions to performing when no Target needed": {
 			agentPosition: core.Coord{X: 0, Y: 0},
-			plan: &mockPlan{
-				nextAction: &mockAction{},
+			plan: &MockPlan{
+				NextAction: &mockAction{},
 			},
 			expectedState: &Performing{},
 		},
-		"transitions to performing when at target": {
+		"transitions to performing when at Target": {
 			agentPosition: core.Coord{X: 1, Y: 1},
 			target:        &core.Coord{X: 1, Y: 1},
-			plan: &mockPlan{
-				nextAction: &mockLocationAction{
+			plan: &MockPlan{
+				NextAction: &mockLocationAction{
 					location: &core.Location{
 						Coord: core.Coord{X: 1, Y: 1},
 					},
@@ -66,12 +67,12 @@ func TestMoving_Execute(t *testing.T) {
 			},
 			expectedState: &Performing{},
 		},
-		"creates path when no path exists": {
+		"creates Path when no Path exists": {
 			agentPosition: core.Coord{X: 0, Y: 0},
 			hasPath:       false,
 			target:        &core.Coord{X: 5, Y: 5},
-			plan: &mockPlan{
-				nextAction: &mockLocationAction{
+			plan: &MockPlan{
+				NextAction: &mockLocationAction{
 					location: &core.Location{
 						Coord: core.Coord{X: 1, Y: 1},
 					},
@@ -83,13 +84,13 @@ func TestMoving_Execute(t *testing.T) {
 				index:  2,
 			},
 		},
-		"updates agent position to next path coordinate": {
+		"updates agent position to next Path coordinate": {
 			agentPosition: core.Coord{X: 0, Y: 0},
 			hasPath:       true,
 			nextCoord:     core.Coord{X: 1, Y: 1},
 			isComplete:    false,
-			plan: &mockPlan{
-				nextAction: &mockLocationAction{
+			plan: &MockPlan{
+				NextAction: &mockLocationAction{
 					location: &core.Location{
 						Coord: core.Coord{X: 2, Y: 2},
 					},
@@ -97,13 +98,13 @@ func TestMoving_Execute(t *testing.T) {
 			},
 			newAgentPositon: core.Coord{X: 1, Y: 1},
 		},
-		"maintains path when not complete": {
+		"maintains Path when not complete": {
 			agentPosition: core.Coord{X: 0, Y: 0},
 			hasPath:       true,
 			nextCoord:     core.Coord{X: 1, Y: 1},
 			isComplete:    false,
-			plan: &mockPlan{
-				nextAction: &mockLocationAction{
+			plan: &MockPlan{
+				NextAction: &mockLocationAction{
 					location: &core.Location{
 						Coord: core.Coord{X: 2, Y: 2},
 					},
@@ -111,7 +112,7 @@ func TestMoving_Execute(t *testing.T) {
 			},
 			expectedState: &Moving{},
 		},
-		"transitions to idle when path is complete": {
+		"transitions to idle when Path is complete": {
 			agentPosition: core.Coord{X: 0, Y: 0},
 			hasPath:       true,
 			isComplete:    true,
@@ -125,7 +126,7 @@ func TestMoving_Execute(t *testing.T) {
 				name: "testAgent",
 				Behavior: &Behavior{
 					CurPlan:  tc.plan,
-					curState: &Moving{},
+					CurState: &Moving{},
 				},
 				Position: tc.agentPosition,
 			}
@@ -139,8 +140,9 @@ func TestMoving_Execute(t *testing.T) {
 
 			testMoving := &Moving{
 				agent:  testAgent,
-				path:   path,
-				target: tc.target,
+				Path:   path,
+				Target: tc.target,
+				logger: logging.NewLogger("info"),
 			}
 
 			startWorld := &core.WorldState{
@@ -160,10 +162,10 @@ func TestMoving_Execute(t *testing.T) {
 				require.Equal(t, tc.newAgentPositon, newState.Agents["testAgent"].(*Agent).Position)
 			}
 			if tc.expectedState != nil {
-				require.IsType(t, tc.expectedState, testAgent.Behavior.curState)
+				require.IsType(t, tc.expectedState, testAgent.Behavior.CurState)
 			}
 			if tc.expectedPath != nil {
-				require.Equal(t, tc.expectedPath, testMoving.path.(*CoordPath))
+				require.Equal(t, tc.expectedPath, testMoving.Path.(*CoordPath))
 			}
 		})
 	}

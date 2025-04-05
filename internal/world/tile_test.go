@@ -54,8 +54,9 @@ func TestTile_AStar(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			testGrid := grid.New(tc.gridSize, tc.gridSize, 1)
-			err := testGrid.Initialize(testMakeTile)
+			testGrid, err := grid.New(tc.gridSize, tc.gridSize, 1)
+			assert.NoError(t, err)
+			err = testGrid.Initialize(testMakeTile)
 			assert.NoError(t, err)
 
 			start, ok := testGrid.Tiles[tc.startX][tc.startY].(*Tile)
@@ -64,7 +65,7 @@ func TestTile_AStar(t *testing.T) {
 			end, ok := testGrid.Tiles[tc.endX][tc.endY].(*Tile)
 			assert.True(t, ok)
 
-			search, err := astar.NewSearch(start, end)
+			search, err := astar.NewSearch(start, end, nil)
 			assert.NoError(t, err)
 
 			err = search.RunIterations(10000)
@@ -185,8 +186,9 @@ func TestTile_GetSuccessors(t *testing.T) {
 
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
-			grid := grid.New(tc.gridSize, tc.gridSize, 1)
-			err := grid.Initialize(testMakeTile)
+			grid, err := grid.New(tc.gridSize, tc.gridSize, 1)
+			assert.NoError(t, err)
+			err = grid.Initialize(testMakeTile)
 			assert.NoError(t, err)
 
 			testTile, ok := grid.Tiles[tc.X][tc.Y].(*Tile)

@@ -19,31 +19,31 @@ var (
 	}
 
 	gatherTest = &Gather{
-		resource: testResource,
-		amount:   10,
-		locName:  "testLocation",
-		cost:     10.0,
+		Resource:       testResource,
+		Amount:         10,
+		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionCost:     10.0,
 	}
 
 	gatherTest2 = &Gather{
-		resource: testResource,
-		amount:   10,
-		locName:  "testLocation2",
-		cost:     10.0,
+		Resource:       testResource,
+		Amount:         10,
+		ActionLocation: &core.Location{Name: "testLocation2"},
+		ActionCost:     10.0,
 	}
 
 	depositTest = &Deposit{
-		resource: testResource,
-		amount:   20,
-		locName:  "testLocation",
-		cost:     1.0,
+		Resource:       testResource,
+		Amount:         20,
+		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionCost:     1.0,
 	}
 
 	depositTest2 = &Deposit{
-		resource: testResource,
-		amount:   20,
-		locName:  "testLocation2",
-		cost:     1.0,
+		Resource:       testResource,
+		Amount:         20,
+		ActionLocation: &core.Location{Name: "testLocation2"},
+		ActionCost:     1.0,
 	}
 )
 

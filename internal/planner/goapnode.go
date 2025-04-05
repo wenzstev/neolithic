@@ -43,7 +43,7 @@ func (g *GoapNode) ID() (string, error) {
 	return g.State.ID()
 }
 
-// Cost implements astar.Node and returns the cost of performing the acion associated with this node.
+// Cost implements astar.Node and returns the cost of performing the action associated with this node.
 func (g *GoapNode) Cost(_ astar.Node) float64 {
 	return g.Action.Cost(g.GoapRunInfo.Agent)
 }
@@ -122,7 +122,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	return totalCost, nil
 }
 
-// getActionsThatAdd returns all actions that the Agent on the GoapNode can take that _add_ the given Resource to the given
+// getActionsThatAdd returns all actions that the agent on the GoapNode can take that _add_ the given Resource to the given
 // Location
 func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Action, error) {
 	addActions := make([]Action, 0)
@@ -148,7 +148,7 @@ func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Acti
 	return addActions, nil
 }
 
-// getActionsThatRemove returns all actions that the Agent on the GoapNode can take that _remove_ the given Resource
+// getActionsThatRemove returns all actions that the agent on the GoapNode can take that _remove_ the given Resource
 // from the given location.
 func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]Action, error) {
 	removeActions := make([]Action, 0)

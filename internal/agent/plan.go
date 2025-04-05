@@ -1,8 +1,15 @@
 package agent
 
-import "Neolithic/internal/planner"
+import (
+	"Neolithic/internal/planner"
+	"encoding/gob"
+)
 
-// Plan provides a series of actions for an agent to complete
+func init() {
+	gob.Register(plan{})
+}
+
+// Plan provides a series of actions for an Agent to complete
 type Plan interface {
 	// IsComplete returns if the plan has been completed (all actions have been done)
 	IsComplete() bool
@@ -12,7 +19,7 @@ type Plan interface {
 	PopAction() planner.Action
 }
 
-// plan represents the agent's current plan, as created by the GOAP system
+// plan represents the Agent's current plan, as created by the GOAP system
 type plan struct {
 	// Actions are the actions that make up the plan.
 	Actions []planner.Action

@@ -13,7 +13,7 @@ func TestNewCoordPath(t *testing.T) {
 		expected *CoordPath
 	}{
 		{
-			name:   "empty path",
+			name:   "empty Path",
 			coords: []core.Coord{},
 			expected: &CoordPath{
 				coords: []core.Coord{},
@@ -64,7 +64,7 @@ func TestCoordPath_NextCoord(t *testing.T) {
 		wantErr  bool
 	}{
 		{
-			name: "valid path with multiple coordinates",
+			name: "valid Path with multiple coordinates",
 			path: &CoordPath{
 				coords: []core.Coord{{X: 1, Y: 2}, {X: 3, Y: 4}, {X: 5, Y: 6}},
 				index:  1,
@@ -73,7 +73,7 @@ func TestCoordPath_NextCoord(t *testing.T) {
 			wantErr:  false,
 		},
 		{
-			name: "empty path",
+			name: "empty Path",
 			path: &CoordPath{
 				coords: []core.Coord{},
 				index:  1,
@@ -82,7 +82,7 @@ func TestCoordPath_NextCoord(t *testing.T) {
 			wantErr:  true,
 		},
 		{
-			name: "single coordinate path",
+			name: "single coordinate Path",
 			path: &CoordPath{
 				coords: []core.Coord{{X: 1, Y: 2}},
 				index:  1,
@@ -104,7 +104,7 @@ func TestCoordPath_NextCoord(t *testing.T) {
 				}
 			}
 
-			// Test that calling NextCoord after path is complete panics
+			// Test that calling NextCoord after Path is complete panics
 			if !tt.wantErr {
 				defer func() {
 					if r := recover(); r == nil {
@@ -124,7 +124,7 @@ func TestCoordPath_IsComplete(t *testing.T) {
 		expected bool
 	}{
 		{
-			name: "empty path",
+			name: "empty Path",
 			path: &CoordPath{
 				coords: []core.Coord{},
 				index:  1,
@@ -132,7 +132,7 @@ func TestCoordPath_IsComplete(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "single coordinate path",
+			name: "single coordinate Path",
 			path: &CoordPath{
 				coords: []core.Coord{{X: 1, Y: 2}},
 				index:  1,
@@ -140,7 +140,7 @@ func TestCoordPath_IsComplete(t *testing.T) {
 			expected: true,
 		},
 		{
-			name: "multiple coordinates path - not complete",
+			name: "multiple coordinates Path - not complete",
 			path: &CoordPath{
 				coords: []core.Coord{{X: 1, Y: 2}, {X: 3, Y: 4}, {X: 5, Y: 6}},
 				index:  1,
@@ -148,7 +148,7 @@ func TestCoordPath_IsComplete(t *testing.T) {
 			expected: false,
 		},
 		{
-			name: "multiple coordinates path - complete",
+			name: "multiple coordinates Path - complete",
 			path: &CoordPath{
 				coords: []core.Coord{{X: 1, Y: 2}, {X: 3, Y: 4}, {X: 5, Y: 6}},
 				index:  3,
@@ -161,7 +161,7 @@ func TestCoordPath_IsComplete(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got := tt.path.IsComplete()
 			if got != tt.expected {
-				t.Errorf("IsComplete() = %v, want %v", got, tt.expected)
+				t.Errorf("Complete() = %v, want %v", got, tt.expected)
 			}
 		})
 	}

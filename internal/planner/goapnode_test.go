@@ -100,7 +100,7 @@ func TestActions_AStar(t *testing.T) {
 				GoapRunInfo: runInfo,
 			}
 
-			search, err := astar.NewSearch(startNode, endNode)
+			search, err := astar.NewSearch(startNode, endNode, nil)
 			assert.NoError(t, err)
 
 			err = search.RunIterations(1000)

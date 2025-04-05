@@ -187,7 +187,7 @@ func TestSearchState_RunIterations(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			startNode, endNode, expectedPath := tc.setupFunc()
 
-			search, err := NewSearch(startNode, endNode)
+			search, err := NewSearch(startNode, endNode, nil)
 			if tc.expectedStartError != nil {
 				assert.Equal(t, tc.expectedStartError, err)
 				return
@@ -249,7 +249,7 @@ func TestNewSearch(t *testing.T) {
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			search, err := NewSearch(tc.start, tc.end)
+			search, err := NewSearch(tc.start, tc.end, nil)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedSearchState, search)
 		})
