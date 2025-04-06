@@ -61,7 +61,7 @@ func main() {
 	vp := camera.NewViewport(cam, 800, 600)
 	width, height := 32, 32
 
-	logger := logging.NewLogger("debug")
+	logger := logging.NewLogger("info")
 
 	worldGrid, err := grid.New(width, height, 16)
 	if err != nil {
