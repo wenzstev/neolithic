@@ -9,9 +9,9 @@ type Resource struct {
 	Name string
 }
 
-// String returns a string representation of the Resource in the format "DepResource: <name>".
+// String returns a string representation of the Resource in the format "Resource: <name>".
 func (r *Resource) String() string {
-	return fmt.Sprintf("DepResource: %s", r.Name)
+	return fmt.Sprintf("Resource: %s", r.Name)
 }
 
 // Location represents a location in the simulation world.

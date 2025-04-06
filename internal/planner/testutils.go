@@ -19,14 +19,14 @@ var (
 	}
 
 	gatherTest = &Gather{
-		DepResource:    testResource,
+		Res:            testResource,
 		Amount:         10,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     10.0,
 	}
 
 	gatherTest2 = &Gather{
-		DepResource:    testResource,
+		Res:            testResource,
 		Amount:         10,
 		ActionLocation: &core.Location{Name: "testLocation2"},
 		ActionCost:     10.0,

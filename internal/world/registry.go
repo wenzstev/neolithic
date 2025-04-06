@@ -28,10 +28,14 @@ type ActionCreator func(params ActionCreatorParams) planner.Action
 
 // Registry manages the registration of actions, locations, and resources in the world.
 type Registry struct {
+	// ActionRegistry holds all actions that are currently registered in the registry
 	ActionRegistry []*ActionRegistryEntry
-	Actions        []planner.Action
-	Locations      []*core.Location
-	Resources      []*core.Resource
+	// Actions holds all instantiated actions that can be performed.
+	Actions []planner.Action
+	// Locations holds all locations in the registry
+	Locations []*core.Location
+	// Resources holds all resources in the registry
+	Resources []*core.Resource
 }
 
 // ActionRegistry is a mapping of action names to their corresponding ActionRegistryEntry configurations.
@@ -39,10 +43,14 @@ type ActionRegistry map[string]*ActionRegistryEntry
 
 // ActionRegistryEntry represents a registry entry for an action with associated metadata and creation logic.
 type ActionRegistryEntry struct {
-	Name          string
+	// Name is the generic name of the action
+	Name string
+	// NeedsLocation indicates if the action requires a location to be performed
 	NeedsLocation bool
+	// NeedsResource indicates if the action requires a resource to be performed
 	NeedsResource bool
-	Creator       ActionCreator
+	// Creator is the function that is used to generate an instance of the action
+	Creator ActionCreator
 }
 
 // RegisterAction registers a new action with a name, checks for duplicates, and creates instances based on dependencies.

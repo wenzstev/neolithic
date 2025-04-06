@@ -1,7 +1,6 @@
 package world
 
 import (
-	"Neolithic/internal/planner"
 	"errors"
 	"image/color"
 	"log/slog"
@@ -10,6 +9,7 @@ import (
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
 	"Neolithic/internal/grid"
+	"Neolithic/internal/planner"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -23,11 +23,16 @@ var (
 
 // Engine is the main struct that holds the world state and the images for the villager and location.
 type Engine struct {
-	World         *core.WorldState
-	Registry      *Registry
+	// World is the main world state
+	World *core.WorldState
+	// Registry holds all actions, resources, and locations and creates actions when new resources and locations are provided.
+	Registry *Registry
+	// villagerImage is the sprite used to represent a villager
 	villagerImage *ebiten.Image
+	// locationImage is the sprite used to represent a location
 	locationImage *ebiten.Image
-	logger        *slog.Logger
+	// logger is the logger
+	logger *slog.Logger
 }
 
 // NewEngine creates a new Engine.

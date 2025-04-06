@@ -8,7 +8,7 @@ import (
 
 func TestGather_Perform(t *testing.T) {
 	testGather := &Gather{
-		DepResource:    testResource,
+		Res:            testResource,
 		Amount:         5,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     1,
@@ -18,7 +18,7 @@ func TestGather_Perform(t *testing.T) {
 
 	testGatherRequires := &Gather{
 		Requires:       testTool,
-		DepResource:    testResource,
+		Res:            testResource,
 		Amount:         5,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     1,

@@ -122,7 +122,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	return totalCost, nil
 }
 
-// getActionsThatAdd returns all actions that the agent on the GoapNode can take that _add_ the given DepResource to the given
+// getActionsThatAdd returns all actions that the agent on the GoapNode can take that _add_ the given Resource to the given
 // Location
 func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Action, error) {
 	addActions := make([]Action, 0)
@@ -148,7 +148,7 @@ func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Acti
 	return addActions, nil
 }
 
-// getActionsThatRemove returns all actions that the agent on the GoapNode can take that _remove_ the given DepResource
+// getActionsThatRemove returns all actions that the agent on the GoapNode can take that _remove_ the given Resource
 // from the given location.
 func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]Action, error) {
 	removeActions := make([]Action, 0)

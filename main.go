@@ -135,7 +135,7 @@ func main() {
 
 	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Gather{
-			DepResource:    params.Resource,
+			Res:            params.Resource,
 			Amount:         5,
 			ActionLocation: params.Location,
 			ActionCost:     1,
