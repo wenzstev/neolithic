@@ -1,7 +1,6 @@
 package main
 
 import (
-	"Neolithic/internal/planner"
 	"log"
 
 	"Neolithic/internal/agent"
@@ -9,6 +8,7 @@ import (
 	"Neolithic/internal/core"
 	"Neolithic/internal/grid"
 	"Neolithic/internal/logging"
+	"Neolithic/internal/planner"
 	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
 )

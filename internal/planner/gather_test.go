@@ -65,7 +65,7 @@ func TestGather_Perform(t *testing.T) {
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    5,
 		},
-		"gather fails, no DepResource in location": {
+		"gather fails, no resource in location": {
 			testGather:               testGather,
 			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,

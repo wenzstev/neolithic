@@ -1,9 +1,10 @@
 package world
 
 import (
+	"errors"
+
 	"Neolithic/internal/core"
 	"Neolithic/internal/planner"
-	"errors"
 )
 
 var (
