@@ -82,72 +82,90 @@ func main() {
 		Viewport: vp,
 	}
 
-	loc1 := core.Location{
+	loc1 := &core.Location{
 		Name:      "loc1",
 		Inventory: core.NewInventory(),
 		Coord:     core.Coord{X: 3, Y: 14},
 	}
 
-	loc2 := core.Location{
+	loc2 := &core.Location{
 		Name:      "loc2",
 		Inventory: core.NewInventory(),
 		Coord:     core.Coord{X: 21, Y: 4},
 	}
 
+	loc3 := &core.Location{
+		Name:      "loc3",
+		Inventory: core.NewInventory(),
+		Coord:     core.Coord{X: 27, Y: 30},
+	}
+
+	depo := &core.Location{
+		Name:      "depo",
+		Inventory: core.NewInventory(),
+		Coord:     core.Coord{X: 16, Y: 16},
+	}
+
 	res1 := &core.Resource{Name: "Berries"}
 
-	loc1.Inventory.AdjustAmount(res1, 100)
+	loc1.Inventory.AdjustAmount(res1, 20)
+	loc2.Inventory.AdjustAmount(res1, 10)
+	loc3.Inventory.AdjustAmount(res1, 20)
 
-	goalLoc2 := loc2.DeepCopy()
-	goalLoc2.Inventory.AdjustAmount(res1, 100)
-
-	depositLoc1 := &planner.Deposit{
-		Resource:       res1,
-		Amount:         10,
-		ActionLocation: &loc1,
-		ActionCost:     1,
-	}
-
-	depositLoc2 := &planner.Deposit{
-		Resource:       res1,
-		Amount:         10,
-		ActionLocation: &loc2,
-		ActionCost:     1,
-	}
-
-	gatherLoc1 := &planner.Gather{
-		Resource:       res1,
-		Amount:         10,
-		ActionLocation: &loc1,
-		ActionCost:     1,
-	}
-
-	gatherLoc2 := &planner.Gather{
-		Resource:       res1,
-		Amount:         10,
-		ActionLocation: &loc2,
-		ActionCost:     1,
-	}
+	goalDepo := depo.DeepCopy()
+	goalDepo.Inventory.AdjustAmount(res1, 50)
 
 	goalState := &core.WorldState{
 		Locations: map[string]core.Location{
-			goalLoc2.Name: *goalLoc2,
+			depo.Name: *goalDepo,
 		},
 	}
 
 	testAgent := agent.NewAgent("agent", logger)
 	testAgent.Behavior.Goal = goalState
-	testAgent.Behavior.PossibleActions = []planner.Action{
-		depositLoc1,
-		depositLoc2,
-		gatherLoc1,
-		gatherLoc2,
+
+	createDepositAction := func(params world.ActionCreatorParams) planner.Action {
+		return &planner.Deposit{
+			DepResource:    params.Resource,
+			Amount:         10,
+			ActionLocation: params.Location,
+			ActionCost:     1,
+		}
 	}
 
-	gameWorld := engine.World
-	gameWorld.Agents[testAgent.Name()] = testAgent
-	gameWorld.Locations[loc1.Name] = loc1
-	gameWorld.Locations[loc2.Name] = loc2
+	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
+		return &planner.Gather{
+			Res:            params.Resource,
+			Amount:         5,
+			ActionLocation: params.Location,
+			ActionCost:     1,
+		}
+	}
+
+	if err = engine.RegisterAction("deposit", &planner.Deposit{}, createDepositAction); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.RegisterAction("gather", &planner.Gather{}, createGatherAction); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddLocation(loc1); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddLocation(loc2); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddLocation(loc3); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddLocation(depo); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddResource(res1); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddAgent(testAgent); err != nil {
+		log.Fatal(err)
+	}
 
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")

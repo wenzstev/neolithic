@@ -14,8 +14,8 @@ func init() {
 type Gather struct {
 	// Requires is an optional Resource that is required to perform the gather
 	Requires *core.Resource
-	// Resource is the Resource being gathered
-	Resource *core.Resource
+	// Res is the Resource being gathered
+	Res *core.Resource
 	// Amount is the Amount of the Resource being gathered
 	Amount int
 	// ActionLocation is the Location where the Resource is being gathered
@@ -35,9 +35,9 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 		return nil // location must always be in State, this is an error
 	}
 
-	amountToGather := minInt(g.Amount, endLocation.Inventory.GetAmount(g.Resource))
+	amountToGather := minInt(g.Amount, endLocation.Inventory.GetAmount(g.Res))
 	if amountToGather <= 0 {
-		return nil // fail, no Resource to gather
+		return nil // fail, no DepResource to gather
 	}
 
 	endAgent, ok := end.Agents[agent.Name()]
@@ -51,8 +51,8 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 		return nil // fail, does not have the necessary tool
 	}
 
-	endAgentInv.AdjustAmount(g.Resource, amountToGather)
-	endLocation.Inventory.AdjustAmount(g.Resource, -amountToGather)
+	endAgentInv.AdjustAmount(g.Res, amountToGather)
+	endLocation.Inventory.AdjustAmount(g.Res, -amountToGather)
 	return end
 }
 
@@ -63,26 +63,28 @@ func (g *Gather) Cost(_ core.Agent) float64 {
 
 // Description implements Action.Description, and provides a brief description of the gather Action
 func (g *Gather) Description() string {
-	return fmt.Sprintf("gather %d %s from %s", g.Amount, g.Resource.Name, g.ActionLocation)
+	return fmt.Sprintf("gather %d %s from %s", g.Amount, g.Res.Name, g.ActionLocation)
 }
 
+// GetChanges generates a list of state changes resulting from gathering a resource by a specified agent.
 func (g *Gather) GetChanges(agent core.Agent) []StateChange {
 	return []StateChange{
 		{
 			Entity:     agent.Name(),
 			EntityType: AgentEntity,
-			Resource:   g.Resource,
+			Resource:   g.Res,
 			Amount:     g.Amount,
 		},
 		{
 			Entity:     g.ActionLocation.Name,
 			EntityType: LocationEntity,
-			Resource:   g.Resource,
+			Resource:   g.Res,
 			Amount:     -g.Amount,
 		},
 	}
 }
 
+// minInt returns the smaller of two integer values a and b.
 func minInt(a, b int) int {
 	if a < b {
 		return a
@@ -90,6 +92,12 @@ func minInt(a, b int) int {
 	return b
 }
 
+// Location retrieves the location where the resource is being gathered.
 func (g *Gather) Location() *core.Location {
 	return g.ActionLocation
+}
+
+// Resource returns the DepResource associated with the Gather action.
+func (g *Gather) Resource() *core.Resource {
+	return g.Res
 }

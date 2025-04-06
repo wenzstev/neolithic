@@ -7,7 +7,7 @@ import (
 )
 
 var testDeposit = &Deposit{
-	Resource:       testResource,
+	DepResource:    testResource,
 	Amount:         10,
 	ActionLocation: &core.Location{Name: "testLocation"},
 	ActionCost:     1.0,
@@ -113,7 +113,7 @@ func TestDeposit_String(t *testing.T) {
 		},
 		"deposit message with different Amount": {
 			testDeposit: &Deposit{
-				Resource:       testResource,
+				DepResource:    testResource,
 				Amount:         100,
 				ActionLocation: &core.Location{Name: "testLocation"},
 			},

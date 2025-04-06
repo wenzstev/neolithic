@@ -8,7 +8,7 @@ import (
 
 func TestGather_Perform(t *testing.T) {
 	testGather := &Gather{
-		Resource:       testResource,
+		Res:            testResource,
 		Amount:         5,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     1,
@@ -18,7 +18,7 @@ func TestGather_Perform(t *testing.T) {
 
 	testGatherRequires := &Gather{
 		Requires:       testTool,
-		Resource:       testResource,
+		Res:            testResource,
 		Amount:         5,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     1,
@@ -65,7 +65,7 @@ func TestGather_Perform(t *testing.T) {
 			expectedAmountInLocation: 0,
 			expectedAmountInAgent:    5,
 		},
-		"gather fails, no Resource in location": {
+		"gather fails, no resource in location": {
 			testGather:               testGather,
 			startLocation:            testLocation.DeepCopy(),
 			startAmountInLocation:    0,

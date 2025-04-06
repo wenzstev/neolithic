@@ -1,6 +1,7 @@
 package world
 
 import (
+	"errors"
 	"image/color"
 	"log/slog"
 
@@ -8,18 +9,30 @@ import (
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
 	"Neolithic/internal/grid"
+	"Neolithic/internal/planner"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
 // cellSize is the size of the cells in the world grid
 const cellSize = 16
 
+var (
+	// ErrAgentAlreadyExists is thrown when an agent with a duplicate name is added to the world.
+	ErrAgentAlreadyExists = errors.New("agent already exists")
+)
+
 // Engine is the main struct that holds the world state and the images for the villager and location.
 type Engine struct {
-	World         *core.WorldState
+	// World is the main world state
+	World *core.WorldState
+	// Registry holds all actions, resources, and locations and creates actions when new resources and locations are provided.
+	Registry *Registry
+	// villagerImage is the sprite used to represent a villager
 	villagerImage *ebiten.Image
+	// locationImage is the sprite used to represent a location
 	locationImage *ebiten.Image
-	logger        *slog.Logger
+	// logger is the logger
+	logger *slog.Logger
 }
 
 // NewEngine creates a new Engine.
@@ -47,7 +60,13 @@ func NewEngine(grid *grid.Grid, logger *slog.Logger) (*Engine, error) {
 	}
 
 	return &Engine{
-		World:         world,
+		World: world,
+		Registry: &Registry{
+			ActionRegistry: []*ActionRegistryEntry{},
+			Actions:        []planner.Action{},
+			Locations:      []*core.Location{},
+			Resources:      []*core.Resource{},
+		},
 		villagerImage: villagerImg,
 		locationImage: locationImg,
 		logger:        logger,
@@ -99,4 +118,35 @@ func DrawEntity(screen *ebiten.Image, transform *ebiten.GeoM, cellSize int, enti
 	op := &ebiten.DrawImageOptions{}
 	op.GeoM = cellTransform
 	screen.DrawImage(entityImg, op)
+}
+
+// AddLocation adds a new location to the world and registers it in the registry. It returns an error if registration fails.
+func (e *Engine) AddLocation(location *core.Location) error {
+	if err := e.Registry.RegisterLocation(location); err != nil {
+		return err
+	}
+	e.World.Locations[location.Name] = *location
+	return nil
+}
+
+// AddResource registers a resource in the registry of the engine and returns an error if the operation fails.
+func (e *Engine) AddResource(resource *core.Resource) error {
+	return e.Registry.RegisterResource(resource)
+}
+
+// RegisterAction registers a new action in the engine's registry with a specified name, action, and creation function.
+func (e *Engine) RegisterAction(name string, action planner.Action, createFunc ActionCreator) error {
+	return e.Registry.RegisterAction(name, action, createFunc)
+}
+
+// AddAgent adds a new agent to the world and updates its possible actions. Returns an error if the agent already exists.
+func (e *Engine) AddAgent(agent *agent.Agent) error {
+	_, exists := e.World.Agents[agent.Name()]
+	if exists {
+		return ErrAgentAlreadyExists
+	}
+
+	agent.Behavior.PossibleActions = e.Registry.Actions
+	e.World.Agents[agent.Name()] = agent
+	return nil
 }

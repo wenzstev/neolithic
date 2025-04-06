@@ -88,7 +88,7 @@ func TestEngine_Tick(t *testing.T) {
 	stateChangeAgent.Behavior.CurState = agent.NewPerforming(stateChangeAgent, logger)
 	stateChangeAgent.Behavior.CurPlan = &agent.MockPlan{
 		Complete:   false,
-		NextAction: &mockAction{testVal: "test"},
+		NextAction: &mockAction{},
 	}
 
 	stateChangeAfterAgent := stateChangeAgent.DeepCopy()
