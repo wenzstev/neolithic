@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Neolithic/internal/goalengine"
 	"log"
 
 	"Neolithic/internal/agent"
