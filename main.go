@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Neolithic/internal/goalengine"
 	"log"
 
 	"Neolithic/internal/agent"
@@ -115,19 +116,24 @@ func main() {
 	goalDepo := depo.DeepCopy()
 	goalDepo.Inventory.AdjustAmount(res1, 50)
 
-	goalState := &core.WorldState{
-		Locations: map[string]core.Location{
-			depo.Name: *goalDepo,
+	testAgent := agent.NewAgent("agent", logger)
+	testAgent.Behavior.GoalEngine = &goalengine.GoalEngine{
+		Goal: goalengine.Goal{
+			Name: "gather berries",
+			Logic: goalengine.GoalLogic{
+				Chunker:      goalengine.AddToLocation,
+				Fallback:     goalengine.FallbackChunkFunc,
+				ShouldGiveUp: goalengine.GiveUpIfNoChange,
+			},
+			Location: goalDepo,
+			Resource: res1,
 		},
 	}
-
-	testAgent := agent.NewAgent("agent", logger)
-	testAgent.Behavior.Goal = goalState
 
 	createDepositAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Deposit{
 			DepResource:    params.Resource,
-			Amount:         10,
+			Amount:         2,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
@@ -136,7 +142,7 @@ func main() {
 	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Gather{
 			Res:            params.Resource,
-			Amount:         5,
+			Amount:         2,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
