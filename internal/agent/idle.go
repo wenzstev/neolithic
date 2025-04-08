@@ -9,7 +9,7 @@ import (
 	"Neolithic/internal/planner"
 )
 
-const defaultNumIterations = 1000
+const defaultNumIterations = 10000
 
 // Idle is the state the Agent enters in when it has no working plan. It attempts to create a plan and will proceed
 // to a different state once successful.
@@ -63,7 +63,7 @@ func (i *Idle) Execute(world *core.WorldState, _ float64) (*core.WorldState, err
 				i.logger.Debug("no path found to goal")
 				i.curGoal = nil
 				i.numRetries++
-				return nil, err
+				return nil, nil
 			}
 			i.logger.Error("planner iteration error", "agent", i.agent.Name(), "error", err)
 			return nil, err
