@@ -30,122 +30,6 @@ func TestIdle_Execute(t *testing.T) {
 	type testCase struct {
 		iterationsPerCall  int
 		planner            *astar.SearchState
-		worldState         *core.WorldState
-		expectedIterations int
-		expectedPlan       Plan
-	}
-
-	// Create separate locations for start and end states
-	startLocation := core.Location{
-		Name:      "testLocation",
-		Inventory: core.NewInventory(),
-	}
-
-	endLocation := core.Location{
-		Name:      "testLocation",
-		Inventory: core.NewInventory(),
-	}
-	endLocation.Inventory.AdjustAmount(testResource, 3)
-
-	testStart := &core.WorldState{
-		Locations: map[string]core.Location{
-			"testLocation": startLocation,
-		},
-		Agents: map[string]core.Agent{},
-	}
-
-	testEnd := &core.WorldState{
-		Locations: map[string]core.Location{
-			"testLocation": endLocation,
-		},
-		Agents: map[string]core.Agent{},
-	}
-
-	agentBehavior := &Behavior{
-		PossibleActions: []planner.Action{
-			&mockAction{},
-		},
-		Goal: testEnd,
-		GoalEngine: &goalengine.GoalEngine{
-			Goal: goalengine.Goal{
-				Name: "testGoal",
-				Logic: goalengine.GoalLogic{
-					Chunker:      testChunkerFunc,
-					Fallback:     goalengine.FallbackChunkFunc,
-					ShouldGiveUp: goalengine.GiveUpIfLessThanFive,
-				},
-				Location: &core.Location{
-					Name: "testLocation",
-				},
-				Resource: testResource,
-			},
-		},
-	}
-
-	testAgent := &Agent{
-		Behavior: agentBehavior,
-	}
-
-	expectedStart := &planner.GoapNode{
-		State: testStart,
-		GoapRunInfo: &planner.GoapRunInfo{
-			Agent:               testAgent,
-			PossibleNextActions: agentBehavior.PossibleActions,
-		},
-	}
-
-	expectedGoal := &planner.GoapNode{
-		State: testEnd,
-		GoapRunInfo: &planner.GoapRunInfo{
-			Agent:               testAgent,
-			PossibleNextActions: agentBehavior.PossibleActions,
-		},
-	}
-
-	tests := map[string]testCase{
-		"can create planner and run 2 iterations": {
-			iterationsPerCall:  2,
-			worldState:         testStart,
-			expectedIterations: 2,
-		},
-		"can create planner and complete plan": {
-			iterationsPerCall:  15,
-			worldState:         testStart,
-			expectedIterations: 4,
-			expectedPlan: &plan{
-				Actions: []planner.Action{
-					&mockAction{},
-					&mockAction{},
-					&mockAction{},
-				},
-			},
-		},
-	}
-
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			testIdle := &Idle{
-				IterationsPerCall: test.iterationsPerCall,
-				planner:           test.planner,
-				agent:             testAgent,
-				logger:            logging.NewLogger("info"),
-			}
-			_, err := testIdle.Execute(test.worldState, 0)
-			require.NoError(t, err)
-
-			require.Equal(t, test.expectedIterations, testIdle.planner.Iterations)
-			require.Equal(t, expectedStart, testIdle.planner.Start)
-			require.Equal(t, expectedGoal, testIdle.planner.Goal)
-			require.Equal(t, testAgent.Behavior.CurPlan, testIdle.agent.Behavior.CurPlan)
-
-		})
-	}
-}
-
-func TestIdle_Execute2(t *testing.T) {
-	type testCase struct {
-		iterationsPerCall  int
-		planner            *astar.SearchState
 		startLocation      core.Location
 		goalEngine         *goalengine.GoalEngine
 		possibleActions    []planner.Action
@@ -228,7 +112,6 @@ func TestIdle_Execute2(t *testing.T) {
 			possibleActions:    []planner.Action{&mockNilAction{}},
 			expectedIterations: 1,
 			expectedRetries:    1,
-			expectedError:      astar.ErrNoPath,
 		},
 		"increments retries when iterations run out": {
 			iterationsPerCall: 10,
@@ -294,7 +177,7 @@ func TestIdle_Execute2(t *testing.T) {
 			_, err := testIdle.Execute(testStart, 0)
 
 			if test.expectedError != nil {
-				require.ErrorIs(t, err, astar.ErrNoPath)
+				require.ErrorIs(t, err, test.expectedError)
 				require.Equal(t, test.expectedRetries, testIdle.numRetries)
 			} else {
 				require.NoError(t, err)

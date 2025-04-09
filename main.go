@@ -1,12 +1,12 @@
 package main
 
 import (
-	"Neolithic/internal/goalengine"
 	"log"
 
 	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
+	"Neolithic/internal/goalengine"
 	"Neolithic/internal/grid"
 	"Neolithic/internal/logging"
 	"Neolithic/internal/planner"

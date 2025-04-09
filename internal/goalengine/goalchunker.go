@@ -26,9 +26,13 @@ type Goal struct {
 
 // GoalLogic represents the logic for managing a goal, including chunking, fallback, and termination conditions.
 type GoalLogic struct {
-	ID           string // ID for gob
-	Chunker      ChunkerFunc
-	Fallback     FallbackChunk
+	// ID represents a unique identifier for the GoalLogic
+	ID string // ID for gob
+	// Chunker is the function used to break the goal into chunks
+	Chunker ChunkerFunc
+	// Fallback is the function used to decrease the default chunk's ambition
+	Fallback FallbackChunk
+	// ShouldGiveUp is used to determine if the goal is no longer worth pursuing
 	ShouldGiveUp ShouldGiveUp
 }
 
