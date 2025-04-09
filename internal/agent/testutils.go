@@ -43,6 +43,14 @@ func (m *mockAction) GetChanges(agent core.Agent) []planner.StateChange {
 	}
 }
 
+type mockNilAction struct {
+	mockAction
+}
+
+func (m *mockNilAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
+	return nil
+}
+
 type mockLocationAction struct {
 	mockAction
 	location *core.Location

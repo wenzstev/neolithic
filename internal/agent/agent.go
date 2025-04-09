@@ -45,8 +45,8 @@ func (a *Agent) DeepCopy() core.Agent {
 		newAgent.Behavior = &Behavior{
 			PossibleActions: a.Behavior.PossibleActions,
 			CurPlan:         a.Behavior.CurPlan,
-			Goal:            a.Behavior.Goal,
 			CurState:        a.Behavior.CurState,
+			GoalEngine:      a.Behavior.GoalEngine,
 		}
 	}
 	if a.inventory != nil {

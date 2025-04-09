@@ -75,6 +75,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	for _, goalLocation := range goal.State.Locations {
 		currentVersionOfGoalLocation, ok := cur.State.Locations[goalLocation.Name]
 		if !ok {
+			// TODO: this makes it impossible to have goal states with new locations. Need to fix that in the future
 			continue // no version of the location in the current state
 		}
 

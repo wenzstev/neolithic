@@ -1,9 +1,11 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 	"encoding/gob"
+
+	"Neolithic/internal/core"
+	"Neolithic/internal/goalengine"
+	"Neolithic/internal/planner"
 )
 
 func init() {
@@ -28,8 +30,8 @@ type Behavior struct {
 	// CurPlan is the current plan the Agent is attempting to execute
 	//nolint:unused
 	CurPlan Plan
-	// Goal is the Agent's desired WorldState
-	Goal *core.WorldState
 	// CurState is the current State the Agent is in.
 	CurState State
+	// GoalEngine is used to determine the agent's current and future goals
+	GoalEngine *goalengine.GoalEngine
 }
