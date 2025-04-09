@@ -1,9 +1,6 @@
 package main
 
 import (
-	"Neolithic/internal/goalengine"
-	"log"
-
 	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
@@ -13,6 +10,10 @@ import (
 	"Neolithic/internal/planner"
 	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
+	"log"
+	"os"
+	"runtime/pprof"
+	"time"
 )
 
 type Game struct {
@@ -58,6 +59,25 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 }
 
 func main() {
+	// Create CPU profile file
+	f, err := os.Create("cpu.prof")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	// Start CPU profiling
+	if err := pprof.StartCPUProfile(f); err != nil {
+		log.Fatal(err)
+	}
+	defer pprof.StopCPUProfile()
+
+	// Stop profiling after 30 seconds
+	go func() {
+		time.Sleep(30 * time.Second)
+		pprof.StopCPUProfile()
+		os.Exit(0)
+	}()
 
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
@@ -134,7 +154,7 @@ func main() {
 	createDepositAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Deposit{
 			DepResource:    params.Resource,
-			Amount:         2,
+			Amount:         1,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
@@ -143,7 +163,7 @@ func main() {
 	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Gather{
 			Res:            params.Resource,
-			Amount:         2,
+			Amount:         1,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
@@ -176,6 +196,7 @@ func main() {
 
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")
+
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}

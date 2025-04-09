@@ -9,7 +9,7 @@ import (
 	"Neolithic/internal/planner"
 )
 
-const defaultNumIterations = 10000
+const defaultNumIterations = 100000
 
 // Idle is the state the Agent enters in when it has no working plan. It attempts to create a plan and will proceed
 // to a different state once successful.

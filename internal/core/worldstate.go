@@ -1,11 +1,9 @@
 package core
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"encoding/gob"
-	"fmt"
+	"hash/fnv"
 	"sort"
+	"strconv"
 )
 
 // WorldState represents the current state of the simulation world.
@@ -15,12 +13,15 @@ type WorldState struct {
 	// Locations is a map of locations in the world.
 	Locations map[string]Location
 	// Agents is a map of agents in the world.
-	Agents map[string]Agent
+	Agents   map[string]Agent
+	cachedID string
 }
 
 // ID returns a unique identifier for the WorldState. It uses SHA256 to generate a hash of the state.
 func (w *WorldState) ID() (string, error) {
-
+	if w.cachedID != "" {
+		return w.cachedID, nil
+	}
 	type sortedState struct {
 		Locations []Location
 		Agents    []Agent
@@ -53,16 +54,20 @@ func (w *WorldState) ID() (string, error) {
 		Agents:    sortAgent(w.Agents),
 	}
 
-	var buf bytes.Buffer
-	enc := gob.NewEncoder(&buf)
-	if err := enc.Encode(stateToEncode); err != nil {
-		return "", err
+	h := fnv.New64a()
+	for _, loc := range stateToEncode.Locations {
+		h.Write([]byte(loc.String()))
 	}
-	hash := sha256.Sum256(buf.Bytes())
-	return fmt.Sprintf("%x", hash), nil
+	for _, agent := range stateToEncode.Agents {
+		h.Write([]byte(agent.String()))
+	}
+
+	return strconv.FormatUint(h.Sum64(), 16), nil
+
 }
 
 // DeepCopy creates a deep copy of the WorldState.
+// TODO: worldstate will probably need to become slices to cut down on copy time
 func (w *WorldState) DeepCopy() *WorldState {
 	end := &WorldState{
 		Locations: make(map[string]Location),
