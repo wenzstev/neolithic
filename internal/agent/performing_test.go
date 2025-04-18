@@ -62,14 +62,14 @@ func TestPerforming_Execute(t *testing.T) {
 				NextAction: &mockAction{},
 			},
 			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": {
+				Locations: []core.Location{
+					{
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{
-					basicAgent.Name(): basicAgent,
+				Agents: []core.Agent{
+					basicAgent,
 				},
 			},
 			expectedAmountInEndLocation: 1,
@@ -83,13 +83,13 @@ func TestPerforming_Execute(t *testing.T) {
 				NextAction: &mockActionWithTime{timeNeeded: 1.0},
 			},
 			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": {
+				Locations: []core.Location{
+					{
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{},
+				Agents: []core.Agent{},
 			},
 			startAgent:       basicTimeAgent,
 			expectedAgent:    basicTimeAgent,
@@ -102,14 +102,14 @@ func TestPerforming_Execute(t *testing.T) {
 				NextAction: &mockNullAction{},
 			},
 			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": {
+				Locations: []core.Location{
+					{
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{
-					basicNullAgent.Name(): basicNullAgent,
+				Agents: []core.Agent{
+					basicNullAgent,
 				},
 			},
 			startAgent:       basicNullAgent,
@@ -125,14 +125,14 @@ func TestPerforming_Execute(t *testing.T) {
 			action:   &mockActionWithTime{timeNeeded: 1.0},
 			timeLeft: 0,
 			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": {
+				Locations: []core.Location{
+					{
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{
-					basicTimeAgent.Name(): basicTimeAgent,
+				Agents: []core.Agent{
+					basicTimeAgent,
 				},
 			},
 			expectedAmountInEndLocation: 1,
@@ -147,14 +147,14 @@ func TestPerforming_Execute(t *testing.T) {
 				Complete:   true,
 			},
 			startWorldState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": {
+				Locations: []core.Location{
+					{
 						Name:      "testLocation",
 						Inventory: core.NewInventory(),
 					},
 				},
-				Agents: map[string]core.Agent{
-					basicAgent.Name(): basicAgent,
+				Agents: []core.Agent{
+					basicAgent,
 				},
 			},
 			expectedAction:              &mockAction{},
@@ -184,7 +184,9 @@ func TestPerforming_Execute(t *testing.T) {
 				require.Nil(t, output)
 				return
 			}
-			require.Equal(t, tc.expectedAmountInEndLocation, output.Locations["testLocation"].Inventory.GetAmount(testResource))
+			outputLocation, exists := output.GetLocation("testLocation")
+			require.True(t, exists)
+			require.Equal(t, tc.expectedAmountInEndLocation, outputLocation.Inventory.GetAmount(testResource))
 		})
 	}
 }

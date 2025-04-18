@@ -1,6 +1,9 @@
 package core
 
-import "fmt"
+import (
+	"strconv"
+	"strings"
+)
 
 // Coord represents a point in a 2D space with integer coordinates.
 type Coord struct {
@@ -9,7 +12,13 @@ type Coord struct {
 
 // String returns a string representation of the Coord in the format "(x, y)".
 func (c Coord) String() string {
-	return fmt.Sprintf("(%d, %d)", c.X, c.Y)
+	var sb strings.Builder
+	sb.WriteString("(")
+	sb.WriteString(strconv.Itoa(c.X))
+	sb.WriteString(", ")
+	sb.WriteString(strconv.Itoa(c.Y))
+	sb.WriteString(")")
+	return sb.String()
 }
 
 // IsWithin checks if the Coord is within a certain distance of another Coord.

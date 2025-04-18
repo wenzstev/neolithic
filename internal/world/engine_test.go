@@ -25,8 +25,8 @@ func TestNewEngine(t *testing.T) {
 			width:  10,
 			height: 10,
 			expectedState: &core.WorldState{
-				Locations: map[string]core.Location{},
-				Agents:    map[string]core.Agent{},
+				Locations: []core.Location{},
+				Agents:    []core.Agent{},
 			},
 		},
 	}
@@ -61,9 +61,9 @@ func TestNewEngine(t *testing.T) {
 
 func TestEngine_Tick(t *testing.T) {
 	type testCase struct {
-		agents         map[string]core.Agent
+		agents         []core.Agent
 		expectedError  error
-		expectedAgents map[string]core.Agent
+		expectedAgents []core.Agent
 		expectedGrid   *grid.Grid
 	}
 
@@ -96,42 +96,42 @@ func TestEngine_Tick(t *testing.T) {
 
 	tests := map[string]testCase{
 		"no agents": {
-			agents:         map[string]core.Agent{},
-			expectedAgents: map[string]core.Agent{},
+			agents:         []core.Agent{},
+			expectedAgents: []core.Agent{},
 			expectedGrid:   testGrid,
 		},
 		"single agent no state change": {
-			agents: map[string]core.Agent{
-				normalAgent.Name(): normalAgent,
+			agents: []core.Agent{
+				normalAgent,
 			},
-			expectedAgents: map[string]core.Agent{
-				normalAgent.Name(): normalAgent,
+			expectedAgents: []core.Agent{
+				normalAgent,
 			},
 			expectedGrid: testGrid,
 		},
 		"single agent with state change": {
-			agents: map[string]core.Agent{
-				stateChangeAgent.Name(): stateChangeAgent,
+			agents: []core.Agent{
+				stateChangeAgent,
 			},
-			expectedAgents: map[string]core.Agent{
-				stateChangeAgent.Name(): stateChangeAfterAgent,
+			expectedAgents: []core.Agent{
+				stateChangeAfterAgent,
 			},
 			expectedGrid: testGrid,
 		},
 		"multiple agents": {
-			agents: map[string]core.Agent{
-				normalAgent.Name():      normalAgent,
-				stateChangeAgent.Name(): stateChangeAgent,
+			agents: []core.Agent{
+				normalAgent,
+				stateChangeAgent,
 			},
-			expectedAgents: map[string]core.Agent{
-				normalAgent.Name():      normalAgent,
-				stateChangeAgent.Name(): stateChangeAfterAgent,
+			expectedAgents: []core.Agent{
+				normalAgent,
+				stateChangeAfterAgent,
 			},
 			expectedGrid: testGrid,
 		},
 		"agent returns error": {
-			agents: map[string]core.Agent{
-				errorAgent.Name(): errorAgent,
+			agents: []core.Agent{
+				errorAgent,
 			},
 			expectedError: errors.New("heuristic called on non-Tile"),
 		},
@@ -156,8 +156,8 @@ func TestEngine_Tick(t *testing.T) {
 
 			// Compare agents
 			assert.Equal(t, len(tc.expectedAgents), len(engine.World.Agents))
-			for name, expectedAgent := range tc.expectedAgents {
-				actualAgent, exists := engine.World.Agents[name]
+			for _, expectedAgent := range tc.expectedAgents {
+				actualAgent, exists := engine.World.GetAgent(expectedAgent.Name())
 				assert.True(t, exists)
 				expectedAgentStruct := expectedAgent.(*agent.Agent)
 				actualAgentStruct := actualAgent.(*agent.Agent)

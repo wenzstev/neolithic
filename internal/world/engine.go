@@ -19,6 +19,8 @@ const cellSize = 16
 var (
 	// ErrAgentAlreadyExists is thrown when an agent with a duplicate name is added to the world.
 	ErrAgentAlreadyExists = errors.New("agent already exists")
+	// ErrLocationAlreadyExists is thrown when a location with a duplicate name is added to the world.
+	ErrLocationAlreadyExists = errors.New("location already exists")
 )
 
 // Engine is the main struct that holds the world state and the images for the villager and location.
@@ -55,8 +57,8 @@ func NewEngine(grid *grid.Grid, logger *slog.Logger) (*Engine, error) {
 
 	world := &core.WorldState{
 		Grid:      grid,
-		Locations: map[string]core.Location{},
-		Agents:    map[string]core.Agent{},
+		Locations: []core.Location{},
+		Agents:    []core.Agent{},
 	}
 
 	return &Engine{
@@ -122,10 +124,14 @@ func DrawEntity(screen *ebiten.Image, transform *ebiten.GeoM, cellSize int, enti
 
 // AddLocation adds a new location to the world and registers it in the registry. It returns an error if registration fails.
 func (e *Engine) AddLocation(location *core.Location) error {
+	_, exists := e.World.GetLocation(location.Name)
+	if exists {
+		return ErrLocationAlreadyExists
+	}
 	if err := e.Registry.RegisterLocation(location); err != nil {
 		return err
 	}
-	e.World.Locations[location.Name] = *location
+	e.World.Locations = append(e.World.Locations, *location)
 	return nil
 }
 
@@ -141,12 +147,12 @@ func (e *Engine) RegisterAction(name string, action planner.Action, createFunc A
 
 // AddAgent adds a new agent to the world and updates its possible actions. Returns an error if the agent already exists.
 func (e *Engine) AddAgent(agent *agent.Agent) error {
-	_, exists := e.World.Agents[agent.Name()]
+	_, exists := e.World.GetAgent(agent.Name())
 	if exists {
 		return ErrAgentAlreadyExists
 	}
 
 	agent.Behavior.PossibleActions = e.Registry.Actions
-	e.World.Agents[agent.Name()] = agent
+	e.World.Agents = append(e.World.Agents, agent)
 	return nil
 }

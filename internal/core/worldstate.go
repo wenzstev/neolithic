@@ -2,7 +2,6 @@ package core
 
 import (
 	"hash/fnv"
-	"sort"
 	"strconv"
 )
 
@@ -11,9 +10,9 @@ type WorldState struct {
 	// Grid represents the world's grid.
 	Grid Grid
 	// Locations is a map of locations in the world.
-	Locations map[string]Location
+	Locations []Location
 	// Agents is a map of agents in the world.
-	Agents   map[string]Agent
+	Agents   []Agent
 	cachedID string
 }
 
@@ -22,46 +21,15 @@ func (w *WorldState) ID() (string, error) {
 	if w.cachedID != "" {
 		return w.cachedID, nil
 	}
-	type sortedState struct {
-		Locations []Location
-		Agents    []Agent
-	}
-
-	sortLoc := func(locs map[string]Location) []Location {
-		items := make([]Location, 0, len(locs))
-		for _, loc := range locs {
-			items = append(items, loc)
-		}
-		sort.Slice(items, func(i, j int) bool {
-			return items[i].Name < items[j].Name
-		})
-		return items
-	}
-
-	sortAgent := func(agents map[string]Agent) []Agent {
-		items := make([]Agent, 0, len(agents))
-		for _, agent := range agents {
-			items = append(items, agent)
-		}
-		sort.Slice(items, func(i, j int) bool {
-			return items[i].Name() < items[j].Name()
-		})
-		return items
-	}
-
-	stateToEncode := sortedState{
-		Locations: sortLoc(w.Locations),
-		Agents:    sortAgent(w.Agents),
-	}
-
 	h := fnv.New64a()
-	for _, loc := range stateToEncode.Locations {
+	for _, loc := range w.Locations {
 		h.Write([]byte(loc.String()))
 	}
-	for _, agent := range stateToEncode.Agents {
+	for _, agent := range w.Agents {
 		h.Write([]byte(agent.String()))
 	}
 
+	//w.cachedID = strconv.FormatUint(h.Sum64(), 16)
 	return strconv.FormatUint(h.Sum64(), 16), nil
 
 }
@@ -70,16 +38,14 @@ func (w *WorldState) ID() (string, error) {
 // TODO: worldstate will probably need to become slices to cut down on copy time
 func (w *WorldState) DeepCopy() *WorldState {
 	end := &WorldState{
-		Locations: make(map[string]Location),
-		Agents:    make(map[string]Agent),
+		Locations: make([]Location, len(w.Locations)),
+		Agents:    make([]Agent, len(w.Agents)),
 	}
-
-	for k, v := range w.Locations {
-		end.Locations[k] = *v.DeepCopy()
+	for i := 0; i < len(end.Locations); i++ {
+		end.Locations[i] = *w.Locations[i].DeepCopy()
 	}
-
-	for k, v := range w.Agents {
-		end.Agents[k] = v.DeepCopy()
+	for i := 0; i < len(end.Agents); i++ {
+		end.Agents[i] = w.Agents[i].DeepCopy()
 	}
 
 	return end
@@ -99,4 +65,22 @@ func (w *WorldState) String() string {
 		output += agent.String()
 	}
 	return output
+}
+
+func (w *WorldState) GetLocation(name string) (*Location, bool) {
+	for _, loc := range w.Locations {
+		if loc.Name == name {
+			return &loc, true
+		}
+	}
+	return nil, false
+}
+
+func (w *WorldState) GetAgent(name string) (Agent, bool) {
+	for _, agent := range w.Agents {
+		if agent.Name() == name {
+			return agent, true
+		}
+	}
+	return nil, false
 }

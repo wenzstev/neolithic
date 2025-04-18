@@ -147,8 +147,8 @@ func TestMoving_Execute(t *testing.T) {
 
 			startWorld := &core.WorldState{
 				Grid: &mockGrid{},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent,
+				Agents: []core.Agent{
+					testAgent,
 				},
 			}
 
@@ -159,7 +159,9 @@ func TestMoving_Execute(t *testing.T) {
 				require.NoError(t, err)
 			}
 			if tc.newAgentPositon != (core.Coord{}) {
-				require.Equal(t, tc.newAgentPositon, newState.Agents["testAgent"].(*Agent).Position)
+				newAgent, exists := newState.GetAgent("testAgent")
+				require.True(t, exists)
+				require.Equal(t, tc.newAgentPositon, newAgent.(*Agent).Position)
 			}
 			if tc.expectedState != nil {
 				require.IsType(t, tc.expectedState, testAgent.Behavior.CurState)

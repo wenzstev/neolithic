@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"errors"
 	"log/slog"
 
 	"Neolithic/internal/core"
@@ -61,7 +62,12 @@ func (p *Performing) Execute(world *core.WorldState, deltaTime float64) (*core.W
 		return (*core.WorldState)(nil), nil
 	}
 
-	newAgent := newWorldState.Agents[p.agent.Name()].(*Agent)
+	newAgentInterface, exists := newWorldState.GetAgent(p.agent.Name())
+	if !exists {
+		p.logger.Error("agent does not exist in deep copied world", "agent", p.agent.Name())
+		return nil, errors.New("agent does not exist in deep copied world")
+	}
+	newAgent := newAgentInterface.(*Agent)
 	behavior = newAgent.Behavior
 	curPlan = behavior.CurPlan
 

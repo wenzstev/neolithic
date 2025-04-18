@@ -95,8 +95,8 @@ func TestGather_Perform(t *testing.T) {
 				tc.agent.Inventory().AdjustAmount(tc.toolInAgent, 1)
 			}
 			startState := &core.WorldState{
-				Locations: map[string]core.Location{tc.startLocation.Name: *tc.startLocation},
-				Agents:    map[string]core.Agent{tc.agent.Name(): tc.agent},
+				Locations: []core.Location{*tc.startLocation},
+				Agents:    []core.Agent{tc.agent},
 			}
 
 			endState := tc.testGather.Perform(startState, tc.agent)
@@ -104,8 +104,12 @@ func TestGather_Perform(t *testing.T) {
 				assert.Nil(t, endState)
 				return
 			}
-			assert.Equal(t, tc.expectedAmountInLocation, endState.Locations[testLocation.Name].Inventory.GetAmount(testResource))
-			assert.Equal(t, tc.expectedAmountInAgent, endState.Agents[tc.agent.Name()].Inventory().GetAmount(testResource))
+			endLoc, exists := endState.GetLocation(tc.startLocation.Name)
+			assert.True(t, exists)
+			assert.Equal(t, tc.expectedAmountInLocation, endLoc.Inventory.GetAmount(testResource))
+			endAgent, exists := endState.GetAgent(tc.agent.Name())
+			assert.True(t, exists)
+			assert.Equal(t, tc.expectedAmountInAgent, endAgent.Inventory().GetAmount(testResource))
 		})
 	}
 }

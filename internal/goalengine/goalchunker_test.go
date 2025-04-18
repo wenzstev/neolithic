@@ -81,7 +81,9 @@ func TestGoal_GetDelta(t *testing.T) {
 				return
 			}
 			require.NotNil(t, chunk)
-			require.Equal(t, tc.expectedInInventory, chunk.Locations["test"].Inventory.GetAmount(tc.goal.Resource))
+			testLoc, exists := chunk.GetLocation("test")
+			require.True(t, exists)
+			require.Equal(t, tc.expectedInInventory, testLoc.Inventory.GetAmount(tc.goal.Resource))
 		})
 	}
 }
@@ -99,7 +101,9 @@ func TestAddToLocation(t *testing.T) {
 	result := AddToLocation(location, resource)
 
 	// Verify location in result has correct resource amount
-	require.Equal(t, DefaultIncreaseAmount, result.Locations["test-location"].Inventory.GetAmount(resource))
+	testLoc, exists := result.GetLocation("test-location")
+	require.True(t, exists)
+	require.Equal(t, DefaultIncreaseAmount, testLoc.Inventory.GetAmount(resource))
 
 	// Verify original location is unchanged (deep copy worked)
 	require.Equal(t, 0, location.Inventory.GetAmount(resource))
@@ -124,9 +128,9 @@ func TestFallbackChunkFunc(t *testing.T) {
 	location2.Inventory.AdjustAmount(resource1, 20)
 
 	worldState := &core.WorldState{
-		Locations: map[string]core.Location{
-			"location1": location1,
-			"location2": location2,
+		Locations: []core.Location{
+			location1,
+			location2,
 		},
 	}
 
@@ -134,14 +138,20 @@ func TestFallbackChunkFunc(t *testing.T) {
 	result := FallbackChunkFunc(worldState)
 
 	// Verify amounts were halved
-	require.Equal(t, 50, result.Locations["location1"].Inventory.GetAmount(resource1))
-	require.Equal(t, 25, result.Locations["location1"].Inventory.GetAmount(resource2))
-	require.Equal(t, 10, result.Locations["location2"].Inventory.GetAmount(resource1))
+	checkAmount(t, result, "location1", resource1, 50)
+	checkAmount(t, result, "location1", resource2, 25)
+	checkAmount(t, result, "location2", resource1, 10)
 
 	// Verify original worldState is unchanged (deep copy worked)
-	require.Equal(t, 100, worldState.Locations["location1"].Inventory.GetAmount(resource1))
-	require.Equal(t, 50, worldState.Locations["location1"].Inventory.GetAmount(resource2))
-	require.Equal(t, 20, worldState.Locations["location2"].Inventory.GetAmount(resource1))
+	checkAmount(t, worldState, "location1", resource1, 100)
+	checkAmount(t, worldState, "location1", resource2, 50)
+	checkAmount(t, worldState, "location2", resource1, 20)
+}
+
+func checkAmount(t *testing.T, world *core.WorldState, locName string, res *core.Resource, amount int) {
+	loc, exists := world.GetLocation(locName)
+	require.True(t, exists)
+	require.Equal(t, amount, loc.Inventory.GetAmount(res))
 }
 
 func TestGoal_GetGoalChunk(t *testing.T) {
@@ -186,8 +196,8 @@ func TestGoal_GetGoalChunk(t *testing.T) {
 
 			// Create world state
 			worldState := &core.WorldState{
-				Locations: map[string]core.Location{
-					"test-location": *location.DeepCopy(),
+				Locations: []core.Location{
+					*location.DeepCopy(),
 				},
 			}
 
@@ -212,7 +222,7 @@ func TestGoal_GetGoalChunk(t *testing.T) {
 			}
 
 			require.NotNil(t, result, "expected non-nil result")
-			resultLoc, exists := result.Locations["test-location"]
+			resultLoc, exists := result.GetLocation("test-location")
 			require.True(t, exists, "expected test location in result")
 
 			actualAmount := resultLoc.Inventory.GetAmount(resource)

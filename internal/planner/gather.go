@@ -30,7 +30,7 @@ var _ Action = (*Gather)(nil)
 // Perform implements Action.Perform, and simulates the act of gathering a Resource
 func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
-	endLocation, ok := end.Locations[g.ActionLocation.Name]
+	endLocation, ok := end.GetLocation(g.ActionLocation.Name)
 	if !ok {
 		return nil // location must always be in State, this is an error
 	}
@@ -40,7 +40,7 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 		return nil // fail, no DepResource to gather
 	}
 
-	endAgent, ok := end.Agents[agent.Name()]
+	endAgent, ok := end.GetAgent(agent.Name())
 	if !ok {
 		return nil // fail, no agent in State
 	}
