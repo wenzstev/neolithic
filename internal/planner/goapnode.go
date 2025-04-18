@@ -15,8 +15,8 @@ type GoapNode struct {
 	State *core.WorldState
 	// GoapRunInfo is a set of attributes that carry over throughout the goap planning process
 	GoapRunInfo *GoapRunInfo
-
-	successors []astar.Node // cache successors
+	// successors are the successor states to this node. Cached to improve performance.
+	successors []astar.Node
 }
 
 // GoapRunInfo represents the information that doesn't change across the GOAP planning call

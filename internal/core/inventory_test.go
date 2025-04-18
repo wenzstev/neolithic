@@ -152,7 +152,7 @@ func TestInventory_String(t *testing.T) {
 		"can produce expected string": {
 			inventory: &inventory{},
 			amount:    10,
-			expected:  "  testResource: 10\n",
+			expected:  "  testResource: 10",
 		},
 	}
 

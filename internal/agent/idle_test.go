@@ -182,7 +182,8 @@ func TestIdle_Execute(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.expectedIterations, testIdle.planner.Iterations)
-				require.Equal(t, expectedStart, testIdle.planner.Start)
+				require.Equal(t, expectedStart.Action, testIdle.planner.Start.(*planner.GoapNode).Action)
+				require.Equal(t, expectedStart.GoapRunInfo, testIdle.planner.Start.(*planner.GoapNode).GoapRunInfo)
 				require.Equal(t, testAgent.Behavior.CurPlan, testIdle.agent.Behavior.CurPlan)
 			}
 		})
