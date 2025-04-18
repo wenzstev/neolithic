@@ -1,16 +1,11 @@
 package core
 
 import (
-	"encoding/gob"
 	"fmt"
 	"sort"
 	"strconv"
 	"strings"
 )
-
-func init() {
-	gob.Register(&inventory{})
-}
 
 // InventoryEntry represents a single resource and its quantity in an inventory.
 type InventoryEntry struct {

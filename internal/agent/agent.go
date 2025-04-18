@@ -1,10 +1,11 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
 	"encoding/gob"
 	"log/slog"
 	"strings"
+
+	"Neolithic/internal/core"
 )
 
 func init() {
