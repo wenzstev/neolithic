@@ -2,9 +2,6 @@ package main
 
 import (
 	"log"
-	"os"
-	"runtime/pprof"
-	"time"
 
 	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
@@ -60,25 +57,6 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 }
 
 func main() {
-	// Create CPU profile file
-	f, err := os.Create("cpu-new.prof")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-
-	// Start CPU profiling
-	if err := pprof.StartCPUProfile(f); err != nil {
-		log.Fatal(err)
-	}
-	defer pprof.StopCPUProfile()
-
-	// Stop profiling after 30 seconds
-	go func() {
-		time.Sleep(30 * time.Second)
-		pprof.StopCPUProfile()
-		os.Exit(0)
-	}()
 
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
