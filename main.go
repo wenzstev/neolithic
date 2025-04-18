@@ -109,9 +109,9 @@ func main() {
 
 	res1 := &core.Resource{Name: "Berries"}
 
-	loc1.Inventory.AdjustAmount(res1, 20)
-	loc2.Inventory.AdjustAmount(res1, 10)
-	loc3.Inventory.AdjustAmount(res1, 20)
+	loc1.Inventory.AdjustAmount(res1, 2000)
+	loc2.Inventory.AdjustAmount(res1, 1000)
+	loc3.Inventory.AdjustAmount(res1, 2000)
 
 	goalDepo := depo.DeepCopy()
 	goalDepo.Inventory.AdjustAmount(res1, 50)
@@ -133,7 +133,7 @@ func main() {
 	createDepositAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Deposit{
 			DepResource:    params.Resource,
-			Amount:         2,
+			Amount:         1,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
@@ -142,7 +142,7 @@ func main() {
 	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
 		return &planner.Gather{
 			Res:            params.Resource,
-			Amount:         2,
+			Amount:         1,
 			ActionLocation: params.Location,
 			ActionCost:     1,
 		}
@@ -154,6 +154,7 @@ func main() {
 	if err = engine.RegisterAction("gather", &planner.Gather{}, createGatherAction); err != nil {
 		log.Fatal(err)
 	}
+
 	if err = engine.AddLocation(loc1); err != nil {
 		log.Fatal(err)
 	}
@@ -175,6 +176,7 @@ func main() {
 
 	ebiten.SetWindowSize(800, 600)
 	ebiten.SetWindowTitle("Hello, World!")
+
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}

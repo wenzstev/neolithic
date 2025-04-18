@@ -20,8 +20,8 @@ var testChunkerFunc goalengine.ChunkerFunc = func(location *core.Location, resou
 	goalLocation.Inventory.AdjustAmount(resource, 3)
 
 	return &core.WorldState{
-		Locations: map[string]core.Location{
-			location.Name: goalLocation,
+		Locations: []core.Location{
+			goalLocation,
 		},
 	}
 }
@@ -139,20 +139,20 @@ func TestIdle_Execute(t *testing.T) {
 		},
 	}
 
-	for name, test := range tests {
+	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			// Create world states for this specific test
 			testStart := &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": test.startLocation,
+				Locations: []core.Location{
+					tc.startLocation,
 				},
-				Agents: map[string]core.Agent{},
+				Agents: []core.Agent{},
 			}
 
 			// Create agent behavior for this specific test
 			agentBehavior := &Behavior{
-				PossibleActions: test.possibleActions,
-				GoalEngine:      test.goalEngine,
+				PossibleActions: tc.possibleActions,
+				GoalEngine:      tc.goalEngine,
 			}
 
 			testAgent := &Agent{
@@ -163,26 +163,27 @@ func TestIdle_Execute(t *testing.T) {
 				State: testStart,
 				GoapRunInfo: &planner.GoapRunInfo{
 					Agent:               testAgent,
-					PossibleNextActions: test.possibleActions,
+					PossibleNextActions: tc.possibleActions,
 				},
 			}
 
 			testIdle := &Idle{
-				IterationsPerCall: test.iterationsPerCall,
-				planner:           test.planner,
+				IterationsPerCall: tc.iterationsPerCall,
+				planner:           tc.planner,
 				agent:             testAgent,
 				logger:            logging.NewLogger("info"),
 			}
 
 			_, err := testIdle.Execute(testStart, 0)
 
-			if test.expectedError != nil {
-				require.ErrorIs(t, err, test.expectedError)
-				require.Equal(t, test.expectedRetries, testIdle.numRetries)
+			if tc.expectedError != nil {
+				require.ErrorIs(t, err, tc.expectedError)
+				require.Equal(t, tc.expectedRetries, testIdle.numRetries)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, test.expectedIterations, testIdle.planner.Iterations)
-				require.Equal(t, expectedStart, testIdle.planner.Start)
+				require.Equal(t, tc.expectedIterations, testIdle.planner.Iterations)
+				require.Equal(t, expectedStart.Action, testIdle.planner.Start.(*planner.GoapNode).Action)
+				require.Equal(t, expectedStart.GoapRunInfo, testIdle.planner.Start.(*planner.GoapNode).GoapRunInfo)
 				require.Equal(t, testAgent.Behavior.CurPlan, testIdle.agent.Behavior.CurPlan)
 			}
 		})

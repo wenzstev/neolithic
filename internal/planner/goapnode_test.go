@@ -1,12 +1,13 @@
 package planner
 
 import (
-	"Neolithic/internal/astar"
-	"Neolithic/internal/core"
 	"math"
 	"testing"
 
+	"Neolithic/internal/astar"
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestActions_AStar(t *testing.T) {
@@ -68,22 +69,26 @@ func TestActions_AStar(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			startState := &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation":  *testLocation.DeepCopy(),
-					"testLocation2": *testLocation2.DeepCopy(),
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
+					*testLocation2.DeepCopy(),
 				},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent.DeepCopy(),
+				Agents: []core.Agent{
+					testAgent.DeepCopy(),
 				},
 			}
 
-			startState.Locations["testLocation"].Inventory.AdjustAmount(testResource, tc.startLocationAmount)
+			startLoc, exists := startState.GetLocation("testLocation")
+			require.True(t, exists)
+			startLoc.Inventory.AdjustAmount(testResource, tc.startLocationAmount)
 
 			goalState := &core.WorldState{
-				Locations: map[string]core.Location{"testLocation2": *testLocation2.DeepCopy()},
-				Agents:    map[string]core.Agent{},
+				Locations: []core.Location{*testLocation2.DeepCopy()},
+				Agents:    []core.Agent{},
 			}
-			goalState.Locations["testLocation2"].Inventory.AdjustAmount(testResource, tc.goalLocationAmount)
+			goalLoc, exists := goalState.GetLocation("testLocation2")
+			require.True(t, exists)
+			goalLoc.Inventory.AdjustAmount(testResource, tc.goalLocationAmount)
 
 			runInfo := &GoapRunInfo{
 				Agent:               testAgent,
@@ -162,24 +167,30 @@ func TestActions_Heuristic(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			curState := &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation":  *testLocation.DeepCopy(),
-					"testLocation2": *testLocation2.DeepCopy(), // extra location to make sure we ignore it
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
+					*testLocation2.DeepCopy(), // extra location to make sure we ignore it
 				},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent.DeepCopy(),
+				Agents: []core.Agent{
+					testAgent.DeepCopy(),
 				},
 			}
-			curState.Locations["testLocation"].Inventory.AdjustAmount(testResource, tc.amountInCurState)
-			curState.Agents["testAgent"].Inventory().AdjustAmount(testResource, tc.amountInStartAgent)
+			curLoc, exists := curState.GetLocation("testLocation")
+			require.True(t, exists)
+			curLoc.Inventory.AdjustAmount(testResource, tc.amountInCurState)
+			curAg, exists := curState.GetAgent("testAgent")
+			require.True(t, exists)
+			curAg.Inventory().AdjustAmount(testResource, tc.amountInStartAgent)
 
 			goalState := &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": *testLocation.DeepCopy(),
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
 				},
-				Agents: map[string]core.Agent{},
+				Agents: []core.Agent{},
 			}
-			goalState.Locations["testLocation"].Inventory.AdjustAmount(testResource, tc.amountInGoalState)
+			goalLoc, exists := goalState.GetLocation("testLocation")
+			require.True(t, exists)
+			goalLoc.Inventory.AdjustAmount(testResource, tc.amountInGoalState)
 
 			testStats := &GoapRunInfo{
 				Agent: testAgent,
@@ -214,14 +225,16 @@ func TestActions_GetSuccessors(t *testing.T) {
 	mockNullAction1 := &mockNullAction{}
 
 	expectedEndState := &core.WorldState{
-		Locations: map[string]core.Location{
-			"testLocation": *testLocation.DeepCopy(),
+		Locations: []core.Location{
+			*testLocation.DeepCopy(),
 		},
-		Agents: map[string]core.Agent{
-			"testAgent": testAgent.DeepCopy(),
+		Agents: []core.Agent{
+			testAgent.DeepCopy(),
 		},
 	}
-	expectedEndState.Locations["testLocation"].Inventory.AdjustAmount(testResource, 1)
+	expectedLoc, exists := expectedEndState.GetLocation("testLocation")
+	require.True(t, exists)
+	expectedLoc.Inventory.AdjustAmount(testResource, 1)
 
 	type testCase struct {
 		actions            []Action
@@ -234,11 +247,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 		"single action should generate one successor": {
 			actions: []Action{mockAction1},
 			startState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": *testLocation.DeepCopy(),
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
 				},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent.DeepCopy(),
+				Agents: []core.Agent{
+					testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,
@@ -256,11 +269,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction3,
 			},
 			startState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": *testLocation.DeepCopy(),
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
 				},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent.DeepCopy(),
+				Agents: []core.Agent{
+					testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,
@@ -286,11 +299,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction2,
 			},
 			startState: &core.WorldState{
-				Locations: map[string]core.Location{
-					"testLocation": *testLocation.DeepCopy(),
+				Locations: []core.Location{
+					*testLocation.DeepCopy(),
 				},
-				Agents: map[string]core.Agent{
-					"testAgent": testAgent.DeepCopy(),
+				Agents: []core.Agent{
+					testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,
@@ -331,8 +344,12 @@ func TestActions_GetSuccessors(t *testing.T) {
 			assert.Equal(t, len(tc.expectedSuccessors), len(successorList))
 			for i, expected := range tc.expectedSuccessors {
 				assert.Equal(t, expected.Action, successorList[i].Action)
-				assert.Equal(t, expected.State.Locations["testLocation"].Inventory.GetAmount(testResource),
-					successorList[i].State.Locations["testLocation"].Inventory.GetAmount(testResource))
+				expectedStateLoc, ok := expected.State.GetLocation("testLocation")
+				assert.True(t, ok)
+				successorLoc, ok := successorList[i].State.GetLocation("testLocation")
+				assert.True(t, ok)
+				assert.Equal(t, expectedStateLoc.Inventory.GetAmount(testResource),
+					successorLoc.Inventory.GetAmount(testResource))
 			}
 		})
 	}

@@ -2,6 +2,7 @@ package core
 
 import (
 	"fmt"
+	"strings"
 )
 
 // Resource represents a resource in the simulation world.
@@ -23,7 +24,16 @@ type Location struct {
 
 // String returns a string representation of the Location in the format "Location: <name>\nCoordinates: <coordinates>\nInventory: <inventory>".
 func (l *Location) String() string {
-	return fmt.Sprintf("Location: %s\nCoordinates: %v\nInventory: %v", l.Name, l.Coord, l.Inventory)
+	var sb strings.Builder
+	sb.WriteString("Location: ")
+	sb.WriteString(l.Name)
+	sb.WriteString("\n")
+	sb.WriteString("Coordinates: ")
+	sb.WriteString(l.Coord.String())
+	sb.WriteString("\n")
+	sb.WriteString("Inventory: ")
+	sb.WriteString(l.Inventory.String())
+	return sb.String()
 }
 
 // DeepCopy creates a deep copy of the Location.

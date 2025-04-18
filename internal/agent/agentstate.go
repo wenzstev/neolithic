@@ -1,18 +1,10 @@
 package agent
 
 import (
-	"encoding/gob"
-
 	"Neolithic/internal/core"
 	"Neolithic/internal/goalengine"
 	"Neolithic/internal/planner"
 )
-
-func init() {
-	gob.Register(Idle{})
-	gob.Register(Moving{})
-	gob.Register(Performing{})
-}
 
 // State represents an Agent's behavioral state.
 type State interface {

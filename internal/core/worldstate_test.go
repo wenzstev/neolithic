@@ -10,13 +10,11 @@ import (
 func TestWorldStateCopy(t *testing.T) {
 	// Create a WorldState with one location and one agent.
 	orig := &WorldState{
-		Locations: map[string]Location{
-			// using the Location’s Name field as the key
-			testLocation.Name: testLocation,
+		Locations: []Location{
+			testLocation,
 		},
-		Agents: map[string]Agent{
-			// using agent’s Name() as the key
-			testAgent.Name(): testAgent,
+		Agents: []Agent{
+			testAgent,
 		},
 	}
 
@@ -34,29 +32,29 @@ func TestWorldStateString(t *testing.T) {
 	}{
 		"string with location": {
 			ws: &WorldState{
-				Locations: map[string]Location{
-					testLocation.Name: testLocation,
+				Locations: []Location{
+					testLocation,
 				},
-				Agents: map[string]Agent{},
+				Agents: []Agent{},
 			},
 			expected: "WorldState :\n Locations:\n" + testLocation.String() + "\n Agents:\n",
 		},
 		"string with agent": {
 			ws: &WorldState{
-				Locations: map[string]Location{},
-				Agents: map[string]Agent{
-					testAgent.Name(): testAgent,
+				Locations: []Location{},
+				Agents: []Agent{
+					testAgent,
 				},
 			},
 			expected: "WorldState :\n Locations:\n\n Agents:\n" + testAgent.String(),
 		},
 		"string with both agent and location": {
 			ws: &WorldState{
-				Locations: map[string]Location{
-					testLocation.Name: testLocation,
+				Locations: []Location{
+					testLocation,
 				},
-				Agents: map[string]Agent{
-					testAgent.Name(): testAgent,
+				Agents: []Agent{
+					testAgent,
 				},
 			},
 			expected: "WorldState :\n Locations:\n" + testLocation.String() + "\n Agents:\n" + testAgent.String(),
@@ -78,24 +76,24 @@ func TestWorldStateID(t *testing.T) {
 	}{
 		"id with location": {
 			ws: &WorldState{
-				Locations: map[string]Location{
-					testLocation.Name: testLocation,
+				Locations: []Location{
+					testLocation,
 				},
-				Agents: map[string]Agent{},
+				Agents: []Agent{},
 			},
 			// Expected hash values depend on your gob encoding and sort order.
 			// Update these expected values as needed.
-			expected: "c5e4a37ce8bffa00b0129052e0b1890699ada9ef26e48f32f68e504cb42d39d0",
+			expected: "7d5db8bb28ee0afa",
 		},
 		"id with multiple locations": {
 			ws: &WorldState{
-				Locations: map[string]Location{
-					testLocation.Name:  testLocation,
-					testLocation2.Name: testLocation2,
+				Locations: []Location{
+					testLocation,
+					testLocation2,
 				},
-				Agents: map[string]Agent{},
+				Agents: []Agent{},
 			},
-			expected: "7697c854fafd6203612b8ebdbcbb5019678ae32919576e3576a519c726f340bc",
+			expected: "ecbc75bfdcf137ae",
 		},
 	}
 

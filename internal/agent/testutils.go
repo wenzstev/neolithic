@@ -20,7 +20,8 @@ var _ planner.Action = (*mockAction)(nil)
 
 func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
-	end.Locations["testLocation"].Inventory.AdjustAmount(testResource, 1)
+	endLoc, _ := end.GetLocation("testLocation")
+	endLoc.Inventory.AdjustAmount(testResource, 1)
 	return end
 }
 

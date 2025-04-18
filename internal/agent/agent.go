@@ -1,15 +1,11 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
-	"encoding/gob"
-	"fmt"
 	"log/slog"
-)
+	"strings"
 
-func init() {
-	gob.Register(Agent{})
-}
+	"Neolithic/internal/core"
+)
 
 // Agent struct represents an Agent in the simulation world that can interact with its environment.
 // It contains the Agent's name, behavior patterns, inventory and position information.
@@ -58,7 +54,15 @@ func (a *Agent) DeepCopy() core.Agent {
 
 // String returns a string representation of the Agent including name, inventory and position
 func (a *Agent) String() string {
-	return fmt.Sprintf("Agent: %s \nInventory %s\n Position %v\n", a.name, a.inventory, a.Position)
+	var sb strings.Builder
+	sb.WriteString("Agent: ")
+	sb.WriteString(a.name)
+	sb.WriteString("\nInventory ")
+	sb.WriteString(a.inventory.String())
+	sb.WriteString("\nPosition ")
+	sb.WriteString(a.Position.String())
+	sb.WriteString("\n")
+	return sb.String()
 }
 
 func (a *Agent) Tick(worldState *core.WorldState, deltaTime float64) (*core.WorldState, error) {

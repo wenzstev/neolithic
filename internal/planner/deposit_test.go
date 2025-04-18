@@ -9,7 +9,7 @@ import (
 var testDeposit = &Deposit{
 	DepResource:    testResource,
 	Amount:         10,
-	ActionLocation: &core.Location{Name: "testLocation"},
+	ActionLocation: &core.Location{Name: "testLocation", Inventory: core.NewInventory()},
 	ActionCost:     1.0,
 }
 
@@ -61,8 +61,8 @@ func TestDeposit_Perform(t *testing.T) {
 			tc.startLocation.Inventory.AdjustAmount(testResource, tc.startAmountInLocation)
 			tc.agent.Inventory().AdjustAmount(testResource, tc.startAmountInAgent)
 			startState := &core.WorldState{
-				Locations: map[string]core.Location{"testLocation": *tc.startLocation},
-				Agents:    map[string]core.Agent{"testAgent": tc.agent},
+				Locations: []core.Location{*tc.startLocation},
+				Agents:    []core.Agent{tc.agent},
 			}
 
 			endState := tc.testDeposit.Perform(startState, tc.agent)
@@ -70,8 +70,10 @@ func TestDeposit_Perform(t *testing.T) {
 				assert.Nil(t, endState)
 				return
 			}
-			endAgent := endState.Agents["testAgent"]
-			endLocation := endState.Locations["testLocation"]
+			endAgent, exists := endState.GetAgent("testAgent")
+			assert.True(t, exists)
+			endLocation, exists := endState.GetLocation("testLocation")
+			assert.True(t, exists)
 			assert.Equal(t, tc.expectedAmountInAgent, endAgent.Inventory().GetAmount(testResource))
 			assert.Equal(t, tc.expectedAmountInLocation, endLocation.Inventory.GetAmount(testResource))
 		})
@@ -109,15 +111,15 @@ func TestDeposit_String(t *testing.T) {
 	tests := map[string]testCase{
 		"basic deposit message": {
 			testDeposit:    testDeposit,
-			expectedString: "deposit 10 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: <nil>",
+			expectedString: "deposit 10 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}",
 		},
 		"deposit message with different Amount": {
 			testDeposit: &Deposit{
 				DepResource:    testResource,
 				Amount:         100,
-				ActionLocation: &core.Location{Name: "testLocation"},
+				ActionLocation: &core.Location{Name: "testLocation", Inventory: core.NewInventory()},
 			},
-			expectedString: "deposit 100 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: <nil>",
+			expectedString: "deposit 100 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}",
 		},
 	}
 

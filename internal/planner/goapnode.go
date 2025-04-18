@@ -15,6 +15,8 @@ type GoapNode struct {
 	State *core.WorldState
 	// GoapRunInfo is a set of attributes that carry over throughout the goap planning process
 	GoapRunInfo *GoapRunInfo
+	// successors are the successor states to this node. Cached to improve performance.
+	successors []astar.Node
 }
 
 // GoapRunInfo represents the information that doesn't change across the GOAP planning call
@@ -50,6 +52,9 @@ func (g *GoapNode) Cost(_ astar.Node) float64 {
 
 // GetSuccessors implements astar.Node and returns a list of successor astar.Node to this astar.Node.
 func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
+	if g.successors != nil {
+		return g.successors, nil
+	}
 	successors := make([]astar.Node, 0)
 	for _, action := range g.GoapRunInfo.PossibleNextActions {
 		newState := action.Perform(g.State, g.GoapRunInfo.Agent)
@@ -62,6 +67,7 @@ func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 			GoapRunInfo: g.GoapRunInfo,
 		})
 	}
+	g.successors = successors
 	return successors, nil
 }
 
@@ -73,7 +79,7 @@ func (g *GoapNode) GetSuccessors() ([]astar.Node, error) {
 func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 	var totalCost float64
 	for _, goalLocation := range goal.State.Locations {
-		currentVersionOfGoalLocation, ok := cur.State.Locations[goalLocation.Name]
+		currentVersionOfGoalLocation, ok := cur.State.GetLocation(goalLocation.Name)
 		if !ok {
 			// TODO: this makes it impossible to have goal states with new locations. Need to fix that in the future
 			continue // no version of the location in the current state

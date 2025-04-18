@@ -82,7 +82,8 @@ var _ Action = (*mockAction)(nil)
 
 func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
-	end.Locations["testLocation"].Inventory.AdjustAmount(testResource, 1)
+	endLocation, _ := end.GetLocation("testLocation")
+	endLocation.Inventory.AdjustAmount(testResource, 1)
 	return end
 }
 

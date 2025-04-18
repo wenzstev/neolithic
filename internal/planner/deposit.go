@@ -30,12 +30,12 @@ var _ Action = (*Deposit)(nil)
 func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
 
-	endLoc, ok := end.Locations[d.ActionLocation.Name]
+	endLoc, ok := end.GetLocation(d.ActionLocation.Name)
 	if !ok {
 		return nil // error, no location of that type in State
 	}
 
-	endAgent, ok := end.Agents[agent.Name()]
+	endAgent, ok := end.GetAgent(agent.Name())
 	if !ok {
 		return nil // error, no agent of that type in State
 	}
