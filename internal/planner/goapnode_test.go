@@ -1,13 +1,13 @@
 package planner
 
 import (
-	"Neolithic/internal/astar"
-	"Neolithic/internal/core"
-	"github.com/stretchr/testify/require"
 	"math"
 	"testing"
 
+	"Neolithic/internal/astar"
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestActions_AStar(t *testing.T) {

@@ -1,16 +1,11 @@
 package agent
 
 import (
-	"encoding/gob"
 	"log/slog"
 	"strings"
 
 	"Neolithic/internal/core"
 )
-
-func init() {
-	gob.Register(Agent{})
-}
 
 // Agent struct represents an Agent in the simulation world that can interact with its environment.
 // It contains the Agent's name, behavior patterns, inventory and position information.
