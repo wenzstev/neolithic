@@ -21,7 +21,9 @@ type Moving struct {
 }
 
 const (
+	// maxPathfindingIterations represents the maximum number of iterations the planner will run in a single Execute call
 	maxPathfindingIterations = 10000
+	// targetProximityThreshold represents the distance an agent can be from the target to execute an action
 	targetProximityThreshold = 1
 )
 
@@ -104,7 +106,7 @@ func (m *Moving) createPathToTarget(world *core.WorldState) (Path, error) {
 	start := world.Grid.CellAt(m.agent.Position)
 	end := world.Grid.CellAt(*m.Target)
 
-	search, err := astar.NewSearch(start, end, m.logger)
+	search, err := astar.NewSearch(start, end, astar.WithLogger(m.logger))
 	if err != nil {
 		return nil, err
 	}

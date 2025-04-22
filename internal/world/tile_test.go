@@ -65,7 +65,7 @@ func TestTile_AStar(t *testing.T) {
 			end, ok := testGrid.Tiles[tc.endX][tc.endY].(*Tile)
 			assert.True(t, ok)
 
-			search, err := astar.NewSearch(start, end, nil)
+			search, err := astar.NewSearch(start, end)
 			assert.NoError(t, err)
 
 			err = search.RunIterations(10000)

@@ -108,7 +108,7 @@ func (i *Idle) createSearchState(world *core.WorldState) (*astar.SearchState, er
 		GoapRunInfo: runInfo,
 	}
 
-	return astar.NewSearch(start, goal, i.logger)
+	return astar.NewSearch(start, goal, astar.WithLogger(i.logger), astar.WithBias(astar.DoubleBias))
 }
 
 // createActionListFromSearchState creates a list of actions for the Agent to follow.
