@@ -21,7 +21,9 @@ type Moving struct {
 }
 
 const (
+	// maxPathfindingIterations represents the maximum number of iterations the planner will run in a single Execute call
 	maxPathfindingIterations = 10000
+	// targetProximityThreshold represents the distance an agent can be from the target to execute an action
 	targetProximityThreshold = 1
 )
 

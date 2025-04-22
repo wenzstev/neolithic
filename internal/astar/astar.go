@@ -11,8 +11,10 @@ import (
 )
 
 const (
+	// DoubleBias represents twice the normal heuristic bias rate
 	DoubleBias = 2.0
-	NoBias     = 1.0
+	// NoBias represents the default level of heuristic bias (none)
+	NoBias = 1.0
 )
 
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
