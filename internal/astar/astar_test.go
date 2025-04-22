@@ -187,7 +187,7 @@ func TestSearchState_RunIterations(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			startNode, endNode, expectedPath := tc.setupFunc()
 
-			search, err := NewSearch(startNode, endNode, nil)
+			search, err := NewSearch(startNode, endNode)
 			if tc.expectedStartError != nil {
 				assert.Equal(t, tc.expectedStartError, err)
 				return
@@ -227,29 +227,32 @@ func TestNewSearch(t *testing.T) {
 				BestCost: math.Inf(1),
 				openSet: &PriorityQueue{
 					&searchNode{
-						gCost:     0,
-						hCost:     1,
-						parent:    nil,
-						nodeState: start,
+						gCost:         0,
+						hCost:         1,
+						parent:        nil,
+						nodeState:     start,
+						heuristicBias: NoBias,
 					},
 				},
 				closedSet: map[string]bool{},
 				openSetMap: map[string]*searchNode{
 					"start": {
-						gCost:     0,
-						hCost:     1,
-						parent:    nil,
-						nodeState: start,
+						gCost:         0,
+						hCost:         1,
+						parent:        nil,
+						nodeState:     start,
+						heuristicBias: NoBias,
 					},
 				},
-				logger: logging.NewLogger("info"),
+				logger:        logging.NewLogger("info"),
+				HeuristicBias: NoBias,
 			},
 		},
 	}
 
 	for name, tc := range testCases {
 		t.Run(name, func(t *testing.T) {
-			search, err := NewSearch(tc.start, tc.end, nil)
+			search, err := NewSearch(tc.start, tc.end)
 			assert.NoError(t, err)
 			assert.Equal(t, tc.expectedSearchState, search)
 		})

@@ -10,33 +10,13 @@ import (
 	"Neolithic/internal/logging"
 )
 
+const (
+	DoubleBias = 2.0
+	NoBias     = 1.0
+)
+
 // ErrNoPath is thrown when the Run Planner is unable to find a path to the goal state
 var ErrNoPath = errors.New("no path found to goal state")
-
-// SearchState represents a single AStar search
-type SearchState struct {
-	// Start is where the AStar search will begin
-	Start Node
-	// Goal is where the search is trying to go
-	Goal Node
-	// BestCost is the current best cost found
-	BestCost float64
-	// Iterations is the number of times the AStar algorithm has run through its main looop
-	Iterations int
-	// FoundBest indicates if the algorithm has found the optimal path to the end.
-	FoundBest bool
-	// openSet is a heap used to store all open nodes
-	openSet *PriorityQueue
-	// openSetMap is a map also used to store open nodes
-	openSetMap map[string]*searchNode
-	// closedSet is a map used to store all visited nodes
-	closedSet map[string]bool
-	// bestSolution is the head node of the current best solution. Not meant to be accessed directly,
-	// instead use CurrentBestPath
-	bestSolution *searchNode
-	// logger is used to log information about the search
-	logger *slog.Logger
-}
 
 // Node represents an intermediate state in the algorithm. It's expected to be different for each implementation
 type Node interface {
@@ -62,23 +42,78 @@ type searchNode struct {
 	nodeState Node
 	// index is the index of the node in the PriorityQueue
 	index int
+	// heuristicBias is the amount to weight the bias
+	heuristicBias float64
 }
 
-// fCost calculates the sum of the gCost and the hCost for the searchNode.
+// fCost calculates the sum of the gCost and the hCost (multiplied by the heuristic bias) for the searchNode.
 func (n *searchNode) fCost() float64 {
-	return n.gCost + n.hCost
+	return n.gCost + (n.heuristicBias * n.hCost)
+}
+
+// SearchState represents a single AStar search
+type SearchState struct {
+	// Start is where the AStar search will begin
+	Start Node
+	// Goal is where the search is trying to go
+	Goal Node
+	// BestCost is the current best cost found
+	BestCost float64
+	// Iterations is the number of times the AStar algorithm has run through its main looop
+	Iterations int
+	// FoundBest indicates if the algorithm has found the optimal path to the end.
+	FoundBest bool
+	// HeuristicBias determines the amount of bias to give the heuristic; higher values will result in a shorter search
+	// time, but may not find the optimal path.
+	HeuristicBias float64
+	// openSet is a heap used to store all open nodes
+	openSet *PriorityQueue
+	// openSetMap is a map also used to store open nodes
+	openSetMap map[string]*searchNode
+	// closedSet is a map used to store all visited nodes
+	closedSet map[string]bool
+	// bestSolution is the head node of the current best solution. Not meant to be accessed directly,
+	// instead use CurrentBestPath
+	bestSolution *searchNode
+	// logger is used to log information about the search
+	logger *slog.Logger
+}
+
+// Option is an optional configuration to provide when creating a new Astar search
+type Option func(*SearchState)
+
+// WithLogger allows the creator to set a given logger
+func WithLogger(l *slog.Logger) Option {
+	return func(s *SearchState) {
+		s.logger = l
+	}
+}
+
+// WithBias allows the creator to set the heuristic bias
+func WithBias(b float64) Option {
+	return func(s *SearchState) {
+		s.HeuristicBias = b
+	}
 }
 
 // NewSearch initializes a new SearchState with a start and finish Node
-func NewSearch(start, goal Node, logger *slog.Logger) (*SearchState, error) {
-	if logger == nil {
-		logger = logging.NewLogger("info")
-	}
+func NewSearch(start, goal Node, opts ...Option) (*SearchState, error) {
 	search := &SearchState{
-		Start:  start,
-		Goal:   goal,
-		logger: logger,
+		Start: start,
+		Goal:  goal,
 	}
+
+	for _, opt := range opts {
+		opt(search)
+	}
+
+	if search.logger == nil {
+		search.logger = logging.NewLogger("info")
+	}
+	if search.HeuristicBias == 0 {
+		search.HeuristicBias = NoBias
+	}
+
 	if err := search.init(start, goal); err != nil {
 		return nil, err
 	}
@@ -102,10 +137,11 @@ func (s *SearchState) init(start, goal Node) error {
 	}
 
 	startNode := &searchNode{
-		gCost:     0,
-		hCost:     hCost,
-		parent:    nil,
-		nodeState: start,
+		gCost:         0,
+		hCost:         hCost,
+		parent:        nil,
+		nodeState:     start,
+		heuristicBias: s.HeuristicBias,
 	}
 
 	heap.Push(s.openSet, startNode)
@@ -194,10 +230,11 @@ func (s *SearchState) RunIterations(numIterations int) error {
 				}
 			} else {
 				newNode := &searchNode{
-					gCost:     newGCost,
-					hCost:     newHCost,
-					parent:    currentNode,
-					nodeState: successor,
+					gCost:         newGCost,
+					hCost:         newHCost,
+					parent:        currentNode,
+					nodeState:     successor,
+					heuristicBias: s.HeuristicBias,
 				}
 				heap.Push(s.openSet, newNode)
 				s.openSetMap[sucId] = newNode

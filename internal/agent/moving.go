@@ -104,7 +104,7 @@ func (m *Moving) createPathToTarget(world *core.WorldState) (Path, error) {
 	start := world.Grid.CellAt(m.agent.Position)
 	end := world.Grid.CellAt(*m.Target)
 
-	search, err := astar.NewSearch(start, end, m.logger)
+	search, err := astar.NewSearch(start, end, astar.WithLogger(m.logger))
 	if err != nil {
 		return nil, err
 	}
