@@ -25,7 +25,7 @@ type Gather struct {
 }
 
 // Force Gather to implement Action
-var _ Action = (*Gather)(nil)
+var _ core.Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a Resource
 func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
@@ -67,17 +67,17 @@ func (g *Gather) Description() string {
 }
 
 // GetChanges generates a list of state changes resulting from gathering a resource by a specified agent.
-func (g *Gather) GetChanges(agent core.Agent) []StateChange {
-	return []StateChange{
+func (g *Gather) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{
 		{
 			Entity:     agent.Name(),
-			EntityType: AgentEntity,
+			EntityType: core.AgentEntity,
 			Resource:   g.Res,
 			Amount:     g.Amount,
 		},
 		{
 			Entity:     g.ActionLocation.Name,
-			EntityType: LocationEntity,
+			EntityType: core.LocationEntity,
 			Resource:   g.Res,
 			Amount:     -g.Amount,
 		},

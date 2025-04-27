@@ -5,7 +5,6 @@ import (
 
 	"Neolithic/internal/core"
 	"Neolithic/internal/logging"
-	"Neolithic/internal/planner"
 	"github.com/stretchr/testify/require"
 )
 
@@ -14,13 +13,13 @@ const deltaTime = 1.0 / 60
 func TestPerforming_Execute(t *testing.T) {
 	type testCase struct {
 		timeLeft                    float64
-		action                      planner.Action
+		action                      core.Action
 		plan                        Plan
 		startWorldState             *core.WorldState
 		expectedAmountInEndLocation int
 		startAgent                  *Agent
 		expectedAgent               *Agent
-		expectedAction              planner.Action
+		expectedAction              core.Action
 		expectedTimeLeft            float64
 		expectedError               error
 		nilEndState                 bool

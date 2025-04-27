@@ -130,7 +130,7 @@ func main() {
 		},
 	}
 
-	createDepositAction := func(params world.ActionCreatorParams) planner.Action {
+	createDepositAction := func(params world.ActionCreatorParams) core.Action {
 		return &planner.Deposit{
 			DepResource:    params.Resource,
 			Amount:         1,
@@ -139,7 +139,7 @@ func main() {
 		}
 	}
 
-	createGatherAction := func(params world.ActionCreatorParams) planner.Action {
+	createGatherAction := func(params world.ActionCreatorParams) core.Action {
 		return &planner.Gather{
 			Res:            params.Resource,
 			Amount:         1,

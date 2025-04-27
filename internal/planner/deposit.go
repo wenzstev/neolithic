@@ -24,7 +24,7 @@ type Deposit struct {
 }
 
 // Force Deposit to implement Action
-var _ Action = (*Deposit)(nil)
+var _ core.Action = (*Deposit)(nil)
 
 // Perform implements Action.Perform, and simulates the act of depositing a Resource in a location
 func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
@@ -64,17 +64,17 @@ func (d *Deposit) Description() string {
 }
 
 // GetChanges generates a list of state changes representing the effects of depositing a resource on the agent and location.
-func (d *Deposit) GetChanges(agent core.Agent) []StateChange {
-	return []StateChange{
+func (d *Deposit) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{
 		{
 			Entity:     agent.Name(),
-			EntityType: AgentEntity,
+			EntityType: core.AgentEntity,
 			Resource:   d.DepResource,
 			Amount:     -d.Amount,
 		},
 		{
 			Entity:     d.ActionLocation.Name,
-			EntityType: LocationEntity,
+			EntityType: core.LocationEntity,
 			Resource:   d.DepResource,
 			Amount:     d.Amount,
 		},

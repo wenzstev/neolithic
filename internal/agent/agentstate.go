@@ -3,7 +3,6 @@ package agent
 import (
 	"Neolithic/internal/core"
 	"Neolithic/internal/goalengine"
-	"Neolithic/internal/planner"
 )
 
 // State represents an Agent's behavioral state.
@@ -18,7 +17,7 @@ type State interface {
 type Behavior struct {
 	// PossibleActions represents all possible actions the Agent can do. This is NOT the same as the actions in the
 	// current plan
-	PossibleActions []planner.Action
+	PossibleActions []core.Action
 	// CurPlan is the current plan the Agent is attempting to execute
 	//nolint:unused
 	CurPlan Plan

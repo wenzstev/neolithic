@@ -3,7 +3,6 @@ package agent
 import (
 	"Neolithic/internal/astar"
 	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 	"fmt"
 )
 
@@ -16,7 +15,7 @@ var (
 // mockAction implements Action and is used for testing.
 type mockAction struct{}
 
-var _ planner.Action = (*mockAction)(nil)
+var _ core.Action = (*mockAction)(nil)
 
 func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
@@ -33,10 +32,10 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetChanges(agent core.Agent) []planner.StateChange {
-	return []planner.StateChange{
+func (m *mockAction) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{
 		{
-			EntityType: planner.LocationEntity,
+			EntityType: core.LocationEntity,
 			Entity:     "testLocation",
 			Resource:   testResource,
 			Amount:     1,
@@ -70,7 +69,7 @@ func (m *mockLocationAction) Location() *core.Location {
 // mockNullAction implements Action and is used for testing. It always returns a null State.
 type mockNullAction struct{}
 
-var _ planner.Action = (*mockNullAction)(nil)
+var _ core.Action = (*mockNullAction)(nil)
 
 func (m *mockNullAction) Perform(_ *core.WorldState, _ core.Agent) *core.WorldState {
 	return nil
@@ -84,8 +83,8 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetChanges(agent core.Agent) []planner.StateChange {
-	return []planner.StateChange{}
+func (m *mockNullAction) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{}
 }
 
 type mockActionWithTime struct {
@@ -99,18 +98,18 @@ func (m *mockActionWithTime) TimeNeeded() float64 {
 
 type MockPlan struct {
 	Complete   bool
-	NextAction planner.Action
+	NextAction core.Action
 }
 
 func (m *MockPlan) IsComplete() bool {
 	return m.Complete
 }
 
-func (m *MockPlan) PeekAction() planner.Action {
+func (m *MockPlan) PeekAction() core.Action {
 	return m.NextAction
 }
 
-func (m *MockPlan) PopAction() planner.Action {
+func (m *MockPlan) PopAction() core.Action {
 	return m.NextAction
 }
 

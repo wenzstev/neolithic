@@ -1,28 +1,23 @@
 package agent
 
 import (
-	"Neolithic/internal/planner"
-	"encoding/gob"
+	"Neolithic/internal/core"
 )
-
-func init() {
-	gob.Register(plan{})
-}
 
 // Plan provides a series of actions for an Agent to complete
 type Plan interface {
 	// IsComplete returns if the plan has been completed (all actions have been done)
 	IsComplete() bool
 	// PeekAction looks at the next action on the plan WITHOUT marking it done
-	PeekAction() planner.Action
+	PeekAction() core.Action
 	// PopAction removes the next action on the plan
-	PopAction() planner.Action
+	PopAction() core.Action
 }
 
 // plan represents the Agent's current plan, as created by the GOAP system
 type plan struct {
 	// Actions are the actions that make up the plan.
-	Actions []planner.Action
+	Actions []core.Action
 	// curLocation is used to determine the current step in the plan.
 	curLocation int
 }
@@ -38,7 +33,7 @@ func (p *plan) IsComplete() bool {
 
 // PeekAction implements Plan.PeekAction. It provides the next action
 // in the plan. It does _not_ pop the action.
-func (p *plan) PeekAction() planner.Action {
+func (p *plan) PeekAction() core.Action {
 	if p.IsComplete() {
 		return nil
 	}
@@ -47,7 +42,7 @@ func (p *plan) PeekAction() planner.Action {
 
 // PopAction implements Plan.PopAction. It returns the current action
 // and increments the counter.
-func (p *plan) PopAction() planner.Action {
+func (p *plan) PopAction() core.Action {
 	if p.IsComplete() {
 		return nil
 	}

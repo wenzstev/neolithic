@@ -2,7 +2,6 @@ package world
 
 import (
 	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -11,10 +10,10 @@ import (
 func TestRegistry_RegisterAction(t *testing.T) {
 	type testCase struct {
 		actionName      string
-		action          planner.Action
+		action          core.Action
 		createFunc      ActionCreator
 		registry        *Registry
-		expectedActions []planner.Action
+		expectedActions []core.Action
 		expectedEntry   *ActionRegistryEntry
 		expectedError   error
 	}
@@ -26,11 +25,11 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 			expectedEntry: &ActionRegistryEntry{
 				Name:          "mockAction",
 				NeedsLocation: false,
@@ -44,11 +43,11 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithLocationCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 			expectedEntry: &ActionRegistryEntry{
 				Name:          "mockLocationAction",
 				NeedsLocation: true,
@@ -62,11 +61,11 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithResourceCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 			expectedEntry: &ActionRegistryEntry{
 				Name:          "mockResourceAction",
 				NeedsLocation: true,
@@ -80,11 +79,11 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithResourceAndLocationCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 			expectedEntry: &ActionRegistryEntry{
 				Name:          "mockLocationResourceAction",
 				NeedsLocation: true,
@@ -102,11 +101,11 @@ func TestRegistry_RegisterAction(t *testing.T) {
 						Name: "mockAction",
 					},
 				},
-				Actions:   []planner.Action{},
+				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 			expectedEntry:   nil,
 			expectedError:   ErrActionAlreadyRegistered,
 		},
@@ -116,14 +115,14 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithLocationCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations: []*core.Location{
 					{Name: "location1"},
 					{Name: "location2"},
 				},
 				Resources: []*core.Resource{},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithLocationCreateFunc(ActionCreatorParams{
 					Location: &core.Location{Name: "location1"},
 				}),
@@ -144,14 +143,14 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithResourceCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources: []*core.Resource{
 					{Name: "resource1"},
 					{Name: "resource2"},
 				},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithResourceCreateFunc(ActionCreatorParams{
 					Resource: &core.Resource{Name: "resource1"},
 				}),
@@ -172,7 +171,7 @@ func TestRegistry_RegisterAction(t *testing.T) {
 			createFunc: mockActionWithResourceAndLocationCreateFunc,
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations: []*core.Location{
 					{Name: "location1"},
 					{Name: "location2"},
@@ -182,7 +181,7 @@ func TestRegistry_RegisterAction(t *testing.T) {
 					{Name: "resource2"},
 				},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(ActionCreatorParams{
 					Location: &core.Location{Name: "location1"},
 					Resource: &core.Resource{Name: "resource1"},
@@ -242,7 +241,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 		registry          *Registry
 		expectedResources []*core.Resource
 		expectedError     error
-		expectedActions   []planner.Action
+		expectedActions   []core.Action
 	}
 
 	tests := map[string]testCase{
@@ -252,7 +251,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 			},
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
@@ -261,7 +260,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 					Name: "testResource",
 				},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 		"can register resource, actions with only locations": {
 			resource: &core.Resource{
@@ -276,7 +275,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 						Creator:       mockActionWithLocationCreateFunc,
 					},
 				},
-				Actions: []planner.Action{},
+				Actions: []core.Action{},
 				Locations: []*core.Location{
 					{Name: "loc1"},
 					{Name: "loc2"},
@@ -288,7 +287,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 					Name: "testResource",
 				},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 		"can register resource, actions with only resources": {
 			resource: &core.Resource{
@@ -303,7 +302,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 						Creator:       mockActionWithResourceCreateFunc,
 					},
 				},
-				Actions:   []planner.Action{},
+				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
@@ -312,7 +311,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 					Name: "testResource",
 				},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithResourceCreateFunc(ActionCreatorParams{Resource: &core.Resource{Name: "testResource"}}),
 			},
 		},
@@ -329,7 +328,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 						Creator:       mockActionWithResourceAndLocationCreateFunc,
 					},
 				},
-				Actions: []planner.Action{},
+				Actions: []core.Action{},
 				Locations: []*core.Location{
 					{Name: "loc1"},
 					{Name: "loc2"},
@@ -341,7 +340,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 					Name: "testResource",
 				},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(
 					ActionCreatorParams{
 						Resource: &core.Resource{Name: "testResource"},
@@ -362,7 +361,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 			},
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources: []*core.Resource{
 					{Name: "testResource"},
@@ -372,7 +371,7 @@ func TestRegistry_RegisterResource(t *testing.T) {
 				{Name: "testResource"},
 			},
 			expectedError:   ErrResourceAlreadyRegistered,
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 	}
 
@@ -396,7 +395,7 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 		registry          *Registry
 		expectedLocations []*core.Location
 		expectedError     error
-		expectedActions   []planner.Action
+		expectedActions   []core.Action
 	}
 
 	tests := map[string]testCase{
@@ -406,14 +405,14 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 			},
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations:      []*core.Location{},
 				Resources:      []*core.Resource{},
 			},
 			expectedLocations: []*core.Location{
 				{Name: "testLocation"},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 		"can register location, actions with only locations": {
 			location: &core.Location{
@@ -428,14 +427,14 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 						Creator:       mockActionWithLocationCreateFunc,
 					},
 				},
-				Actions:   []planner.Action{},
+				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
 			expectedLocations: []*core.Location{
 				{Name: "testLocation"},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithLocationCreateFunc(ActionCreatorParams{Location: &core.Location{Name: "testLocation"}}),
 			},
 		},
@@ -452,14 +451,14 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 						Creator:       mockActionWithResourceCreateFunc,
 					},
 				},
-				Actions:   []planner.Action{},
+				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
 			expectedLocations: []*core.Location{
 				{Name: "testLocation"},
 			},
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 		"can register location, actions with both": {
 			location: &core.Location{
@@ -474,7 +473,7 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 						Creator:       mockActionWithResourceAndLocationCreateFunc,
 					},
 				},
-				Actions:   []planner.Action{},
+				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{
 					{Name: "res1"},
@@ -484,7 +483,7 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 			expectedLocations: []*core.Location{
 				{Name: "testLocation"},
 			},
-			expectedActions: []planner.Action{
+			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(
 					ActionCreatorParams{
 						Location: &core.Location{Name: "testLocation"},
@@ -505,13 +504,13 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 			},
 			registry: &Registry{
 				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []planner.Action{},
+				Actions:        []core.Action{},
 				Locations: []*core.Location{
 					{Name: "testLocation"},
 				},
 			},
 			expectedError:   ErrLocationAlreadyRegistered,
-			expectedActions: []planner.Action{},
+			expectedActions: []core.Action{},
 		},
 	}
 

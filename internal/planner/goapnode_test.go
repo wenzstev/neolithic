@@ -12,7 +12,7 @@ import (
 
 func TestActions_AStar(t *testing.T) {
 
-	actionList := []Action{
+	actionList := []core.Action{
 		gatherTest,
 		gatherTest2,
 		depositTest,
@@ -23,7 +23,7 @@ func TestActions_AStar(t *testing.T) {
 		startLocationAmount int
 		goalLocationAmount  int
 		expectedError       error
-		expectedActionList  []Action
+		expectedActionList  []core.Action
 		expectedIterations  int
 		expectedCost        float64
 	}
@@ -32,7 +32,7 @@ func TestActions_AStar(t *testing.T) {
 		"can find gather path": {
 			startLocationAmount: 100,
 			goalLocationAmount:  20,
-			expectedActionList: []Action{
+			expectedActionList: []core.Action{
 				nil,
 				gatherTest,
 				gatherTest,
@@ -45,7 +45,7 @@ func TestActions_AStar(t *testing.T) {
 		"can move all resource to new location": {
 			startLocationAmount: 50,
 			goalLocationAmount:  50,
-			expectedActionList: []Action{
+			expectedActionList: []core.Action{
 				nil,
 				gatherTest,
 				gatherTest,
@@ -118,7 +118,7 @@ func TestActions_AStar(t *testing.T) {
 			assert.Equal(t, tc.expectedCost, search.BestCost)
 			assert.Equal(t, tc.expectedIterations, search.Iterations)
 
-			solutionActions := make([]Action, 0)
+			solutionActions := make([]core.Action, 0)
 			solution := search.CurrentBestPath()
 			for _, node := range solution {
 				goapNode, ok := node.(*GoapNode)
@@ -194,7 +194,7 @@ func TestActions_Heuristic(t *testing.T) {
 
 			testStats := &GoapRunInfo{
 				Agent: testAgent,
-				PossibleNextActions: []Action{
+				PossibleNextActions: []core.Action{
 					gatherTest,
 					gatherTest2,
 					depositTest,
@@ -237,7 +237,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 	expectedLoc.Inventory.AdjustAmount(testResource, 1)
 
 	type testCase struct {
-		actions            []Action
+		actions            []core.Action
 		startState         *core.WorldState
 		agent              core.Agent
 		expectedSuccessors []*GoapNode
@@ -245,7 +245,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 
 	tests := map[string]testCase{
 		"single action should generate one successor": {
-			actions: []Action{mockAction1},
+			actions: []core.Action{mockAction1},
 			startState: &core.WorldState{
 				Locations: []core.Location{
 					*testLocation.DeepCopy(),
@@ -263,7 +263,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 			},
 		},
 		"multiple actions should generate multiple successors": {
-			actions: []Action{
+			actions: []core.Action{
 				mockAction1,
 				mockAction2,
 				mockAction3,
@@ -293,7 +293,7 @@ func TestActions_GetSuccessors(t *testing.T) {
 			},
 		},
 		"null actions should be filtered out": {
-			actions: []Action{
+			actions: []core.Action{
 				mockNullAction1,
 				mockAction1,
 				mockAction2,

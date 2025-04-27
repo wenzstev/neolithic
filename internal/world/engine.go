@@ -9,7 +9,6 @@ import (
 	"Neolithic/internal/camera"
 	"Neolithic/internal/core"
 	"Neolithic/internal/grid"
-	"Neolithic/internal/planner"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -65,7 +64,7 @@ func NewEngine(grid *grid.Grid, logger *slog.Logger) (*Engine, error) {
 		World: world,
 		Registry: &Registry{
 			ActionRegistry: []*ActionRegistryEntry{},
-			Actions:        []planner.Action{},
+			Actions:        []core.Action{},
 			Locations:      []*core.Location{},
 			Resources:      []*core.Resource{},
 		},
@@ -141,7 +140,7 @@ func (e *Engine) AddResource(resource *core.Resource) error {
 }
 
 // RegisterAction registers a new action in the engine's registry with a specified name, action, and creation function.
-func (e *Engine) RegisterAction(name string, action planner.Action, createFunc ActionCreator) error {
+func (e *Engine) RegisterAction(name string, action core.Action, createFunc ActionCreator) error {
 	return e.Registry.RegisterAction(name, action, createFunc)
 }
 
