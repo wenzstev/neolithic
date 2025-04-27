@@ -5,13 +5,12 @@ import (
 	"log/slog"
 
 	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 )
 
 // Performing is the State where the Agent tries to perform its provided Action
 type Performing struct {
 	// action is the action that will be performed
-	action planner.Action
+	action core.Action
 	// timeLeft is the amount of time before the action is completed, if necessary
 	timeLeft float64
 	// agent is the agent that is performing the action
@@ -40,7 +39,7 @@ func (p *Performing) Execute(world *core.WorldState, deltaTime float64) (*core.W
 		}
 
 		p.logger.Debug("starting new action", "agent", p.agent.Name(), "action", p.action)
-		actionDuration, ok := p.action.(planner.RequiresTime)
+		actionDuration, ok := p.action.(core.RequiresTime)
 		if ok && p.timeLeft == 0 {
 			p.timeLeft = actionDuration.TimeNeeded()
 			p.logger.Debug("action requires time", "agent", p.agent.Name(), "timeNeeded", p.timeLeft)

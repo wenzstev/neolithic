@@ -112,13 +112,13 @@ func (i *Idle) createSearchState(world *core.WorldState) (*astar.SearchState, er
 }
 
 // createActionListFromSearchState creates a list of actions for the Agent to follow.
-func (i *Idle) createActionListFromSearchState() ([]planner.Action, error) {
+func (i *Idle) createActionListFromSearchState() ([]core.Action, error) {
 	if i.planner == nil {
 		return nil, errors.New("no planner")
 	}
 
 	nodePlan := i.planner.CurrentBestPath()
-	var actionList []planner.Action
+	var actionList []core.Action
 	for _, node := range nodePlan {
 		action := node.(*planner.GoapNode).Action
 		actionList = append(actionList, action)

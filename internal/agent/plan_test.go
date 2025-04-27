@@ -1,34 +1,34 @@
 package agent
 
 import (
+	"Neolithic/internal/core"
 	"reflect"
 	"testing"
 
-	"Neolithic/internal/planner"
 	"github.com/stretchr/testify/assert"
 )
 
 // TestPlan_IsComplete tests the IsComplete method of plan.
 func TestPlan_IsComplete(t *testing.T) {
 	type testCase struct {
-		actions     []planner.Action
+		actions     []core.Action
 		curLocation int
 		expected    bool
 	}
 
 	tests := map[string]testCase{
 		"empty plan is complete": {
-			actions:     []planner.Action{},
+			actions:     []core.Action{},
 			curLocation: 0,
 			expected:    true,
 		},
 		"non-empty plan not complete": {
-			actions:     []planner.Action{&mockAction{}},
+			actions:     []core.Action{&mockAction{}},
 			curLocation: 0,
 			expected:    false,
 		},
 		"plan complete after consuming all actions": {
-			actions:     []planner.Action{&mockAction{}},
+			actions:     []core.Action{&mockAction{}},
 			curLocation: 1,
 			expected:    true,
 		},
@@ -48,19 +48,19 @@ func TestPlan_IsComplete(t *testing.T) {
 // TestPlan_PeekAction tests that PeekAction returns the next action without advancing curLocation.
 func TestPlan_PeekAction(t *testing.T) {
 	type testCase struct {
-		actions     []planner.Action
+		actions     []core.Action
 		curLocation int
-		expected    planner.Action
+		expected    core.Action
 	}
 
 	tests := map[string]testCase{
 		"peek first action": {
-			actions:     []planner.Action{&mockAction{}, &mockNullAction{}},
+			actions:     []core.Action{&mockAction{}, &mockNullAction{}},
 			curLocation: 0,
 			expected:    &mockAction{},
 		},
 		"peek returns nil when plan complete": {
-			actions:     []planner.Action{&mockAction{}},
+			actions:     []core.Action{&mockAction{}},
 			curLocation: 1,
 			expected:    nil,
 		},
@@ -81,20 +81,20 @@ func TestPlan_PeekAction(t *testing.T) {
 // TestPlan_PopAction tests that PopAction returns actions in order and advances curLocation.
 func TestPlan_PopAction(t *testing.T) {
 	type testCase struct {
-		actions          []planner.Action
-		expectedSequence []planner.Action
+		actions          []core.Action
+		expectedSequence []core.Action
 		finalLocation    int
 	}
 
 	tests := map[string]testCase{
 		"pop returns actions sequentially and then nil": {
-			actions:          []planner.Action{&mockAction{}, &mockNullAction{}},
-			expectedSequence: []planner.Action{&mockAction{}, &mockNullAction{}, nil},
+			actions:          []core.Action{&mockAction{}, &mockNullAction{}},
+			expectedSequence: []core.Action{&mockAction{}, &mockNullAction{}, nil},
 			finalLocation:    2,
 		},
 		"pop on empty plan returns nil": {
-			actions:          []planner.Action{},
-			expectedSequence: []planner.Action{nil},
+			actions:          []core.Action{},
+			expectedSequence: []core.Action{nil},
 			finalLocation:    0,
 		},
 	}
@@ -105,7 +105,7 @@ func TestPlan_PopAction(t *testing.T) {
 				Actions:     tc.actions,
 				curLocation: 0,
 			}
-			var results []planner.Action
+			var results []core.Action
 			// Call PopAction len(expectedSequence) times.
 			for i := 0; i < len(tc.expectedSequence); i++ {
 				results = append(results, p.PopAction())

@@ -4,7 +4,6 @@ import (
 	"errors"
 
 	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 )
 
 var (
@@ -25,14 +24,14 @@ type ActionCreatorParams struct {
 }
 
 // ActionCreator defines a function type that generates a planner.Action based on the provided ActionCreatorParams.
-type ActionCreator func(params ActionCreatorParams) planner.Action
+type ActionCreator func(params ActionCreatorParams) core.Action
 
 // Registry manages the registration of actions, locations, and resources in the world.
 type Registry struct {
 	// ActionRegistry holds all actions that are currently registered in the registry
 	ActionRegistry []*ActionRegistryEntry
 	// Actions holds all instantiated actions that can be performed.
-	Actions []planner.Action
+	Actions []core.Action
 	// Locations holds all locations in the registry
 	Locations []*core.Location
 	// Resources holds all resources in the registry
@@ -55,7 +54,7 @@ type ActionRegistryEntry struct {
 }
 
 // RegisterAction registers a new action with a name, checks for duplicates, and creates instances based on dependencies.
-func (r *Registry) RegisterAction(name string, action planner.Action, createFunc ActionCreator) error {
+func (r *Registry) RegisterAction(name string, action core.Action, createFunc ActionCreator) error {
 	for _, entry := range r.ActionRegistry {
 		if entry.Name == name {
 			return ErrActionAlreadyRegistered
@@ -63,7 +62,7 @@ func (r *Registry) RegisterAction(name string, action planner.Action, createFunc
 	}
 
 	_, locatable := action.(core.Locatable)
-	_, needsResource := action.(planner.NeedsResource)
+	_, needsResource := action.(core.NeedsResource)
 
 	entry := &ActionRegistryEntry{
 		Name:          name,

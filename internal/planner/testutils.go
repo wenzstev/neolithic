@@ -78,7 +78,7 @@ func (m *mockAgent) Name() string {
 // mockAction implements Action and is used for testing.
 type mockAction struct{}
 
-var _ Action = (*mockAction)(nil)
+var _ core.Action = (*mockAction)(nil)
 
 func (m *mockAction) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
 	end := start.DeepCopy()
@@ -95,11 +95,11 @@ func (m *mockAction) Description() string {
 	return "a mock Action"
 }
 
-func (m *mockAction) GetChanges(agent core.Agent) []StateChange {
-	return []StateChange{
+func (m *mockAction) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{
 		{
 			Entity:     "testLocation",
-			EntityType: LocationEntity,
+			EntityType: core.LocationEntity,
 			Resource:   testResource,
 			Amount:     1,
 		},
@@ -109,7 +109,7 @@ func (m *mockAction) GetChanges(agent core.Agent) []StateChange {
 // mockNullAction implements Action and is used for testing. It always returns a null State.
 type mockNullAction struct{}
 
-var _ Action = (*mockNullAction)(nil)
+var _ core.Action = (*mockNullAction)(nil)
 
 func (m *mockNullAction) Perform(_ *core.WorldState, _ core.Agent) *core.WorldState {
 	return nil
@@ -123,6 +123,6 @@ func (m *mockNullAction) Description() string {
 	return "a mock null Action"
 }
 
-func (m *mockNullAction) GetChanges(agent core.Agent) []StateChange {
-	return []StateChange{}
+func (m *mockNullAction) GetChanges(agent core.Agent) []core.StateChange {
+	return []core.StateChange{}
 }

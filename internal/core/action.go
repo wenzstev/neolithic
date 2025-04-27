@@ -1,6 +1,4 @@
-package planner
-
-import "Neolithic/internal/core"
+package core
 
 // EntityType is the type of Entity that is being changed
 type EntityType string
@@ -18,7 +16,7 @@ type StateChange struct {
 	// EntityType is the type of entity that is being changed
 	EntityType EntityType
 	// Resource is the resource that is being changed
-	Resource *core.Resource
+	Resource *Resource
 	// Amount is the amount of the resource that is being changed
 	Amount int
 }
@@ -26,13 +24,13 @@ type StateChange struct {
 // Action represents a thing that can be done
 type Action interface {
 	// Perform takes a start State and manipulates it into a new State, based on what the Action does.
-	Perform(start *core.WorldState, agent core.Agent) *core.WorldState
+	Perform(start *WorldState, agent Agent) *WorldState
 	// Cost returns the cost of the Action, representing how much work it takes to do the Action.
-	Cost(agent core.Agent) float64
+	Cost(agent Agent) float64
 	// Description returns a string description of the Action, used to make the Action more legible.
 	Description() string
 	// GetChanges returns the difference in state before and after applying the Action
-	GetChanges(agent core.Agent) []StateChange
+	GetChanges(agent Agent) []StateChange
 }
 
 // RequiresTime is an interface that provides a required amount of time.
@@ -42,5 +40,5 @@ type RequiresTime interface {
 
 // NeedsResource is an interface that provides a resource
 type NeedsResource interface {
-	Resource() *core.Resource
+	Resource() *Resource
 }

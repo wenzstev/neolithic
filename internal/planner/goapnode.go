@@ -10,7 +10,7 @@ import (
 // GoapNode represents a point in a GOAP process, where the planner is choosing a plan
 type GoapNode struct {
 	// Action is the Action taken to reach this node
-	Action Action
+	Action core.Action
 	// State is the State of the world after running the Action
 	State *core.WorldState
 	// GoapRunInfo is a set of attributes that carry over throughout the goap planning process
@@ -24,7 +24,7 @@ type GoapRunInfo struct {
 	// Agent is the agent running the planner
 	Agent core.Agent
 	// PossibleNextActions are all actions that the agent could take
-	PossibleNextActions []Action
+	PossibleNextActions []core.Action
 }
 
 // Ensure GoapNode implements astar.Node
@@ -100,7 +100,7 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 			requiredChange := math.Abs(float64(diff))
 			var bestCostPerUnit = math.Inf(1)
 
-			var relevantActions []Action
+			var relevantActions []core.Action
 			var err error
 			if diff > 0 {
 				relevantActions, err = cur.getActionsThatAdd(entry.Resource, goalLocation.Name)
@@ -131,8 +131,8 @@ func (g *GoapNode) heuristic(cur, goal *GoapNode) (float64, error) {
 
 // getActionsThatAdd returns all actions that the agent on the GoapNode can take that _add_ the given Resource to the given
 // Location
-func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Action, error) {
-	addActions := make([]Action, 0)
+func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]core.Action, error) {
+	addActions := make([]core.Action, 0)
 
 	successors, err := g.GetSuccessors()
 	if err != nil {
@@ -157,8 +157,8 @@ func (g *GoapNode) getActionsThatAdd(res *core.Resource, locName string) ([]Acti
 
 // getActionsThatRemove returns all actions that the agent on the GoapNode can take that _remove_ the given Resource
 // from the given location.
-func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]Action, error) {
-	removeActions := make([]Action, 0)
+func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]core.Action, error) {
+	removeActions := make([]core.Action, 0)
 
 	successors, err := g.GetSuccessors()
 	if err != nil {
@@ -181,10 +181,10 @@ func (g *GoapNode) getActionsThatRemove(res *core.Resource, locName string) ([]A
 	return removeActions, nil
 }
 
-func getRelatedChange(action Action, res *core.Resource, agent core.Agent, locName string) *StateChange {
+func getRelatedChange(action core.Action, res *core.Resource, agent core.Agent, locName string) *core.StateChange {
 	changes := action.GetChanges(agent)
 	for _, change := range changes {
-		if change.EntityType == LocationEntity && change.Entity == locName && change.Resource == res {
+		if change.EntityType == core.LocationEntity && change.Entity == locName && change.Resource == res {
 			return &change
 		}
 	}

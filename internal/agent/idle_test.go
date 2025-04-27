@@ -32,7 +32,7 @@ func TestIdle_Execute(t *testing.T) {
 		planner            *astar.SearchState
 		startLocation      core.Location
 		goalEngine         *goalengine.GoalEngine
-		possibleActions    []planner.Action
+		possibleActions    []core.Action
 		expectedIterations int
 		expectedPlan       Plan
 		expectedRetries    int
@@ -67,7 +67,7 @@ func TestIdle_Execute(t *testing.T) {
 				Inventory: emptyInventory,
 			},
 			goalEngine:         defaultGoalEngine,
-			possibleActions:    []planner.Action{&mockAction{}},
+			possibleActions:    []core.Action{&mockAction{}},
 			expectedIterations: 2,
 			expectedRetries:    0,
 		},
@@ -78,11 +78,11 @@ func TestIdle_Execute(t *testing.T) {
 				Inventory: emptyInventory,
 			},
 			goalEngine:         defaultGoalEngine,
-			possibleActions:    []planner.Action{&mockAction{}},
+			possibleActions:    []core.Action{&mockAction{}},
 			expectedIterations: 4,
 			expectedRetries:    0,
 			expectedPlan: &plan{
-				Actions: []planner.Action{
+				Actions: []core.Action{
 					&mockAction{},
 					&mockAction{},
 					&mockAction{},
@@ -109,7 +109,7 @@ func TestIdle_Execute(t *testing.T) {
 					Resource: testResource,
 				},
 			},
-			possibleActions:    []planner.Action{&mockNilAction{}},
+			possibleActions:    []core.Action{&mockNilAction{}},
 			expectedIterations: 1,
 			expectedRetries:    1,
 		},
@@ -133,7 +133,7 @@ func TestIdle_Execute(t *testing.T) {
 					Resource: testResource,
 				},
 			},
-			possibleActions:    []planner.Action{&mockAction{}},
+			possibleActions:    []core.Action{&mockAction{}},
 			expectedIterations: 10,
 			expectedRetries:    1,
 		},

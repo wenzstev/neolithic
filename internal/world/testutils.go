@@ -2,25 +2,24 @@ package world
 
 import (
 	"Neolithic/internal/core"
-	"Neolithic/internal/planner"
 )
 
 var (
-	mockActionCreateFunc = func(params ActionCreatorParams) planner.Action {
+	mockActionCreateFunc = func(params ActionCreatorParams) core.Action {
 		return &mockAction{}
 	}
 
-	mockActionWithLocationCreateFunc = func(params ActionCreatorParams) planner.Action {
+	mockActionWithLocationCreateFunc = func(params ActionCreatorParams) core.Action {
 		return &mockActionWithLocation{
 			location: params.Location,
 		}
 	}
 
-	mockActionWithResourceCreateFunc = func(params ActionCreatorParams) planner.Action {
+	mockActionWithResourceCreateFunc = func(params ActionCreatorParams) core.Action {
 		return &mockActionWithResource{resource: params.Resource}
 	}
 
-	mockActionWithResourceAndLocationCreateFunc = func(params ActionCreatorParams) planner.Action {
+	mockActionWithResourceAndLocationCreateFunc = func(params ActionCreatorParams) core.Action {
 		return &mockActionWithLocationAndResource{
 			resource: params.Resource,
 			location: params.Location,
@@ -44,7 +43,7 @@ func (m *mockAction) Description() string {
 	return "mock action"
 }
 
-func (m *mockAction) GetChanges(_ core.Agent) []planner.StateChange {
+func (m *mockAction) GetChanges(_ core.Agent) []core.StateChange {
 	return nil
 }
 
