@@ -1,10 +1,10 @@
 package agent
 
 import (
-	"Neolithic/internal/core"
 	"reflect"
 	"testing"
 
+	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
 )
 

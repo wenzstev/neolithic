@@ -2,12 +2,7 @@ package agent
 
 import (
 	"Neolithic/internal/core"
-	"encoding/gob"
 )
-
-func init() {
-	gob.Register(plan{})
-}
 
 // Plan provides a series of actions for an Agent to complete
 type Plan interface {
