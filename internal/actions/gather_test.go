@@ -1,9 +1,10 @@
-package planner
+package actions
 
 import (
+	"testing"
+
 	"Neolithic/internal/core"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestGather_Perform(t *testing.T) {

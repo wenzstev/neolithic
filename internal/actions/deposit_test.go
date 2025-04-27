@@ -1,4 +1,4 @@
-package planner
+package actions
 
 import (
 	"Neolithic/internal/core"

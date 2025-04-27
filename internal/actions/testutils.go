@@ -1,14 +1,12 @@
-package planner
+package actions
 
 import (
-	"Neolithic/internal/actions"
 	"Neolithic/internal/core"
 	"encoding/gob"
 )
 
 var (
-	testLocation  = core.Location{Name: "testLocation", Inventory: core.NewInventory()}
-	testLocation2 = core.Location{Name: "testLocation2", Inventory: core.NewInventory()}
+	testLocation = core.Location{Name: "testLocation", Inventory: core.NewInventory()}
 
 	testAgent = &mockAgent{
 		N:         "testAgent",
@@ -17,34 +15,6 @@ var (
 
 	testResource = &core.Resource{
 		Name: "testResource",
-	}
-
-	gatherTest = &actions.Gather{
-		Res:            testResource,
-		Amount:         10,
-		ActionLocation: &core.Location{Name: "testLocation"},
-		ActionCost:     10.0,
-	}
-
-	gatherTest2 = &actions.Gather{
-		Res:            testResource,
-		Amount:         10,
-		ActionLocation: &core.Location{Name: "testLocation2"},
-		ActionCost:     10.0,
-	}
-
-	depositTest = &actions.Deposit{
-		DepResource:    testResource,
-		Amount:         20,
-		ActionLocation: &core.Location{Name: "testLocation"},
-		ActionCost:     1.0,
-	}
-
-	depositTest2 = &actions.Deposit{
-		DepResource:    testResource,
-		Amount:         20,
-		ActionLocation: &core.Location{Name: "testLocation2"},
-		ActionCost:     1.0,
 	}
 )
 
