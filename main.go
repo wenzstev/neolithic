@@ -1,6 +1,7 @@
 package main
 
 import (
+	"Neolithic/internal/actions"
 	"log"
 
 	"Neolithic/internal/agent"
@@ -9,7 +10,6 @@ import (
 	"Neolithic/internal/goalengine"
 	"Neolithic/internal/grid"
 	"Neolithic/internal/logging"
-	"Neolithic/internal/planner"
 	"Neolithic/internal/world"
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -131,7 +131,7 @@ func main() {
 	}
 
 	createDepositAction := func(params world.ActionCreatorParams) core.Action {
-		return &planner.Deposit{
+		return &actions.Deposit{
 			DepResource:    params.Resource,
 			Amount:         1,
 			ActionLocation: params.Location,
@@ -140,7 +140,7 @@ func main() {
 	}
 
 	createGatherAction := func(params world.ActionCreatorParams) core.Action {
-		return &planner.Gather{
+		return &actions.Gather{
 			Res:            params.Resource,
 			Amount:         1,
 			ActionLocation: params.Location,
@@ -148,10 +148,10 @@ func main() {
 		}
 	}
 
-	if err = engine.RegisterAction("deposit", &planner.Deposit{}, createDepositAction); err != nil {
+	if err = engine.RegisterAction("deposit", &actions.Deposit{}, createDepositAction); err != nil {
 		log.Fatal(err)
 	}
-	if err = engine.RegisterAction("gather", &planner.Gather{}, createGatherAction); err != nil {
+	if err = engine.RegisterAction("gather", &actions.Gather{}, createGatherAction); err != nil {
 		log.Fatal(err)
 	}
 

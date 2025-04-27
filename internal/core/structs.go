@@ -7,7 +7,8 @@ import (
 
 // Resource represents a resource in the simulation world.
 type Resource struct {
-	Name string
+	Name       string
+	Attributes []Attribute
 }
 
 // String returns a string representation of the Resource in the format "Resource: <name>".
@@ -17,9 +18,10 @@ func (r *Resource) String() string {
 
 // Location represents a location in the simulation world.
 type Location struct {
-	Name      string
-	Inventory Inventory
-	Coord     Coord
+	Name       string
+	Inventory  Inventory
+	Coord      Coord
+	Attributes []Attribute
 }
 
 // String returns a string representation of the Location in the format "Location: <name>\nCoordinates: <coordinates>\nInventory: <inventory>".

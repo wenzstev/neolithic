@@ -1,15 +1,10 @@
-package planner
+package actions
 
 import (
-	"encoding/gob"
 	"fmt"
 
 	"Neolithic/internal/core"
 )
-
-func init() {
-	gob.Register(Deposit{})
-}
 
 // Deposit implements Action, and represents the act of depositing a Resource at a location
 type Deposit struct {
