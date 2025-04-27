@@ -10,16 +10,16 @@ import (
 
 // TestCanDeposit_NeedsLocation verifies the NeedsLocation method always returns false.
 func TestCanDeposit_NeedsLocation(t *testing.T) {
-	cd := CanDeposit{}
+	cd := CanDepositTo{}
 	// Assert that NeedsLocation returns false using direct package call
-	assert.False(t, cd.NeedsLocation(), "CanDeposit.NeedsLocation() should return false")
+	assert.False(t, cd.NeedsLocation(), "CanDepositTo.NeedsLocation() should return false")
 }
 
 // TestCanDeposit_NeedsResource verifies the NeedsResource method always returns true.
 func TestCanDeposit_NeedsResource(t *testing.T) {
-	cd := CanDeposit{}
+	cd := CanDepositTo{}
 	// Assert that NeedsResource returns true using direct package call
-	assert.True(t, cd.NeedsResource(), "CanDeposit.NeedsResource() should return true")
+	assert.True(t, cd.NeedsResource(), "CanDepositTo.NeedsResource() should return true")
 }
 
 // TestCanDeposit_CreateAction verifies the CreateAction method returns the correct Deposit action.
@@ -31,12 +31,12 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 
 	// Define test cases
 	testCases := map[string]struct {
-		canDeposit CanDeposit
+		canDeposit CanDepositTo
 		params     core.CreateActionParams
 		wantAction *actions.Deposit
 	}{
 		"Standard deposit": {
-			canDeposit: CanDeposit{
+			canDeposit: CanDepositTo{
 				Amount:   10,
 				Cost:     0.5,
 				Location: mockLocation,
@@ -52,7 +52,7 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 			},
 		},
 		"Zero amount deposit": {
-			canDeposit: CanDeposit{
+			canDeposit: CanDepositTo{
 				Amount:   0,
 				Cost:     0.1,
 				Location: mockLocation,
@@ -68,7 +68,7 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 			},
 		},
 		"Zero cost deposit": {
-			canDeposit: CanDeposit{
+			canDeposit: CanDepositTo{
 				Amount:   5,
 				Cost:     0.0,
 				Location: mockLocation,
@@ -84,7 +84,7 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 			},
 		},
 		"Empty resource deposit": {
-			canDeposit: CanDeposit{
+			canDeposit: CanDepositTo{
 				Amount:   2,
 				Cost:     1.0,
 				Location: mockLocation,
@@ -99,8 +99,8 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 				ActionCost:     1.0,
 			},
 		},
-		"Nil location in CanDeposit": {
-			canDeposit: CanDeposit{
+		"Nil location in CanDepositTo": {
+			canDeposit: CanDepositTo{
 				Amount:   3,
 				Cost:     0.2,
 				Location: nil,
@@ -116,7 +116,7 @@ func TestCanDeposit_CreateAction(t *testing.T) {
 			},
 		},
 		"Nil resource in Params": {
-			canDeposit: CanDeposit{
+			canDeposit: CanDepositTo{
 				Amount:   4,
 				Cost:     0.3,
 				Location: mockLocation,

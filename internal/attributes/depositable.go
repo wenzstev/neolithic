@@ -5,29 +5,29 @@ import (
 	"Neolithic/internal/core"
 )
 
-// CanDeposit is an attribute that determines if a location can have resources deposited at it.
-type CanDeposit struct {
+// CanDepositTo is an attribute that determines if a location can have resources deposited at it.
+type CanDepositTo struct {
 	// Amount is the amount that can be deposited in a given action
 	Amount int
 	// Cost is the cost of depositing
 	Cost float64
-	// Location is the location the CanDeposit attribute is attached to.
+	// Location is the location the CanDepositTo attribute is attached to.
 	Location *core.Location
 }
 
-// NeedsLocation indicates if CanDeposit needs a separate location (separate from the location the attribute is attached
+// NeedsLocation indicates if CanDepositTo needs a separate location (separate from the location the attribute is attached
 // to) to function. It does NOT.
-func (c *CanDeposit) NeedsLocation() bool {
+func (c *CanDepositTo) NeedsLocation() bool {
 	return false
 }
 
-// NeedsResource indicates if CanDeposit needs a resource. It DOES.
-func (c *CanDeposit) NeedsResource() bool {
+// NeedsResource indicates if CanDepositTo needs a resource. It DOES.
+func (c *CanDepositTo) NeedsResource() bool {
 	return true
 }
 
-// CreateAction provides a concrete action for depositing a resource at the location attached to the CanDeposit attribute.
-func (c *CanDeposit) CreateAction(params core.CreateActionParams) core.Action {
+// CreateAction provides a concrete action for depositing a resource at the location attached to the CanDepositTo attribute.
+func (c *CanDepositTo) CreateAction(params core.CreateActionParams) core.Action {
 	return &actions.Deposit{
 		DepResource:    params.Resource,
 		Amount:         c.Amount,
