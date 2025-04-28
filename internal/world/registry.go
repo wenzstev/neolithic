@@ -1,9 +1,8 @@
 package world
 
 import (
-	"errors"
-
 	"Neolithic/internal/core"
+	"errors"
 )
 
 var (
@@ -28,8 +27,6 @@ type ActionCreator func(params ActionCreatorParams) core.Action
 
 // Registry manages the registration of actions, locations, and resources in the world.
 type Registry struct {
-	// ActionRegistry holds all actions that are currently registered in the registry
-	ActionRegistry []*ActionRegistryEntry
 	// Actions holds all instantiated actions that can be performed.
 	Actions []core.Action
 	// Locations holds all locations in the registry
@@ -53,53 +50,6 @@ type ActionRegistryEntry struct {
 	Creator ActionCreator
 }
 
-// RegisterAction registers a new action with a name, checks for duplicates, and creates instances based on dependencies.
-func (r *Registry) RegisterAction(name string, action core.Action, createFunc ActionCreator) error {
-	for _, entry := range r.ActionRegistry {
-		if entry.Name == name {
-			return ErrActionAlreadyRegistered
-		}
-	}
-
-	_, locatable := action.(core.Locatable)
-	_, needsResource := action.(core.NeedsResource)
-
-	entry := &ActionRegistryEntry{
-		Name:          name,
-		NeedsLocation: locatable,
-		NeedsResource: needsResource,
-		Creator:       createFunc,
-	}
-
-	if entry.NeedsLocation {
-		for _, loc := range r.Locations {
-			if entry.NeedsResource {
-				for _, res := range r.Resources {
-					newAction := entry.Creator(ActionCreatorParams{
-						Location: loc,
-						Resource: res,
-					})
-					r.Actions = append(r.Actions, newAction)
-				}
-			} else {
-				newAction := entry.Creator(ActionCreatorParams{
-					Location: loc,
-				})
-				r.Actions = append(r.Actions, newAction)
-			}
-		}
-	} else if entry.NeedsResource {
-		for _, res := range r.Resources {
-			newAction := entry.Creator(ActionCreatorParams{
-				Resource: res,
-			})
-			r.Actions = append(r.Actions, newAction)
-		}
-	}
-	r.ActionRegistry = append(r.ActionRegistry, entry)
-	return nil
-}
-
 // RegisterResource registers a new resource in the registry. Returns an error if the resource is already registered.
 // It also creates actions for the resource, depending on the registered actions requiring resources and locations.
 func (r *Registry) RegisterResource(resource *core.Resource) error {
@@ -108,23 +58,54 @@ func (r *Registry) RegisterResource(resource *core.Resource) error {
 			return ErrResourceAlreadyRegistered
 		}
 	}
-	for _, action := range r.ActionRegistry {
-		if action.NeedsResource {
-			if action.NeedsLocation {
-				for _, loc := range r.Locations {
-					r.Actions = append(r.Actions, action.Creator(ActionCreatorParams{
-						Location: loc,
+
+	for _, attr := range resource.Attributes {
+		r.createActionsForAttribute(attr)
+	}
+
+	for _, loc := range r.Locations {
+		for _, locAttr := range loc.Attributes {
+			if locAttr.NeedsResource() {
+				switch {
+				case locAttr.NeedsLocation():
+					for _, secondLoc := range r.Locations {
+						r.Actions = append(r.Actions, locAttr.CreateAction(core.CreateActionParams{
+							Location: secondLoc,
+							Resource: resource,
+						}))
+					}
+				default:
+					r.Actions = append(r.Actions, locAttr.CreateAction(core.CreateActionParams{
 						Resource: resource,
 					}))
 				}
-				continue
 			}
-			r.Actions = append(r.Actions, action.Creator(ActionCreatorParams{
-				Resource: resource,
-			}))
 		}
 	}
+
+	for _, res := range r.Resources {
+		for _, resAttr := range res.Attributes {
+			if resAttr.NeedsResource() {
+				switch {
+				case resAttr.NeedsLocation():
+					for _, loc := range r.Locations {
+						r.Actions = append(r.Actions, resAttr.CreateAction(core.CreateActionParams{
+							Location: loc,
+							Resource: resource,
+						}))
+					}
+				default:
+					r.Actions = append(r.Actions, resAttr.CreateAction(core.CreateActionParams{
+						Resource: resource,
+					}))
+				}
+
+			}
+		}
+	}
+
 	r.Resources = append(r.Resources, resource)
+
 	return nil
 }
 
@@ -137,22 +118,79 @@ func (r *Registry) RegisterLocation(location *core.Location) error {
 		}
 	}
 
-	for _, action := range r.ActionRegistry {
-		if action.NeedsLocation {
-			if action.NeedsResource {
-				for _, res := range r.Resources {
-					r.Actions = append(r.Actions, action.Creator(ActionCreatorParams{
+	for _, attr := range location.Attributes {
+		r.createActionsForAttribute(attr)
+	}
+
+	for _, loc := range r.Locations {
+		for _, locAttr := range loc.Attributes {
+			if locAttr.NeedsLocation() {
+				switch {
+				case locAttr.NeedsResource():
+					for _, res := range r.Resources {
+						r.Actions = append(r.Actions, locAttr.CreateAction(core.CreateActionParams{
+							Location: location,
+							Resource: res,
+						}))
+					}
+				default:
+					r.Actions = append(r.Actions, locAttr.CreateAction(core.CreateActionParams{
 						Location: location,
-						Resource: res,
 					}))
 				}
-				continue
 			}
-			r.Actions = append(r.Actions, action.Creator(ActionCreatorParams{
-				Location: location,
-			}))
 		}
 	}
+
+	for _, res := range r.Resources {
+		for _, resAttr := range res.Attributes {
+			if resAttr.NeedsLocation() {
+				switch {
+				case resAttr.NeedsResource():
+					for _, res2 := range r.Resources {
+						r.Actions = append(r.Actions, resAttr.CreateAction(core.CreateActionParams{
+							Location: location,
+							Resource: res2,
+						}))
+					}
+				default:
+					r.Actions = append(r.Actions, resAttr.CreateAction(core.CreateActionParams{
+						Location: location,
+					}))
+				}
+
+			}
+		}
+	}
+
 	r.Locations = append(r.Locations, location)
 	return nil
+}
+
+func (r *Registry) createActionsForAttribute(attr core.Attribute) {
+	switch {
+	case attr.NeedsResource() && attr.NeedsLocation():
+		for _, loc := range r.Locations {
+			for _, res := range r.Resources {
+				r.Actions = append(r.Actions, attr.CreateAction(core.CreateActionParams{
+					Location: loc,
+					Resource: res,
+				}))
+			}
+		}
+	case attr.NeedsResource() && !attr.NeedsLocation():
+		for _, res := range r.Resources {
+			r.Actions = append(r.Actions, attr.CreateAction(core.CreateActionParams{
+				Resource: res,
+			}))
+		}
+	case !attr.NeedsResource() && attr.NeedsLocation():
+		for _, loc := range r.Locations {
+			r.Actions = append(r.Actions, attr.CreateAction(core.CreateActionParams{
+				Location: loc,
+			}))
+		}
+	default:
+		r.Actions = append(r.Actions, attr.CreateAction(core.CreateActionParams{}))
+	}
 }
