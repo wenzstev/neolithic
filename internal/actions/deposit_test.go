@@ -111,7 +111,7 @@ func TestDeposit_String(t *testing.T) {
 	tests := map[string]testCase{
 		"basic deposit message": {
 			testDeposit:    testDeposit,
-			expectedString: "deposit 10 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}",
+			expectedString: "deposit 10 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}\nAttributes: {}",
 		},
 		"deposit message with different Amount": {
 			testDeposit: &Deposit{
@@ -119,7 +119,7 @@ func TestDeposit_String(t *testing.T) {
 				Amount:         100,
 				ActionLocation: &core.Location{Name: "testLocation", Inventory: core.NewInventory()},
 			},
-			expectedString: "deposit 100 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}",
+			expectedString: "deposit 100 testResource at Location: testLocation\nCoordinates: (0, 0)\nInventory: {}\nAttributes: {}",
 		},
 	}
 
