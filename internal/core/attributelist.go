@@ -20,6 +20,8 @@ type AttributeList interface {
 	AttributeByType(AttributeType) Attribute
 	// Copy creates a deep copy of the AttributeList.
 	Copy() AttributeList
+	// List returns all attributes in the list
+	List() []Attribute
 }
 
 // attributeList is the concrete implementation of the AttributeList interface.
@@ -94,4 +96,12 @@ func (a *attributeList) Copy() AttributeList {
 		copyAttrList[i] = (*a)[i].Copy()
 	}
 	return &copyAttrList
+}
+
+func (a *attributeList) List() []Attribute {
+	attrList := make([]Attribute, len(*a))
+	for i := 0; i < len(*a); i++ {
+		attrList[i] = (*a)[i].Copy()
+	}
+	return attrList
 }

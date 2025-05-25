@@ -83,38 +83,20 @@ func main() {
 		Viewport: vp,
 	}
 
-	loc1 := &core.Location{
-		Name:      "loc1",
-		Inventory: core.NewInventory(),
-		Coord:     core.Coord{X: 3, Y: 14},
-	}
+	baseCapacityAttr := &attributes.Capacity{Size: 100}
 
-	loc2 := &core.Location{
-		Name:      "loc2",
-		Inventory: core.NewInventory(),
-		Coord:     core.Coord{X: 21, Y: 4},
-	}
+	loc1 := core.NewLocation("loc1", core.Coord{X: 3, Y: 14}, core.WithAttributes(baseCapacityAttr))
+	loc2 := core.NewLocation("loc2", core.Coord{X: 21, Y: 4}, core.WithAttributes(baseCapacityAttr))
+	loc3 := core.NewLocation("loc3", core.Coord{X: 27, Y: 30}, core.WithAttributes(baseCapacityAttr))
+	depo := core.NewLocation("depo", core.Coord{X: 16, Y: 16}, core.WithAttributes(baseCapacityAttr))
 
-	loc3 := &core.Location{
-		Name:      "loc3",
-		Inventory: core.NewInventory(),
-		Coord:     core.Coord{X: 27, Y: 30},
-	}
-
-	depo := &core.Location{
-		Name:      "depo",
-		Inventory: core.NewInventory(),
-		Coord:     core.Coord{X: 16, Y: 16},
-	}
-
-	res1 := &core.Resource{Name: "Berries"}
+	res1 := core.NewResource("Berries", core.WithResourceAttributes(&attributes.Weight{Amount: 1}))
 
 	loc1.Inventory.AdjustAmount(res1, 2000)
 	loc2.Inventory.AdjustAmount(res1, 1000)
 	loc3.Inventory.AdjustAmount(res1, 2000)
 
 	goalDepo := depo.DeepCopy()
-	goalDepo.Inventory.AdjustAmount(res1, 50)
 
 	testAgent := agent.NewAgent("agent", logger)
 	testAgent.Behavior.GoalEngine = &goalengine.GoalEngine{
@@ -128,31 +110,6 @@ func main() {
 			Location: goalDepo,
 			Resource: res1,
 		},
-	}
-
-	createDepositAction := func(params world.ActionCreatorParams) core.Action {
-		return &attributes.Deposit{
-			DepResource:    params.Resource,
-			Amount:         1,
-			ActionLocation: params.Location,
-			ActionCost:     1,
-		}
-	}
-
-	createGatherAction := func(params world.ActionCreatorParams) core.Action {
-		return &attributes.Gather{
-			Res:            params.Resource,
-			Amount:         1,
-			ActionLocation: params.Location,
-			ActionCost:     1,
-		}
-	}
-
-	if err = engine.RegisterAction("deposit", &attributes.Deposit{}, createDepositAction); err != nil {
-		log.Fatal(err)
-	}
-	if err = engine.RegisterAction("gather", &attributes.Gather{}, createGatherAction); err != nil {
-		log.Fatal(err)
 	}
 
 	if err = engine.AddLocation(loc1); err != nil {

@@ -63,10 +63,9 @@ func NewEngine(grid *grid.Grid, logger *slog.Logger) (*Engine, error) {
 	return &Engine{
 		World: world,
 		Registry: &Registry{
-			ActionRegistry: []*ActionRegistryEntry{},
-			Actions:        []core.Action{},
-			Locations:      []*core.Location{},
-			Resources:      []*core.Resource{},
+			Actions:   []core.Action{},
+			Locations: []*core.Location{},
+			Resources: []*core.Resource{},
 		},
 		villagerImage: villagerImg,
 		locationImage: locationImg,
@@ -137,11 +136,6 @@ func (e *Engine) AddLocation(location *core.Location) error {
 // AddResource registers a resource in the registry of the engine and returns an error if the operation fails.
 func (e *Engine) AddResource(resource *core.Resource) error {
 	return e.Registry.RegisterResource(resource)
-}
-
-// RegisterAction registers a new action in the engine's registry with a specified name, action, and creation function.
-func (e *Engine) RegisterAction(name string, action core.Action, createFunc ActionCreator) error {
-	return e.Registry.RegisterAction(name, action, createFunc)
 }
 
 // AddAgent adds a new agent to the world and updates its possible actions. Returns an error if the agent already exists.
