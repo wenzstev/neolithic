@@ -1,14 +1,9 @@
-package actions
+package attributes
 
 import (
 	"Neolithic/internal/core"
-	"encoding/gob"
 	"fmt"
 )
-
-func init() {
-	gob.Register(Gather{})
-}
 
 // Gather implements Action, and represents the act of gathering a Resource
 type Gather struct {

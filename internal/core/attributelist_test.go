@@ -23,8 +23,8 @@ func (m *mockAttribute) Type() AttributeType {
 }
 
 // CreateAction is not relevant for attributeList tests, returns nil.
-func (m *mockAttribute) CreateAction(params CreateActionParams) Action {
-	return nil
+func (m *mockAttribute) CreateAction(holder AttributeHolder, params CreateActionParams) (Action, error) {
+	return nil, nil
 }
 
 // NeedsLocation is not relevant for attributeList tests, returns false.
