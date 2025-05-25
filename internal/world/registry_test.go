@@ -7,234 +7,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestRegistry_RegisterAction(t *testing.T) {
-	type testCase struct {
-		actionName      string
-		action          core.Action
-		createFunc      ActionCreator
-		registry        *Registry
-		expectedActions []core.Action
-		expectedEntry   *ActionRegistryEntry
-		expectedError   error
-	}
-
-	tests := map[string]testCase{
-		"can register action": {
-			actionName: "mockAction",
-			action:     &mockAction{},
-			createFunc: mockActionCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedActions: []core.Action{},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockAction",
-				NeedsLocation: false,
-				NeedsResource: false,
-				Creator:       mockActionCreateFunc,
-			},
-		},
-		"can register location action": {
-			actionName: "mockLocationAction",
-			action:     &mockActionWithLocation{},
-			createFunc: mockActionWithLocationCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedActions: []core.Action{},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockLocationAction",
-				NeedsLocation: true,
-				NeedsResource: false,
-				Creator:       mockActionWithLocationCreateFunc,
-			},
-		},
-		"can register resource action": {
-			actionName: "mockResourceAction",
-			action:     &mockActionWithLocation{},
-			createFunc: mockActionWithResourceCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedActions: []core.Action{},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockResourceAction",
-				NeedsLocation: true,
-				NeedsResource: false,
-				Creator:       mockActionWithResourceCreateFunc,
-			},
-		},
-		"can register resource and location action": {
-			actionName: "mockLocationResourceAction",
-			action:     &mockActionWithLocationAndResource{},
-			createFunc: mockActionWithResourceAndLocationCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedActions: []core.Action{},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockLocationResourceAction",
-				NeedsLocation: true,
-				NeedsResource: true,
-				Creator:       mockActionWithResourceAndLocationCreateFunc,
-			},
-		},
-		"fail to register action": {
-			actionName: "mockAction",
-			action:     &mockAction{},
-			createFunc: mockActionCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name: "mockAction",
-					},
-				},
-				Actions:   []core.Action{},
-				Locations: []*core.Location{},
-				Resources: []*core.Resource{},
-			},
-			expectedActions: []core.Action{},
-			expectedEntry:   nil,
-			expectedError:   ErrActionAlreadyRegistered,
-		},
-		"can register location action with locations": {
-			actionName: "mockLocationAction",
-			action:     &mockActionWithLocation{},
-			createFunc: mockActionWithLocationCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations: []*core.Location{
-					{Name: "location1"},
-					{Name: "location2"},
-				},
-				Resources: []*core.Resource{},
-			},
-			expectedActions: []core.Action{
-				mockActionWithLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location1"},
-				}),
-				mockActionWithLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location2"},
-				}),
-			},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockLocationAction",
-				NeedsLocation: true,
-				NeedsResource: false,
-				Creator:       mockActionWithLocationCreateFunc,
-			},
-		},
-		"can register resource action with resources": {
-			actionName: "mockResourceAction",
-			action:     &mockActionWithResource{},
-			createFunc: mockActionWithResourceCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources: []*core.Resource{
-					{Name: "resource1"},
-					{Name: "resource2"},
-				},
-			},
-			expectedActions: []core.Action{
-				mockActionWithResourceCreateFunc(ActionCreatorParams{
-					Resource: &core.Resource{Name: "resource1"},
-				}),
-				mockActionWithResourceCreateFunc(ActionCreatorParams{
-					Resource: &core.Resource{Name: "resource2"},
-				}),
-			},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockResourceAction",
-				NeedsLocation: false,
-				NeedsResource: true,
-				Creator:       mockActionCreateFunc,
-			},
-		},
-		"can register location/resource action with both": {
-			actionName: "mockLocationResourceAction",
-			action:     &mockActionWithLocationAndResource{},
-			createFunc: mockActionWithResourceAndLocationCreateFunc,
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations: []*core.Location{
-					{Name: "location1"},
-					{Name: "location2"},
-				},
-				Resources: []*core.Resource{
-					{Name: "resource1"},
-					{Name: "resource2"},
-				},
-			},
-			expectedActions: []core.Action{
-				mockActionWithResourceAndLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location1"},
-					Resource: &core.Resource{Name: "resource1"},
-				}),
-				mockActionWithResourceAndLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location1"},
-					Resource: &core.Resource{Name: "resource2"},
-				}),
-				mockActionWithResourceAndLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location2"},
-					Resource: &core.Resource{Name: "resource1"},
-				}),
-				mockActionWithResourceAndLocationCreateFunc(ActionCreatorParams{
-					Location: &core.Location{Name: "location2"},
-					Resource: &core.Resource{Name: "resource2"},
-				}),
-			},
-			expectedEntry: &ActionRegistryEntry{
-				Name:          "mockLocationResourceAction",
-				NeedsLocation: true,
-				NeedsResource: true,
-				Creator:       mockActionWithLocationCreateFunc,
-			},
-		},
-	}
-
-	for name, tc := range tests {
-		t.Run(name, func(t *testing.T) {
-
-			err := tc.registry.RegisterAction(tc.actionName, tc.action, tc.createFunc)
-			if tc.expectedError != nil {
-				require.ErrorIs(t, err, tc.expectedError)
-				return
-			}
-			require.NoError(t, err)
-			require.Equal(t, tc.expectedActions, tc.registry.Actions)
-
-			var entry *ActionRegistryEntry
-			for _, e := range tc.registry.ActionRegistry {
-				if e.Name == tc.actionName {
-					entry = e
-					break
-				}
-			}
-
-			require.Equal(t, tc.expectedEntry.NeedsLocation, entry.NeedsLocation)
-			require.Equal(t, tc.expectedEntry.NeedsResource, entry.NeedsResource)
-			require.Equal(t, tc.expectedEntry.Name, entry.Name)
-
-		})
-	}
-}
-
 func TestRegistry_RegisterResource(t *testing.T) {
 	type testCase struct {
 		resource          *core.Resource
@@ -246,129 +18,188 @@ func TestRegistry_RegisterResource(t *testing.T) {
 
 	tests := map[string]testCase{
 		"can register resource, no actions": {
-			resource: &core.Resource{
-				Name: "testResource",
-			},
+			resource: core.NewResource("testResource"),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedResources: []*core.Resource{
-				{
-					Name: "testResource",
-				},
-			},
-			expectedActions: []core.Action{},
-		},
-		"can register resource, actions with only locations": {
-			resource: &core.Resource{
-				Name: "testResource",
-			},
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "locationAction",
-						NeedsLocation: true,
-						NeedsResource: false,
-						Creator:       mockActionWithLocationCreateFunc,
-					},
-				},
-				Actions: []core.Action{},
-				Locations: []*core.Location{
-					{Name: "loc1"},
-					{Name: "loc2"},
-				},
-				Resources: []*core.Resource{},
-			},
-			expectedResources: []*core.Resource{
-				{
-					Name: "testResource",
-				},
-			},
-			expectedActions: []core.Action{},
-		},
-		"can register resource, actions with only resources": {
-			resource: &core.Resource{
-				Name: "testResource",
-			},
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "action2",
-						NeedsLocation: false,
-						NeedsResource: true,
-						Creator:       mockActionWithResourceCreateFunc,
-					},
-				},
 				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
 			expectedResources: []*core.Resource{
-				{
-					Name: "testResource",
-				},
+				core.NewResource("testResource"),
 			},
-			expectedActions: []core.Action{
-				mockActionWithResourceCreateFunc(ActionCreatorParams{Resource: &core.Resource{Name: "testResource"}}),
-			},
+			expectedActions: []core.Action{},
 		},
-		"can register resource, actions with both": {
-			resource: &core.Resource{
-				Name: "testResource",
-			},
+		"can register resource, attribute with no needs": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNoNeeds)),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "resourceLocationAction",
-						NeedsLocation: true,
-						NeedsResource: true,
-						Creator:       mockActionWithResourceAndLocationCreateFunc,
-					},
-				},
 				Actions: []core.Action{},
 				Locations: []*core.Location{
-					{Name: "loc1"},
-					{Name: "loc2"},
+					core.NewLocation("loc1", core.Coord{}),
+					core.NewLocation("loc2", core.Coord{}),
 				},
 				Resources: []*core.Resource{},
 			},
 			expectedResources: []*core.Resource{
-				{
-					Name: "testResource",
-				},
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNoNeeds)),
 			},
 			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(
-					ActionCreatorParams{
-						Resource: &core.Resource{Name: "testResource"},
-						Location: &core.Location{Name: "loc1"},
-					},
-				),
+					core.CreateActionParams{}),
+			},
+		},
+		"can register resource, attribute with location": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsLoc)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+				},
+				Resources: []*core.Resource{},
+			},
+			expectedResources: []*core.Resource{
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsLoc)),
+			},
+			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(
-					ActionCreatorParams{
-						Resource: &core.Resource{Name: "testResource"},
-						Location: &core.Location{Name: "loc2"},
+					core.CreateActionParams{
+						Location: core.NewLocation("loc1", core.Coord{}),
 					},
 				),
 			},
 		},
-		"fail to register resource": {
-			resource: &core.Resource{
-				Name: "testResource",
-			},
+		"can register resource, attribute with resource": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsRes)),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+					core.NewLocation("loc2", core.Coord{}),
+				},
 				Resources: []*core.Resource{
-					{Name: "testResource"},
+					core.NewResource("res1"),
 				},
 			},
 			expectedResources: []*core.Resource{
-				{Name: "testResource"},
+				core.NewResource("res1"),
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsRes)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+					},
+				),
+			},
+		},
+		"can register resource, attribute with both": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+					core.NewLocation("loc2", core.Coord{}),
+				},
+				Resources: []*core.Resource{
+					core.NewResource("res1"),
+				},
+			},
+			expectedResources: []*core.Resource{
+				core.NewResource("res1"),
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+						Location: core.NewLocation("loc1", core.Coord{}),
+					},
+				),
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+						Location: core.NewLocation("loc2", core.Coord{}),
+					}),
+			},
+		},
+		"can register resource, resource has attribute": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+					core.NewLocation("loc2", core.Coord{}),
+				},
+				Resources: []*core.Resource{
+					core.NewResource("res1", core.WithResourceAttributes(mockAttributeNeedsRes)),
+				},
+			},
+			expectedResources: []*core.Resource{
+				core.NewResource("res1", core.WithResourceAttributes(mockAttributeNeedsRes)),
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1", core.WithResourceAttributes(mockAttributeNeedsRes)),
+						Location: core.NewLocation("loc1", core.Coord{}),
+					},
+				),
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1", core.WithResourceAttributes(mockAttributeNeedsRes)),
+						Location: core.NewLocation("loc2", core.Coord{}),
+					}),
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth)),
+					}),
+			},
+		},
+		"can register resource, two attributes": {
+			resource: core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth, mockAttributeNeedsRes)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+					core.NewLocation("loc2", core.Coord{}),
+				},
+				Resources: []*core.Resource{
+					core.NewResource("res1"),
+				},
+			},
+			expectedResources: []*core.Resource{
+				core.NewResource("res1"),
+				core.NewResource("testResource", core.WithResourceAttributes(mockAttributeNeedsBoth, mockAttributeNeedsRes)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+						Location: core.NewLocation("loc1", core.Coord{}),
+					},
+				),
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+						Location: core.NewLocation("loc2", core.Coord{}),
+					}),
+				mockActionWithResourceAndLocationCreateFunc(
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
+					}),
+			},
+		},
+		"fail to register resource": {
+			resource: core.NewResource("testResource"),
+			registry: &Registry{
+				Actions:   []core.Action{},
+				Locations: []*core.Location{},
+				Resources: []*core.Resource{
+					core.NewResource("testResource"),
+				},
+			},
+			expectedResources: []*core.Resource{
+				core.NewResource("testResource"),
 			},
 			expectedError:   ErrResourceAlreadyRegistered,
 			expectedActions: []core.Action{},
@@ -379,12 +210,13 @@ func TestRegistry_RegisterResource(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			err := tc.registry.RegisterResource(tc.resource)
 			if tc.expectedError != nil {
-				require.ErrorIs(t, tc.expectedError, err)
+				require.ErrorIs(t, err, tc.expectedError)
 				return
 			}
 			require.NoError(t, err)
-			require.Equal(t, tc.expectedResources, tc.registry.Resources)
-			require.Equal(t, tc.expectedActions, tc.registry.Actions)
+
+			require.ElementsMatch(t, tc.expectedResources, tc.registry.Resources, "Resources do not match")
+			require.ElementsMatch(t, tc.expectedActions, tc.registry.Actions, "Actions do not match")
 		})
 	}
 }
@@ -400,113 +232,120 @@ func TestRegistry_RegisterLocation(t *testing.T) {
 
 	tests := map[string]testCase{
 		"can register location, no actions": {
-			location: &core.Location{
-				Name: "testLocation",
-			},
+			location: core.NewLocation("testLocation", core.Coord{}),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
-				Locations:      []*core.Location{},
-				Resources:      []*core.Resource{},
-			},
-			expectedLocations: []*core.Location{
-				{Name: "testLocation"},
-			},
-			expectedActions: []core.Action{},
-		},
-		"can register location, actions with only locations": {
-			location: &core.Location{
-				Name: "testLocation",
-			},
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "locationAction",
-						NeedsLocation: true,
-						NeedsResource: false,
-						Creator:       mockActionWithLocationCreateFunc,
-					},
-				},
 				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{},
 			},
 			expectedLocations: []*core.Location{
-				{Name: "testLocation"},
+				core.NewLocation("testLocation", core.Coord{}),
+			},
+			expectedActions: []core.Action{},
+		},
+		"can register location, attribute with location": {
+			location: core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsLoc)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+				},
+				Resources: []*core.Resource{},
+			},
+			expectedLocations: []*core.Location{
+				core.NewLocation("loc1", core.Coord{}),
+				core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsLoc)),
 			},
 			expectedActions: []core.Action{
-				mockActionWithLocationCreateFunc(ActionCreatorParams{Location: &core.Location{Name: "testLocation"}}),
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{Location: core.NewLocation("loc1", core.Coord{})}),
 			},
 		},
-		"can register location, actions with only resources": {
-			location: &core.Location{
-				Name: "testLocation",
-			},
+		"can register location, attribute needs resource": {
+			location: core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsRes)),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "action2",
-						NeedsLocation: false,
-						NeedsResource: true,
-						Creator:       mockActionWithResourceCreateFunc,
-					},
-				},
-				Actions:   []core.Action{},
-				Locations: []*core.Location{},
-				Resources: []*core.Resource{},
-			},
-			expectedLocations: []*core.Location{
-				{Name: "testLocation"},
-			},
-			expectedActions: []core.Action{},
-		},
-		"can register location, actions with both": {
-			location: &core.Location{
-				Name: "testLocation",
-			},
-			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{
-					{
-						Name:          "resourceLocationAction",
-						NeedsLocation: true,
-						NeedsResource: true,
-						Creator:       mockActionWithResourceAndLocationCreateFunc,
-					},
-				},
 				Actions:   []core.Action{},
 				Locations: []*core.Location{},
 				Resources: []*core.Resource{
-					{Name: "res1"},
-					{Name: "res2"},
+					core.NewResource("res1"),
 				},
 			},
 			expectedLocations: []*core.Location{
-				{Name: "testLocation"},
+				core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsRes)),
 			},
 			expectedActions: []core.Action{
 				mockActionWithResourceAndLocationCreateFunc(
-					ActionCreatorParams{
-						Location: &core.Location{Name: "testLocation"},
-						Resource: &core.Resource{Name: "res1"},
-					},
-				),
-				mockActionWithResourceAndLocationCreateFunc(
-					ActionCreatorParams{
-						Location: &core.Location{Name: "testLocation"},
-						Resource: &core.Resource{Name: "res2"},
+					core.CreateActionParams{
+						Resource: core.NewResource("res1"),
 					},
 				),
 			},
 		},
-		"fail to register location": {
-			location: &core.Location{
-				Name: "testLocation",
-			},
+		"can register location, attribute needs both": {
+			location: core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsBoth)),
 			registry: &Registry{
-				ActionRegistry: []*ActionRegistryEntry{},
-				Actions:        []core.Action{},
+				Actions: []core.Action{},
 				Locations: []*core.Location{
-					{Name: "testLocation"},
+					core.NewLocation("loc1", core.Coord{}),
+				},
+				Resources: []*core.Resource{
+					core.NewResource("res1"),
+					core.NewResource("res2"),
+				},
+			},
+			expectedLocations: []*core.Location{
+				core.NewLocation("loc1", core.Coord{}),
+				core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsBoth)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Location: core.NewLocation("loc1", core.Coord{}),
+					Resource: core.NewResource("res1"),
+				}),
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Location: core.NewLocation("loc1", core.Coord{}),
+					Resource: core.NewResource("res2"),
+				}),
+			},
+		},
+		"can register location, two attributes": {
+			location: core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsBoth, mockAttributeNeedsRes)),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("loc1", core.Coord{}),
+				},
+				Resources: []*core.Resource{
+					core.NewResource("res1"),
+					core.NewResource("res2"),
+				},
+			},
+			expectedLocations: []*core.Location{
+				core.NewLocation("loc1", core.Coord{}),
+				core.NewLocation("testLocation", core.Coord{}, core.WithAttributes(mockAttributeNeedsBoth, mockAttributeNeedsRes)),
+			},
+			expectedActions: []core.Action{
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Location: core.NewLocation("loc1", core.Coord{}),
+					Resource: core.NewResource("res1"),
+				}),
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Location: core.NewLocation("loc1", core.Coord{}),
+					Resource: core.NewResource("res2"),
+				}),
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Resource: core.NewResource("res1"),
+				}),
+				mockActionWithResourceAndLocationCreateFunc(core.CreateActionParams{
+					Resource: core.NewResource("res2"),
+				}),
+			},
+		},
+		"fail to register location": {
+			location: core.NewLocation("testLocation", core.Coord{}),
+			registry: &Registry{
+				Actions: []core.Action{},
+				Locations: []*core.Location{
+					core.NewLocation("testLocation", core.Coord{}),
 				},
 			},
 			expectedError:   ErrLocationAlreadyRegistered,
