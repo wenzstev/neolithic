@@ -98,6 +98,7 @@ func (a *attributeList) Copy() AttributeList {
 	return &copyAttrList
 }
 
+// List returns a copy of all attributes in an AttributeList. It's a copy to prevent modification.
 func (a *attributeList) List() []Attribute {
 	attrList := make([]Attribute, len(*a))
 	for i := 0; i < len(*a); i++ {
