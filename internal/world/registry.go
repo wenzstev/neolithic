@@ -183,6 +183,7 @@ func (r *Registry) RegisterLocation(location *core.Location) error {
 	return nil
 }
 
+// createActionsForAttribute creates every action that an attribute requires, based on the needs of that attribute.
 func (r *Registry) createActionsForAttribute(holder core.AttributeHolder, attr core.Attribute) error {
 	switch {
 	case attr.NeedsResource() && attr.NeedsLocation():
@@ -218,6 +219,7 @@ func (r *Registry) createActionsForAttribute(holder core.AttributeHolder, attr c
 	return nil
 }
 
+// createAndAddAction creates a specific action and adds it to the registry
 func (r *Registry) createAndAddAction(holder core.AttributeHolder, attribute core.Attribute, params core.CreateActionParams) error {
 	action, err := attribute.CreateAction(holder, params)
 	if err != nil {
