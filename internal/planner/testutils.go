@@ -1,7 +1,7 @@
 package planner
 
 import (
-	"Neolithic/internal/actions"
+	"Neolithic/internal/attributes"
 	"Neolithic/internal/core"
 	"encoding/gob"
 )
@@ -19,28 +19,28 @@ var (
 		Name: "testResource",
 	}
 
-	gatherTest = &actions.Gather{
+	gatherTest = &attributes.Gather{
 		Res:            testResource,
 		Amount:         10,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     10.0,
 	}
 
-	gatherTest2 = &actions.Gather{
+	gatherTest2 = &attributes.Gather{
 		Res:            testResource,
 		Amount:         10,
 		ActionLocation: &core.Location{Name: "testLocation2"},
 		ActionCost:     10.0,
 	}
 
-	depositTest = &actions.Deposit{
+	depositTest = &attributes.Deposit{
 		DepResource:    testResource,
 		Amount:         20,
 		ActionLocation: &core.Location{Name: "testLocation"},
 		ActionCost:     1.0,
 	}
 
-	depositTest2 = &actions.Deposit{
+	depositTest2 = &attributes.Deposit{
 		DepResource:    testResource,
 		Amount:         20,
 		ActionLocation: &core.Location{Name: "testLocation2"},

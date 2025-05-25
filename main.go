@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Neolithic/internal/actions"
+	"Neolithic/internal/attributes"
 	"log"
 
 	"Neolithic/internal/agent"
@@ -131,7 +131,7 @@ func main() {
 	}
 
 	createDepositAction := func(params world.ActionCreatorParams) core.Action {
-		return &actions.Deposit{
+		return &attributes.Deposit{
 			DepResource:    params.Resource,
 			Amount:         1,
 			ActionLocation: params.Location,
@@ -140,7 +140,7 @@ func main() {
 	}
 
 	createGatherAction := func(params world.ActionCreatorParams) core.Action {
-		return &actions.Gather{
+		return &attributes.Gather{
 			Res:            params.Resource,
 			Amount:         1,
 			ActionLocation: params.Location,
@@ -148,10 +148,10 @@ func main() {
 		}
 	}
 
-	if err = engine.RegisterAction("deposit", &actions.Deposit{}, createDepositAction); err != nil {
+	if err = engine.RegisterAction("deposit", &attributes.Deposit{}, createDepositAction); err != nil {
 		log.Fatal(err)
 	}
-	if err = engine.RegisterAction("gather", &actions.Gather{}, createGatherAction); err != nil {
+	if err = engine.RegisterAction("gather", &attributes.Gather{}, createGatherAction); err != nil {
 		log.Fatal(err)
 	}
 

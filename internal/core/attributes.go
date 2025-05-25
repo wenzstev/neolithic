@@ -21,7 +21,7 @@ type Attribute interface {
 	// Type returns the AttributeType of the attribute.
 	Type() AttributeType
 	// CreateAction provides a way to create an action from an interface
-	CreateAction(CreateActionParams) Action
+	CreateAction(AttributeHolder, CreateActionParams) (Action, error)
 	// NeedsLocation determines if an attribute needs a separate location to be relevant
 	NeedsLocation() bool
 	// NeedsResource determines if an attribute needs a separate resource to be relevant
