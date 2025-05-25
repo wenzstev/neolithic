@@ -2,12 +2,14 @@ package core
 
 var (
 	testLocation = Location{
-		Name:      "testlocation1",
-		Inventory: NewInventory(),
+		Name:       "testlocation1",
+		Inventory:  NewInventory(),
+		attributes: NewAttributeList(),
 	}
 	testLocation2 = Location{
-		Name:      "testlocation2",
-		Inventory: NewInventory(),
+		Name:       "testlocation2",
+		Inventory:  NewInventory(),
+		attributes: NewAttributeList(),
 	}
 	testAgent = mockAgent{}
 )
