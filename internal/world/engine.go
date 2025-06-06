@@ -56,8 +56,8 @@ func NewEngine(grid *grid.Grid, logger *slog.Logger) (*Engine, error) {
 
 	world := &core.WorldState{
 		Grid:      grid,
-		Locations: []core.Location{},
-		Agents:    []core.Agent{},
+		Locations: map[string]*core.Location{},
+		Agents:    map[string]core.Agent{},
 	}
 
 	return &Engine{
@@ -129,7 +129,7 @@ func (e *Engine) AddLocation(location *core.Location) error {
 	if err := e.Registry.RegisterLocation(location); err != nil {
 		return err
 	}
-	e.World.Locations = append(e.World.Locations, *location)
+	e.World.Locations[location.Name] = location
 	return nil
 }
 
@@ -146,6 +146,6 @@ func (e *Engine) AddAgent(agent *agent.Agent) error {
 	}
 
 	agent.Behavior.PossibleActions = e.Registry.Actions
-	e.World.Agents = append(e.World.Agents, agent)
+	e.World.Agents[agent.Name()] = agent
 	return nil
 }

@@ -22,28 +22,28 @@ var (
 	gatherTest = &attributes.Gather{
 		Res:            testResource,
 		Amount:         10,
-		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionLocation: core.NewLocation("testLocation", core.Coord{}),
 		ActionCost:     10.0,
 	}
 
 	gatherTest2 = &attributes.Gather{
 		Res:            testResource,
 		Amount:         10,
-		ActionLocation: &core.Location{Name: "testLocation2"},
+		ActionLocation: core.NewLocation("testLocation2", core.Coord{}),
 		ActionCost:     10.0,
 	}
 
 	depositTest = &attributes.Deposit{
 		DepResource:    testResource,
 		Amount:         20,
-		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionLocation: core.NewLocation("testLocation", core.Coord{}),
 		ActionCost:     1.0,
 	}
 
 	depositTest2 = &attributes.Deposit{
 		DepResource:    testResource,
 		Amount:         20,
-		ActionLocation: &core.Location{Name: "testLocation2"},
+		ActionLocation: core.NewLocation("testLocation2", core.Coord{}),
 		ActionCost:     1.0,
 	}
 )

@@ -147,8 +147,8 @@ func TestMoving_Execute(t *testing.T) {
 
 			startWorld := &core.WorldState{
 				Grid: &mockGrid{},
-				Agents: []core.Agent{
-					testAgent,
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent,
 				},
 			}
 

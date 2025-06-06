@@ -61,8 +61,8 @@ func TestDeposit_Perform(t *testing.T) {
 			tc.startLocation.Inventory.AdjustAmount(testResource, tc.startAmountInLocation)
 			tc.agent.Inventory().AdjustAmount(testResource, tc.startAmountInAgent)
 			startState := &core.WorldState{
-				Locations: []core.Location{*tc.startLocation},
-				Agents:    []core.Agent{tc.agent},
+				Locations: map[string]*core.Location{tc.startLocation.Name: tc.startLocation},
+				Agents:    map[string]core.Agent{tc.agent.Name(): tc.agent},
 			}
 
 			endState := tc.testDeposit.Perform(startState, tc.agent)

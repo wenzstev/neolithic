@@ -24,30 +24,30 @@ var _ core.Action = (*Gather)(nil)
 
 // Perform implements Action.Perform, and simulates the act of gathering a Resource
 func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
-	end := start.DeepCopy()
-	endLocation, ok := end.GetLocation(g.ActionLocation.Name)
+	gatherLocation, ok := start.GetLocation(g.ActionLocation.Name)
 	if !ok {
-		return nil // location must always be in State, this is an error
+		return nil
 	}
-
-	amountToGather := minInt(g.Amount, endLocation.Inventory.GetAmount(g.Res))
+	amountToGather := minInt(g.Amount, gatherLocation.Inventory.GetAmount(g.Res))
 	if amountToGather <= 0 {
 		return nil // fail, no DepResource to gather
 	}
 
-	endAgent, ok := end.GetAgent(agent.Name())
-	if !ok {
-		return nil // fail, no agent in State
-	}
-
-	endAgentInv := endAgent.Inventory()
-
-	if g.Requires != nil && endAgentInv.GetAmount(g.Requires) <= 0 {
+	if g.Requires != nil && agent.Inventory().GetAmount(g.Requires) <= 0 {
 		return nil // fail, does not have the necessary tool
 	}
 
+	endAgent := agent.DeepCopy()
+	endAgentInv := endAgent.Inventory()
+	endLocation := gatherLocation.DeepCopy()
+
 	endAgentInv.AdjustAmount(g.Res, amountToGather)
 	endLocation.Inventory.AdjustAmount(g.Res, -amountToGather)
+
+	end := start.ShallowCopy()
+	end.Locations[endLocation.Name] = endLocation
+	end.Agents[endAgent.Name()] = endAgent
+
 	return end
 }
 
