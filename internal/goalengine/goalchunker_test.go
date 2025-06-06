@@ -128,9 +128,9 @@ func TestFallbackChunkFunc(t *testing.T) {
 	location2.Inventory.AdjustAmount(resource1, 20)
 
 	worldState := &core.WorldState{
-		Locations: []core.Location{
-			location1,
-			location2,
+		Locations: map[string]*core.Location{
+			location1.Name: &location1,
+			location2.Name: &location2,
 		},
 	}
 
@@ -196,8 +196,8 @@ func TestGoal_GetGoalChunk(t *testing.T) {
 
 			// Create world state
 			worldState := &core.WorldState{
-				Locations: []core.Location{
-					*location.DeepCopy(),
+				Locations: map[string]*core.Location{
+					location.Name: location.DeepCopy(),
 				},
 			}
 

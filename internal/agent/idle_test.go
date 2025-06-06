@@ -20,8 +20,8 @@ var testChunkerFunc goalengine.ChunkerFunc = func(location *core.Location, resou
 	goalLocation.Inventory.AdjustAmount(resource, 3)
 
 	return &core.WorldState{
-		Locations: []core.Location{
-			goalLocation,
+		Locations: map[string]*core.Location{
+			goalLocation.Name: &goalLocation,
 		},
 	}
 }
@@ -143,10 +143,10 @@ func TestIdle_Execute(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			// Create world states for this specific test
 			testStart := &core.WorldState{
-				Locations: []core.Location{
-					tc.startLocation,
+				Locations: map[string]*core.Location{
+					tc.startLocation.Name: &tc.startLocation,
 				},
-				Agents: []core.Agent{},
+				Agents: map[string]core.Agent{},
 			}
 
 			// Create agent behavior for this specific test

@@ -21,7 +21,7 @@ func TestGather_Perform(t *testing.T) {
 		Requires:       testTool,
 		Res:            testResource,
 		Amount:         5,
-		ActionLocation: &core.Location{Name: "testLocation"},
+		ActionLocation: testLocation.DeepCopy(),
 		ActionCost:     1,
 	}
 
@@ -96,15 +96,18 @@ func TestGather_Perform(t *testing.T) {
 				tc.agent.Inventory().AdjustAmount(tc.toolInAgent, 1)
 			}
 			startState := &core.WorldState{
-				Locations: []core.Location{*tc.startLocation},
-				Agents:    []core.Agent{tc.agent},
+				Locations: map[string]*core.Location{tc.startLocation.Name: tc.startLocation},
+				Agents:    map[string]core.Agent{tc.agent.Name(): tc.agent},
 			}
+
+			tc.testGather.ActionLocation = tc.startLocation
 
 			endState := tc.testGather.Perform(startState, tc.agent)
 			if tc.expectNil {
 				assert.Nil(t, endState)
 				return
 			}
+			assert.NotNil(t, endState)
 			endLoc, exists := endState.GetLocation(tc.startLocation.Name)
 			assert.True(t, exists)
 			assert.Equal(t, tc.expectedAmountInLocation, endLoc.Inventory.GetAmount(testResource))

@@ -23,27 +23,34 @@ var _ core.Action = (*Deposit)(nil)
 
 // Perform implements Action.Perform, and simulates the act of depositing a Resource in a location
 func (d *Deposit) Perform(start *core.WorldState, agent core.Agent) *core.WorldState {
-	end := start.DeepCopy()
-
-	endLoc, ok := end.GetLocation(d.ActionLocation.Name)
+	startAgent, ok := start.GetAgent(agent.Name())
 	if !ok {
-		return nil // error, no location of that type in State
+		return nil
 	}
-
-	endAgent, ok := end.GetAgent(agent.Name())
-	if !ok {
-		return nil // error, no agent of that type in State
-	}
-
-	endAgentInv := endAgent.Inventory()
-	amountToDeposit := minInt(endAgentInv.GetAmount(d.DepResource), d.Amount)
+	amountToDeposit := minInt(startAgent.Inventory().GetAmount(d.DepResource), d.Amount)
 
 	if amountToDeposit <= 0 {
 		return nil // fail, no DepResource to deposit
 	}
 
+	startLoc, ok := start.GetLocation(d.ActionLocation.Name)
+	if !ok {
+		return nil
+	}
+
+	end := start.ShallowCopy()
+
+	endLoc := startLoc.DeepCopy()
+
+	endAgent := startAgent.DeepCopy()
+
+	endAgentInv := endAgent.Inventory()
+
 	endLoc.Inventory.AdjustAmount(d.DepResource, amountToDeposit)
 	endAgentInv.AdjustAmount(d.DepResource, -amountToDeposit)
+
+	end.Locations[endLoc.Name] = endLoc
+	end.Agents[endAgent.Name()] = endAgent
 
 	return end
 }

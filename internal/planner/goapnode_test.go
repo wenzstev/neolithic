@@ -1,6 +1,7 @@
 package planner
 
 import (
+	"Neolithic/internal/logging"
 	"math"
 	"testing"
 
@@ -69,12 +70,12 @@ func TestActions_AStar(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			startState := &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
-					*testLocation2.DeepCopy(),
+				Locations: map[string]*core.Location{
+					testLocation.Name:  testLocation.DeepCopy(),
+					testLocation2.Name: testLocation2.DeepCopy(),
 				},
-				Agents: []core.Agent{
-					testAgent.DeepCopy(),
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent.DeepCopy(),
 				},
 			}
 
@@ -83,8 +84,8 @@ func TestActions_AStar(t *testing.T) {
 			startLoc.Inventory.AdjustAmount(testResource, tc.startLocationAmount)
 
 			goalState := &core.WorldState{
-				Locations: []core.Location{*testLocation2.DeepCopy()},
-				Agents:    []core.Agent{},
+				Locations: map[string]*core.Location{testLocation2.Name: testLocation2.DeepCopy()},
+				Agents:    map[string]core.Agent{},
 			}
 			goalLoc, exists := goalState.GetLocation("testLocation2")
 			require.True(t, exists)
@@ -105,7 +106,7 @@ func TestActions_AStar(t *testing.T) {
 				GoapRunInfo: runInfo,
 			}
 
-			search, err := astar.NewSearch(startNode, endNode)
+			search, err := astar.NewSearch(startNode, endNode, astar.WithLogger(logging.NewLogger("debug")))
 			assert.NoError(t, err)
 
 			err = search.RunIterations(1000)
@@ -167,12 +168,12 @@ func TestActions_Heuristic(t *testing.T) {
 	for name, tc := range tests {
 		t.Run(name, func(t *testing.T) {
 			curState := &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
-					*testLocation2.DeepCopy(), // extra location to make sure we ignore it
+				Locations: map[string]*core.Location{
+					testLocation.Name:  testLocation.DeepCopy(),
+					testLocation2.Name: testLocation2.DeepCopy(), // extra location to make sure we ignore it
 				},
-				Agents: []core.Agent{
-					testAgent.DeepCopy(),
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent.DeepCopy(),
 				},
 			}
 			curLoc, exists := curState.GetLocation("testLocation")
@@ -183,10 +184,10 @@ func TestActions_Heuristic(t *testing.T) {
 			curAg.Inventory().AdjustAmount(testResource, tc.amountInStartAgent)
 
 			goalState := &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
+				Locations: map[string]*core.Location{
+					testLocation.Name: testLocation.DeepCopy(),
 				},
-				Agents: []core.Agent{},
+				Agents: map[string]core.Agent{},
 			}
 			goalLoc, exists := goalState.GetLocation("testLocation")
 			require.True(t, exists)
@@ -225,11 +226,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 	mockNullAction1 := &mockNullAction{}
 
 	expectedEndState := &core.WorldState{
-		Locations: []core.Location{
-			*testLocation.DeepCopy(),
+		Locations: map[string]*core.Location{
+			testLocation.Name: testLocation.DeepCopy(),
 		},
-		Agents: []core.Agent{
-			testAgent.DeepCopy(),
+		Agents: map[string]core.Agent{
+			testAgent.Name(): testAgent.DeepCopy(),
 		},
 	}
 	expectedLoc, exists := expectedEndState.GetLocation("testLocation")
@@ -247,11 +248,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 		"single action should generate one successor": {
 			actions: []core.Action{mockAction1},
 			startState: &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
+				Locations: map[string]*core.Location{
+					testLocation.Name: testLocation.DeepCopy(),
 				},
-				Agents: []core.Agent{
-					testAgent.DeepCopy(),
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,
@@ -269,11 +270,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction3,
 			},
 			startState: &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
+				Locations: map[string]*core.Location{
+					testLocation.Name: testLocation.DeepCopy(),
 				},
-				Agents: []core.Agent{
-					testAgent.DeepCopy(),
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,
@@ -299,11 +300,11 @@ func TestActions_GetSuccessors(t *testing.T) {
 				mockAction2,
 			},
 			startState: &core.WorldState{
-				Locations: []core.Location{
-					*testLocation.DeepCopy(),
+				Locations: map[string]*core.Location{
+					testLocation.Name: testLocation.DeepCopy(),
 				},
-				Agents: []core.Agent{
-					testAgent.DeepCopy(),
+				Agents: map[string]core.Agent{
+					testAgent.Name(): testAgent.DeepCopy(),
 				},
 			},
 			agent: testAgent,

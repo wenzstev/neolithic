@@ -48,8 +48,8 @@ var AddToLocation ChunkerFunc = func(location *core.Location, resource *core.Res
 	goalLocation.Inventory.AdjustAmount(resource, DefaultIncreaseAmount)
 
 	return &core.WorldState{
-		Locations: []core.Location{
-			goalLocation,
+		Locations: map[string]*core.Location{
+			goalLocation.Name: &goalLocation,
 		},
 	}
 }
@@ -117,15 +117,10 @@ func (g *Goal) GetGoalChunk(state *core.WorldState, numRetries int) *core.WorldS
 		return nil
 	}
 
-	// Create a deep copy of the current state
-	result := state.DeepCopy()
-
 	// Apply the delta to the location in the result
 	for _, deltaLoc := range delta.Locations {
-		if resultLoc, exists := result.GetLocation(deltaLoc.Name); exists {
+		if resultLoc, exists := state.GetLocation(deltaLoc.Name); exists {
 			deltaLoc.Inventory.AdjustAmount(g.Resource, resultLoc.Inventory.GetAmount(g.Resource))
-		} else {
-			result.Locations = append(result.Locations, deltaLoc)
 		}
 	}
 

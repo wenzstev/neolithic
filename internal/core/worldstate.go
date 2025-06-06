@@ -2,6 +2,7 @@ package core
 
 import (
 	"hash/fnv"
+	"sort"
 	"strconv"
 )
 
@@ -10,9 +11,9 @@ type WorldState struct {
 	// Grid represents the world's grid.
 	Grid Grid
 	// Locations is a map of locations in the world.
-	Locations []Location
+	Locations map[string]*Location
 	// Agents is a map of agents in the world.
-	Agents   []Agent
+	Agents   map[string]Agent
 	cachedID string
 }
 
@@ -22,33 +23,70 @@ func (w *WorldState) ID() (string, error) {
 		return w.cachedID, nil
 	}
 	h := fnv.New64a()
-	for _, loc := range w.Locations {
-		h.Write([]byte(loc.String()))
-	}
-	for _, agent := range w.Agents {
-		h.Write([]byte(agent.String()))
+
+	locKeys := getSortedLocationKeys(w.Locations)
+	for _, k := range locKeys {
+		h.Write([]byte(w.Locations[k].String()))
 	}
 
-	//w.cachedID = strconv.FormatUint(h.Sum64(), 16)
-	return strconv.FormatUint(h.Sum64(), 16), nil
+	agentKeys := getSortedAgentKeys(w.Agents)
+	for _, k := range agentKeys {
+		h.Write([]byte(w.Agents[k].String()))
+	}
+
+	w.cachedID = strconv.FormatUint(h.Sum64(), 16)
+	return w.cachedID, nil
 
 }
 
 // DeepCopy creates a deep copy of the WorldState.
-// TODO: worldstate will probably need to become slices to cut down on copy time
 func (w *WorldState) DeepCopy() *WorldState {
 	end := &WorldState{
-		Locations: make([]Location, len(w.Locations)),
-		Agents:    make([]Agent, len(w.Agents)),
+		Locations: make(map[string]*Location, len(w.Locations)),
+		Agents:    make(map[string]Agent, len(w.Agents)),
 	}
-	for i := 0; i < len(end.Locations); i++ {
-		end.Locations[i] = *w.Locations[i].DeepCopy()
+	for k, v := range w.Locations {
+		end.Locations[k] = v.DeepCopy()
 	}
-	for i := 0; i < len(end.Agents); i++ {
-		end.Agents[i] = w.Agents[i].DeepCopy()
+	for k, v := range w.Agents {
+		end.Agents[k] = v.DeepCopy()
 	}
 
 	return end
+}
+
+// ShallowCopy creates a shallow copy of the world state; all Locations, Agents and the grid are the same
+func (w *WorldState) ShallowCopy() *WorldState {
+	newState := &WorldState{
+		Grid:      w.Grid,
+		Locations: make(map[string]*Location, len(w.Locations)),
+		Agents:    make(map[string]Agent, len(w.Agents)),
+	}
+	for k, v := range w.Locations {
+		newState.Locations[k] = v
+	}
+	for k, v := range w.Agents {
+		newState.Agents[k] = v
+	}
+	return newState
+}
+
+func getSortedLocationKeys(m map[string]*Location) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func getSortedAgentKeys(m map[string]Agent) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
 }
 
 // String returns a string representation of the WorldState.
@@ -68,19 +106,10 @@ func (w *WorldState) String() string {
 }
 
 func (w *WorldState) GetLocation(name string) (*Location, bool) {
-	for _, loc := range w.Locations {
-		if loc.Name == name {
-			return &loc, true
-		}
-	}
-	return nil, false
+	loc, ok := w.Locations[name]
+	return loc, ok
 }
-
 func (w *WorldState) GetAgent(name string) (Agent, bool) {
-	for _, agent := range w.Agents {
-		if agent.Name() == name {
-			return agent, true
-		}
-	}
-	return nil, false
+	agent, ok := w.Agents[name]
+	return agent, ok
 }

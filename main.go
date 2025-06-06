@@ -3,6 +3,8 @@ package main
 import (
 	"Neolithic/internal/attributes"
 	"log"
+	"os"
+	"runtime/pprof"
 
 	"Neolithic/internal/agent"
 	"Neolithic/internal/camera"
@@ -58,6 +60,17 @@ func (g *Game) Layout(_, _ int) (screenWidth, screenHeight int) {
 
 func main() {
 
+	cpuProfileFile, err := os.Create("cpu.pprof")
+	if err != nil {
+		log.Fatal("could not create CPU profile: ", err)
+	}
+	defer cpuProfileFile.Close() // Make sure to close the file
+
+	if err := pprof.StartCPUProfile(cpuProfileFile); err != nil {
+		log.Fatal("could not start CPU profile: ", err)
+	}
+	defer pprof.StopCPUProfile() // Make sure to stop profiling when main exits
+
 	cam := camera.NewCamera()
 	vp := camera.NewViewport(cam, 800, 600)
 	width, height := 32, 32
@@ -91,6 +104,8 @@ func main() {
 	depo := core.NewLocation("depo", core.Coord{X: 16, Y: 16}, core.WithAttributes(baseCapacityAttr))
 
 	res1 := core.NewResource("Berries", core.WithResourceAttributes(&attributes.Weight{Amount: 1}))
+	res2 := core.NewResource("Wood", core.WithResourceAttributes(&attributes.Weight{Amount: 1}))
+	res3 := core.NewResource("Stone", core.WithResourceAttributes(&attributes.Weight{Amount: 1}))
 
 	loc1.Inventory.AdjustAmount(res1, 2000)
 	loc2.Inventory.AdjustAmount(res1, 1000)
@@ -125,6 +140,12 @@ func main() {
 		log.Fatal(err)
 	}
 	if err = engine.AddResource(res1); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddResource(res2); err != nil {
+		log.Fatal(err)
+	}
+	if err = engine.AddResource(res3); err != nil {
 		log.Fatal(err)
 	}
 	if err = engine.AddAgent(testAgent); err != nil {
