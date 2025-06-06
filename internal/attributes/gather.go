@@ -37,7 +37,12 @@ func (g *Gather) Perform(start *core.WorldState, agent core.Agent) *core.WorldSt
 		return nil // fail, does not have the necessary tool
 	}
 
-	endAgent := agent.DeepCopy()
+	startAgent, ok := start.GetAgent(agent.Name())
+	if !ok {
+		return nil
+	}
+
+	endAgent := startAgent.DeepCopy()
 	endAgentInv := endAgent.Inventory()
 	endLocation := gatherLocation.DeepCopy()
 

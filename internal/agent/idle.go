@@ -2,7 +2,11 @@ package agent
 
 import (
 	"errors"
+	"log"
 	"log/slog"
+	"os"
+	"runtime"
+	"runtime/pprof"
 
 	"Neolithic/internal/astar"
 	"Neolithic/internal/core"
@@ -68,6 +72,19 @@ func (i *Idle) Execute(world *core.WorldState, _ float64) (*core.WorldState, err
 			i.logger.Error("planner iteration error", "agent", i.agent.Name(), "error", err)
 			return nil, err
 		}
+		// --- Take the memory snapshot immediately after ---
+		log.Println("Taking memory profile snapshot...")
+		memProfileFile, err := os.Create("mem.pprof")
+		if err != nil {
+			log.Fatal("could not create memory profile: ", err)
+		}
+		defer memProfileFile.Close()
+
+		runtime.GC() // Force GC to see what's really still in use by the searchState
+		if err := pprof.WriteHeapProfile(memProfileFile); err != nil {
+			log.Fatal("could not write memory profile: ", err)
+		}
+		log.Println("Memory profile created.")
 
 		// if we were unable to find a path, reset values and try again next tick
 		if !i.planner.FoundBest {

@@ -70,15 +70,14 @@ func (m *Moving) Execute(world *core.WorldState, _ float64) (*core.WorldState, e
 		m.Path = path
 	}
 
-	newState := world.DeepCopy()
-	newAgent, exists := newState.GetAgent(m.agent.Name())
-	if !exists {
-		m.logger.Error("agent does not exist in deep copied world", "agent", m.agent.Name())
-		return nil, errors.New("agent does not exist in deep copied world")
-	}
+	newState := world.ShallowCopy()
+	oldAgent, _ := world.GetAgent(m.agent.Name())
+	newAgent := oldAgent.DeepCopy()
+	newState.Agents[newAgent.Name()] = newAgent
+
 	if m.Path.IsComplete() {
 		m.logger.Info("Path complete, transitioning to performing", "agent", m.agent.Name())
-		newAgent.(*Agent).Behavior.CurState = &Performing{agent: m.agent, logger: m.logger}
+		newAgent.(*Agent).Behavior.CurState = &Performing{agent: newAgent.(*Agent), logger: m.logger}
 		return newState, nil
 	}
 

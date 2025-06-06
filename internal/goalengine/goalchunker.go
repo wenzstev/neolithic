@@ -117,15 +117,10 @@ func (g *Goal) GetGoalChunk(state *core.WorldState, numRetries int) *core.WorldS
 		return nil
 	}
 
-	// Create a deep copy of the current state
-	result := state.DeepCopy()
-
 	// Apply the delta to the location in the result
 	for _, deltaLoc := range delta.Locations {
-		if resultLoc, exists := result.GetLocation(deltaLoc.Name); exists {
+		if resultLoc, exists := state.GetLocation(deltaLoc.Name); exists {
 			deltaLoc.Inventory.AdjustAmount(g.Resource, resultLoc.Inventory.GetAmount(g.Resource))
-		} else {
-			result.Locations[deltaLoc.Name] = deltaLoc
 		}
 	}
 
